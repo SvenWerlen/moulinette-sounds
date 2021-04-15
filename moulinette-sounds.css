@@ -1,0 +1,20 @@
+.mtte .list .sound {
+  display:flex;
+  align-items:center;
+  padding-left: 3px;
+  min-height: 22px;
+}
+
+.mtte .list .sound.alt {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.mtte .list .sound:hover {
+  background-color: #666;
+  color: #eee;
+}
+
+.mtte .list .sound.header {
+  background-color: #333;
+  color: #eee;
+}
