@@ -18,3 +18,57 @@
   background-color: #333;
   color: #eee;
 }
+
+.mtte .audio {
+  width: 250px;
+}
+
+.mtte .audioSource {
+  width: 350px;
+}
+
+.mtte .sound-volume {
+  width: 100px;
+  margin-right: 10px;
+}
+
+.mtte .sound-control {
+  margin-right: 10px;
+}
+
+.mtte .sound-control.inactive {
+  color: #777;
+}
+
+.mtte button.selected {
+  font-weight: bold;
+  font-size: large;
+  border: 2px solid red;
+  border-bottom: 2px solid #ff6400;
+  box-shadow: 0 0 10px #ff6400;
+}
+
+.mtte .slots {
+  display: flex;
+}
+
+.mtte button.slot {
+  overflow: hidden;
+  max-height: 34px;
+}
+
+.mtte button img, .mtte button i {
+  vertical-align: middle;
+}
+
+.mttedialog.listPacks th {
+  text-align: left;
+}
+
+.mttedialog.listPacks td, .mttedialog.listPacks th {
+  padding-right: 20px;
+}
+
+.mttedialog.listPacks td.num, .mttedialog.listPacks th.num {
+  text-align: right;
+}
