@@ -79,13 +79,13 @@ export class MoulinetteFavorite extends FormApplication {
       const icon = this.html.find("input.icon").val()
       const icon2 = this.html.find("input.icon2").val()
       if(!this.selected) {
-        return ui.notifications.error(game.i18n.localize("ERROR.mtteChooseSlot"));
+        return ui.notifications.error(game.i18n.localize("mtte.errorChooseSlot"));
       }
       if(text.length == 0) {
-        return ui.notifications.error(game.i18n.localize("ERROR.mtteEnterShortText"));
+        return ui.notifications.error(game.i18n.localize("mtte.errorEnterShortText"));
       }
       if(icon.length > 0 && icon2.length > 0) {
-        return ui.notifications.error(game.i18n.localize("ERROR.mtteDoubleIconDefined"));
+        return ui.notifications.error(game.i18n.localize("mtte.errorDoubleIconDefined"));
       }
       let favorites = game.settings.get("moulinette", "soundboard")
       favorites["fav" + this.selected] = { name: text, icon: (icon.length > 0 ? icon : icon2), faIcon: icon.length > 0, path: this.data.path, volume: this.data.volume }
