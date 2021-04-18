@@ -56,7 +56,7 @@ export class MoulinetteFavorite extends FormApplication {
         slots.push(list)
       }
     }
-    return {slots: slots, data: this.data, multiple: Array.isArray(this.data.path)}
+    return {slots: slots, data: this.data, multiple: Array.isArray(this.data.path), volume: AudioHelper.volumeToInput(this.data.volume)}
   }
   
   async _onClick(event) {
@@ -124,15 +124,21 @@ export class MoulinetteFavorite extends FormApplication {
       sound.currentTime = 0;
     }
   }
+  
+  async _onSoundVolume(event) {
+    event.preventDefault();
+    const slider = event.currentTarget;
+    const volume = AudioHelper.inputToVolume(slider.value)
+    this.html.find("audio").prop("volume", volume);
+    this.data.volume = volume
+  }
 
   activateListeners(html) {
     this.html = html
-    //super.activateListeners(html);
-    //if (!$('.moulinette-scene-control').hasClass('active')) {
-    //  $('.moulinette-scene-control').click();
-    //} 
     html.find("button").click(this._onClick.bind(this))
     html.find("h2 a.sound-control i").click(this._onTogglePreview.bind(this))
+    html.find('.sound-volume').change(event => this._onSoundVolume(event));
+    html.find("audio").prop("volume", AudioHelper.volumeToInput(this.data.volume))
   }
   
 }

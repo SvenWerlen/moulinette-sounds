@@ -187,7 +187,6 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
    * Implements actions
    *  
    */
-  
   async onAction(classList) {
     const FileUtil = game.moulinette.applications.MoulinetteFileUtil
     if(classList.contains("indexSounds")) {
@@ -404,7 +403,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
           const repeat = false
           sound = await playlist.createEmbeddedEntity("PlaylistSound", {name: name, path: path, volume: fav.volume}, {});
         }
-        playlist.updateEmbeddedEntity("PlaylistSound", {_id: sound._id, playing: !sound.playing});
+        playlist.updateEmbeddedEntity("PlaylistSound", {_id: sound._id, playing: !sound.playing, volume: fav.volume });
       } else {
         ui.notifications.warn(game.i18n.localize("mtte.slotNotAssigned"));
         const forgeClass = game.moulinette.modules.find(m => m.id == "forge").class
