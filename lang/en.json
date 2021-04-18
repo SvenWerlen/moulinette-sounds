@@ -34,6 +34,7 @@
   "mtte.localIcon": "Or browse icon",
   "mtte.moveFavorite": "Move favorite: do you want to overwrite?",
   "mtte.moveFavoriteContent": "You are moving '{from}' to an occupied slot ({to}). Do you want to overwrite (<b>yes</b>) the destination or swap (<b>no</b>) positions?",
+  "mtte.name": "Name",
   "mtte.pack": "Pack",
   "mtte.playChecked": "Play selected",
   "mtte.playCheckedToolTip": "Creates a new playlist with the selected sounds and plays them.",

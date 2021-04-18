@@ -64,6 +64,13 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     // playlist
     const playlist = game.playlists.find( pl => pl.data.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
     
+    // header
+    assets.push(`<div class="pack header">` +
+        `<input type="checkbox" class="check all" name="all" value="-1">` +
+        `<span class="audio"><b>${game.i18n.localize("mtte.name")}</b></span>`+
+        `<span class="audioSource"><b>${game.i18n.localize("mtte.publisher")} | ${game.i18n.localize("mtte.pack")}</b></span>`+
+        "</div>")
+    
     let idx = 0
     this.searchResults.forEach( r => {
       idx++
@@ -94,7 +101,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       assets.push(html)
     })
     
-    return assets
+    return assets.length == 1 ? [] : assets
   }
   
   
@@ -105,7 +112,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     // keep html for later usage
     this.html = html
     
-    this.html.find('.check.all').change(event => jqHTML.find('.check:not(".all")').prop('checked', event.currentTarget.checked) );
+    this.html.find('.check.all').change(event => html.find('.check:not(".all")').prop('checked', event.currentTarget.checked) );
     this.html.find('.sound-volume').change(event => this._onSoundVolume(event));
     this.html.find(".sound-control").click(this._onSoundControl.bind(this))
     

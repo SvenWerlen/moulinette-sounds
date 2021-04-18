@@ -34,6 +34,7 @@
   "mtte.localIcon": "Ou chercher ic\u00f4ne",
   "mtte.moveFavorite": "D\u00e9placer favori: voulez vous \u00e9craser?",
   "mtte.moveFavoriteContent": "Vous d\u00e9placez '{from}' sur un emplacement occup\u00e9 ({to}). Voulez vous \u00e9craser (<b>Oui</b>) l'emplacement or interchanger (<b>Non</b>) les positions?",
+  "mtte.name": "Nom",
   "mtte.pack": "Pack",
   "mtte.playChecked": "Jouer s\u00e9lection",
   "mtte.playCheckedToolTip": "Cr\u00e9e une playlist avec les sont s\u00e9lectionn\u00e9s et d\u00e9marre la lecture.",
