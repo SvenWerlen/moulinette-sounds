@@ -3,8 +3,8 @@ Hooks.once("init", async function () {
   console.log("Moulinette Sounds | Init")
   game.settings.register("moulinette", "soundboard", { scope: "world", config: false, type: Object, default: {} })
   game.settings.register("moulinette-sounds", "soundboardCols", {
-    name: game.i18n.localize("config.mtteSoundboardColumns"), 
-    hint: game.i18n.localize("config.mtteSoundboardColumnsHint"), 
+    name: game.i18n.localize("mtte.configSoundboardColumns"), 
+    hint: game.i18n.localize("mtte.configSoundboardColumnsHint"), 
     scope: "world",
     config: true,
     default: 10,
@@ -12,8 +12,8 @@ Hooks.once("init", async function () {
     choices: { 10: "10", 15: "15", 20: "20" }
   });
   game.settings.register("moulinette-sounds", "soundboardRows", {
-    name: game.i18n.localize("config.mtteSoundboardRows"), 
-    hint: game.i18n.localize("config.mtteSoundboardRowsHint"), 
+    name: game.i18n.localize("mtte.configSoundboardRows"), 
+    hint: game.i18n.localize("mtte.configSoundboardRowsHint"), 
     scope: "world",
     config: true,
     default: 1,
