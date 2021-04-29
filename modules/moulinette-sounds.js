@@ -6,7 +6,7 @@ import { MoulinetteFavorite } from "./moulinette-favorite.js"
  */
 export class MoulinetteSounds extends game.moulinette.applications.MoulinetteForgeModule {
 
-  static FOLDER_CUSTOM_SOUNDS   = "/moulinette/sounds/custom"
+  static FOLDER_CUSTOM_SOUNDS   = "moulinette/sounds/custom"
   
   static MOULINETTE_SOUNDBOARD  = "Moulinette Soundboard"
   static MOULINETTE_PLAYLIST    = "Moulinette Playlist"
@@ -20,7 +20,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
    */
   async getPackList() {
     const bbc = [{ special: "bbc", publisher: "BBC", name: "Sounds Effects (bbc.co.uk – © copyright 2021 BBC)", pubWebsite: "https://www.bbc.co.uk", url: "https://sound-effects.bbcrewind.co.uk", "license": "check website", isRemote: true }]
-    const index = await game.moulinette.applications.MoulinetteFileUtil.buildAssetIndex(["moulinette/sounds/custom/index.json"], bbc)
+    const index = await game.moulinette.applications.MoulinetteFileUtil.buildAssetIndex([game.moulinette.applications.MoulinetteFileUtil.getBaseURL() + "moulinette/sounds/custom/index.json"], bbc)
     this.assets = index.assets
     this.assetsPacks = index.packs
     return duplicate(this.assetsPacks)
