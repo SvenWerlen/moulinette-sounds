@@ -79,7 +79,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       
       r.assetURL = pack.special ? r.assetURL : `${URL}${this.assetsPacks[r.pack].path}/${r.filename}`
       const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
-      const name   = game.moulinette.applications.Moulinette.prettyText(r.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav",""))
+      const name   = game.moulinette.applications.Moulinette.prettyText(r.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm",""))
       const icon   = sound && sound.playing ? "fa-square" : "fa-play"
       const repeat = sound && sound.repeat ? "" : "inactive"
       const volume = sound ? sound.volume : 0.5
@@ -162,7 +162,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       // get sound
       let sound = playlist.sounds.find( s => s.path == result.assetURL )
       if(!sound) {
-        const name = game.moulinette.applications.Moulinette.prettyText(result.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav",""))
+        const name = game.moulinette.applications.Moulinette.prettyText(result.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm",""))
         const volume = AudioHelper.inputToVolume($(source.closest(".sound")).find(".sound-volume").val())
         const repeat = $(source.closest(".sound")).find("a[data-action='sound-repeat']").hasClass('inactive')
         sound = await playlist.createEmbeddedEntity("PlaylistSound", {name: name, path: result.assetURL, volume: volume}, {});
@@ -192,7 +192,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     if(classList.contains("indexSounds")) {
       ui.notifications.info(game.i18n.localize("mtte.indexingInProgress"));
       this.html.find(".indexSounds").prop("disabled", true);
-      const EXT = ["mp3", "ogg", "wav"]
+      const EXT = ["mp3", "ogg", "wav", "webm"]
       let publishers = await FileUtil.scanAssets(MoulinetteSounds.FOLDER_CUSTOM_SOUNDS, EXT)
       const customPath = game.settings.get("moulinette-core", "customPath")
       if(customPath) {
