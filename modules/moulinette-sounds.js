@@ -198,6 +198,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       if(customPath) {
         publishers.push(...await FileUtil.scanAssetsInCustomFolders(customPath, EXT))
       }
+      publishers.push(...await FileUtil.scanSourceAssets("sounds", EXT))
       await FileUtil.upload(new File([JSON.stringify(publishers)], "index.json", { type: "application/json", lastModified: new Date() }), "index.json", "/moulinette/sounds", MoulinetteSounds.FOLDER_CUSTOM_SOUNDS, true)
       ui.notifications.info(game.i18n.localize("mtte.indexingDone"));
       return true
