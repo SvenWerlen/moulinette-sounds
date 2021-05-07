@@ -74,7 +74,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     let idx = 0
     this.searchResults.forEach( r => {
       idx++
-      const URL = this.assetsPacks[r.pack].isRemote ? `${game.moulinette.applications.MoulinetteClient.SERVER_URL}/assets/` : ""
+      const URL = this.assetsPacks[r.pack].isRemote ? `${game.moulinette.applications.MoulinetteClient.SERVER_URL}/assets/` : game.moulinette.applications.MoulinetteFileUtil.getBaseURL()
       const pack   = this.assetsPacks[r.pack]
       
       r.assetURL = pack.special ? r.assetURL : `${URL}${this.assetsPacks[r.pack].path}/${r.filename}`
