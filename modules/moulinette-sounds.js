@@ -77,7 +77,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       const URL = this.assetsPacks[r.pack].isRemote ? `${game.moulinette.applications.MoulinetteClient.SERVER_URL}/assets/` : game.moulinette.applications.MoulinetteFileUtil.getBaseURL()
       const pack   = this.assetsPacks[r.pack]
       
-      r.assetURL = pack.special ? r.assetURL : `${URL}${this.assetsPacks[r.pack].path}/${r.filename}`
+      r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? r.filename : `${URL}${this.assetsPacks[r.pack].path}/${r.filename}`)
       const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
       const name   = game.moulinette.applications.Moulinette.prettyText(r.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm",""))
       const icon   = sound && sound.playing ? "fa-square" : "fa-play"
