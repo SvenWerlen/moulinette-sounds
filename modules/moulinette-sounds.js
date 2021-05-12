@@ -27,6 +27,36 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
   }
   
   /**
+   * Generate a new asset (HTML) for the given result and idx
+   */
+  generateAsset(playlist, r, idx) {
+    const URL = this.assetsPacks[r.pack].isRemote ? `${game.moulinette.applications.MoulinetteClient.SERVER_URL}/assets/` : game.moulinette.applications.MoulinetteFileUtil.getBaseURL()
+    const pack   = this.assetsPacks[r.pack]
+    
+    r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? r.filename : `${URL}${this.assetsPacks[r.pack].path}/${r.filename}`)
+    const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
+    const name   = game.moulinette.applications.Moulinette.prettyText(r.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm",""))
+    const icon   = sound && sound.playing ? "fa-square" : "fa-play"
+    const repeat = sound && sound.repeat ? "" : "inactive"
+    const volume = sound ? sound.volume : 0.5
+    
+    let html = `<div class="sound" data-path="${r.assetURL}" data-idx="${idx}">` 
+    html += `<input type="checkbox" class="check">`
+    if(pack.special) {
+      const shortName = name.length <= 30 ? name : name.substring(0,30) + "..."
+      html += `<span class="audio" title="${name}">${shortName}</span><span class="audioSource"><a href="${pack.pubWebsite}" target="_blank">${pack.publisher}</a> | <a href="${pack.url}" target="_blank">${pack.name}</a></span><div class="sound-controls flexrow">`
+    } else {
+      html += `<span class="audio">${name}</span><span class="audioSource">${pack.publisher} | ${pack.name}</span><div class="sound-controls flexrow">`
+    }
+    html += `<input class="sound-volume" type="range" title="${game.i18n.localize("PLAYLIST.SoundVolume")}" value="${volume}" min="0" max="1" step="0.05">`
+    html += `<a class="sound-control ${repeat}" data-action="sound-repeat" title="${game.i18n.localize("PLAYLIST.SoundLoop")}"><i class="fas fa-sync"></i></a>`
+    html += `<a class="sound-control" data-action="sound-play" title="${game.i18n.localize("PLAYLIST.SoundPlay")} / ${game.i18n.localize("PLAYLIST.SoundStop")}"><i class="fas ${icon}"></i></a>`
+    html += `<a class="sound-control" data-action="favorite" title="${game.i18n.localize("mtte.favoriteSound")}")}"><i class="far fa-bookmark"></i></a>`
+    html += "</div></div>"
+    return html
+  }
+  
+  /**
    * Implements getAssetList
    */
   async getAssetList(searchTerms, pack) {
@@ -61,6 +91,8 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       })
     }
     
+    const viewMode = game.settings.get("moulinette", "displayMode")
+    
     // playlist
     const playlist = game.playlists.find( pl => pl.data.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
     
@@ -70,36 +102,27 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         `<span class="audio"><b>${game.i18n.localize("mtte.name")}</b></span>`+
         `<span class="audioSource"><b>${game.i18n.localize("mtte.publisher")} | ${game.i18n.localize("mtte.pack")}</b></span>`+
         "</div>")
-    
-    let idx = 0
-    this.searchResults.forEach( r => {
-      idx++
-      const URL = this.assetsPacks[r.pack].isRemote ? `${game.moulinette.applications.MoulinetteClient.SERVER_URL}/assets/` : game.moulinette.applications.MoulinetteFileUtil.getBaseURL()
-      const pack   = this.assetsPacks[r.pack]
-      
-      r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? r.filename : `${URL}${this.assetsPacks[r.pack].path}/${r.filename}`)
-      const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
-      const name   = game.moulinette.applications.Moulinette.prettyText(r.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm",""))
-      const icon   = sound && sound.playing ? "fa-square" : "fa-play"
-      const repeat = sound && sound.repeat ? "" : "inactive"
-      const volume = sound ? sound.volume : 0.5
-      
-      let html = `<div class="sound" data-path="${r.assetURL}" data-idx="${idx}">` 
-      html += `<input type="checkbox" class="check">`
-      if(pack.special) {
-        const shortName = name.length <= 30 ? name : name.substring(0,30) + "..."
-        html += `<span class="audio" title="${name}">${shortName}</span><span class="audioSource"><a href="${pack.pubWebsite}" target="_blank">${pack.publisher}</a> | <a href="${pack.url}" target="_blank">${pack.name}</a></span><div class="sound-controls flexrow">`
-      } else {
-        html += `<span class="audio">${name}</span><span class="audioSource">${pack.publisher} | ${pack.name}</span><div class="sound-controls flexrow">`
+
+    // view #1 (all mixed)
+    if(viewMode == "tiles") {
+      let idx = 0
+      for(const r of this.searchResults) {
+        idx++
+        assets.push(this.generateAsset(playlist, r, idx))
       }
-      html += `<input class="sound-volume" type="range" title="${game.i18n.localize("PLAYLIST.SoundVolume")}" value="${volume}" min="0" max="1" step="0.05">`
-      html += `<a class="sound-control ${repeat}" data-action="sound-repeat" title="${game.i18n.localize("PLAYLIST.SoundLoop")}"><i class="fas fa-sync"></i></a>`
-      html += `<a class="sound-control" data-action="sound-play" title="${game.i18n.localize("PLAYLIST.SoundPlay")} / ${game.i18n.localize("PLAYLIST.SoundStop")}"><i class="fas ${icon}"></i></a>`
-      html += `<a class="sound-control" data-action="favorite" title="${game.i18n.localize("mtte.favoriteSound")}")}"><i class="far fa-bookmark"></i></a>`
-      html += "</div></div>"
-      
-      assets.push(html)
-    })
+    }
+    // view #2 (by folder)
+    else {
+      const folders = game.moulinette.applications.MoulinetteFileUtil.foldersFromIndex(this.searchResults, this.assetsPacks);
+      console.log(folders)
+      const keys = Object.keys(folders).sort()
+      for(const k of keys) {
+        assets.push(`<div class="folder"><h2>${k}</h2></div>`)
+        for(const a of folders[k]) {
+          assets.push(this.generateAsset(playlist, a, a.idx))
+        }
+      }
+    }
     
     return assets.length == 1 ? [] : assets
   }
