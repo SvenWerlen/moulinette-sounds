@@ -20,6 +20,7 @@ Hooks.once("init", async function () {
     type: Number,
     choices: { 1: "1", 2: "2", 3: "3", 4: "4", 5: "5" }
   });
+  game.settings.register("moulinette", "soundboardPin", { scope: "world", config: false, type: Boolean, default: false })
 });
 
 
@@ -50,7 +51,12 @@ Hooks.once("ready", async function () {
         {id: "activatePlaylist", icon: "fas fa-music" ,name: game.i18n.localize("mtte.activatePlaylistTab"), help: game.i18n.localize("mtte.activatePlaylistTabToolTip") },
         {id: "deletePlaylist", icon: "fas fa-trash" ,name: game.i18n.localize("mtte.deletePlaylist"), help: game.i18n.localize("mtte.deletePlaylistToolTip") },
         {id: "howto", icon: "fas fa-question-circle" ,name: game.i18n.localize("mtte.howto"), help: game.i18n.localize("mtte.howtoSoundsToolTip") }
-      ]
+      ],
+      shortcuts: [{
+        id: "pin", 
+        name: game.i18n.localize("mtte.pinSoundBoard"),
+        icon: "fas fa-thumbtack"
+      }]
     })
     
     console.log("Moulinette Sounds | Module loaded")

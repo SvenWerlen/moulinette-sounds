@@ -21,7 +21,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
   async getPackList() {
     const bbc = [{ special: "bbc", publisher: "BBC", name: "Sounds Effects (bbc.co.uk – © copyright 2021 BBC)", pubWebsite: "https://www.bbc.co.uk", url: "https://sound-effects.bbcrewind.co.uk", "license": "check website", isRemote: true }]
     const index = await game.moulinette.applications.MoulinetteFileUtil.buildAssetIndex([game.moulinette.applications.MoulinetteFileUtil.getBaseURL() + "moulinette/sounds/custom/index.json"], bbc)
-    this.assets = index.assets
+    this.assets = index.assets.filter(i => i.type == "img")
     this.assetsPacks = index.packs
     return duplicate(this.assetsPacks)
   }
@@ -114,7 +114,6 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     // view #2 (by folder)
     else {
       const folders = game.moulinette.applications.MoulinetteFileUtil.foldersFromIndex(this.searchResults, this.assetsPacks);
-      console.log(folders)
       const keys = Object.keys(folders).sort()
       for(const k of keys) {
         assets.push(`<div class="folder"><h2>${k}</h2></div>`)
@@ -382,6 +381,10 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     html.find('.moulinette-options li.fav').on('dragover',function (event) {
       event.preventDefault();
     })
+    
+    if(game.settings.get("moulinette", "soundboardPin")) {
+      html.find(".shortcut[data-type='pin']").addClass("active")
+    } 
   }
   
   async _editFavorite(event, html) {
@@ -428,12 +431,25 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
           sound = await playlist.createEmbeddedEntity("PlaylistSound", {name: name, path: path, volume: fav.volume}, {});
         }
         playlist.updateEmbeddedEntity("PlaylistSound", {_id: sound._id, playing: !sound.playing, volume: fav.volume });
+        
+        if(game.settings.get("moulinette", "soundboardPin")) {
+          event.stopPropagation();
+        }
       } else {
         ui.notifications.warn(game.i18n.localize("mtte.slotNotAssigned"));
         const forgeClass = game.moulinette.modules.find(m => m.id == "forge").class
         new forgeClass("sounds").render(true)
         event.stopPropagation();
       }
+    }
+  }
+  
+  
+  async onShortcut(type) {
+    if(type == "pin") {
+      // toggle pin
+      await game.settings.set("moulinette", "soundboardPin", !game.settings.get("moulinette", "soundboardPin"))
+      $("#moulinetteOptions").find(".shortcut[data-type='pin']").toggleClass("active")
     }
   }
   
