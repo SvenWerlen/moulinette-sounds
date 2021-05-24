@@ -159,13 +159,19 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
 
     // Only push the update if the user is a GM
     const volume = AudioHelper.inputToVolume(slider.value);
-    if (game.user.isGM) playlist.updateEmbeddedEntity("PlaylistSound", {_id: sound._id, volume: volume});
+    if (game.user.isGM) {
+      if(game.data.version.startsWith("0.7")) {
+        playlist.updateEmbeddedEntity("PlaylistSound", {_id: sound._id, volume: volume});
+      } else {
+        playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, volume: volume}]);
+      }
+    }
 
     // Otherwise simply apply a local override
     else {
-      let sound = playlist.audio[sound._id];
+      let sound = playlist.audio[sound.id];
       if (!sound.howl) return;
-      sound.howl.volume(volume, sound._id);
+      sound.howl.volume(volume, sound.id);
     }
   }
   
@@ -187,14 +193,26 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         const name = game.moulinette.applications.Moulinette.prettyText(result.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm",""))
         const volume = AudioHelper.inputToVolume($(source.closest(".sound")).find(".sound-volume").val())
         const repeat = $(source.closest(".sound")).find("a[data-action='sound-repeat']").hasClass('inactive')
-        sound = await playlist.createEmbeddedEntity("PlaylistSound", {name: name, path: result.assetURL, volume: volume}, {});
+        if(game.data.version.startsWith("0.7")) {
+          sound = await playlist.createEmbeddedEntity("PlaylistSound", {name: name, path: result.assetURL, volume: volume}, {});
+        } else {
+          sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [{name: name, path: result.assetURL, volume: volume}], {}))[0]
+        }
       }
       // toggle play
       if(source.dataset.action == "sound-play") {
-        playlist.updateEmbeddedEntity("PlaylistSound", {_id: sound._id, playing: !sound.playing});
+        if(game.data.version.startsWith("0.7")) {
+          playlist.updateEmbeddedEntity("PlaylistSound", {_id: sound._id, playing: !sound.playing});
+        } else {
+          playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: !sound.data.playing}]);
+        }
       } else if(source.dataset.action == "sound-repeat") {
         if(sound) {
-          playlist.updateEmbeddedEntity("PlaylistSound", {_id: sound._id, repeat: !sound.repeat});
+          if(game.data.version.startsWith("0.7")) {
+            playlist.updateEmbeddedEntity("PlaylistSound", {_id: sound._id, repeat: !sound.repeat});
+          } else {
+            playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, repeat: !sound.data.repeat}]);
+          }
         }
       } else if(source.dataset.action == "favorite") {
         new MoulinetteFavorite({path: sound.path, name: sound.name, label: sound.name, volume: sound.volume }).render(true)
@@ -257,11 +275,19 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
             // stop any playing sound
             for( const sound of playlist.sounds ) {
               if(sound.playing) {
-                updates.push({_id: sound._id, playing: false})
+                if(game.data.version.startsWith("0.7")) {
+                  updates.push({_id: sound._id, playing: false})
+                } else {
+                  updates.push({_id: sound.id, playing: false})
+                }
               }
             }
             if(updates.length > 0) {
-              await playlist.updateEmbeddedEntity("PlaylistSound", updates);
+              if(game.data.version.startsWith("0.7")) {
+                await playlist.updateEmbeddedEntity("PlaylistSound", updates);
+              } else {
+                await playlist.updateEmbeddedDocuments("PlaylistSound", updates);
+              }
             }
             await playlist.delete()
           }
@@ -288,7 +314,11 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         if(playlist) { await playlist.delete() }
         playlist = await Playlist.create({name: MoulinetteSounds.MOULINETTE_PLAYLIST})
         
-        playlist.createEmbeddedEntity("PlaylistSound", selected)
+        if(game.data.version.startsWith("0.7")) {
+          playlist.createEmbeddedEntity("PlaylistSound", selected)
+        } else {
+          playlist.createEmbeddedDocuments("PlaylistSound", selected)
+        }
         playlist.update({ playing: true})
       }
       else if (classList.contains("favoriteChecked")) { 
@@ -408,6 +438,9 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
   }
   
   async _playFavorite(event, html) {
+    if(game.settings.get("moulinette", "soundboardPin")) {
+      event.stopPropagation();
+    }
     const slot = event.currentTarget.dataset.slot
     if(slot) {
       let favorites = game.settings.get("moulinette", "soundboard")
@@ -425,15 +458,20 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         } 
         // get sound
         let sound = playlist.sounds.find( s => s.path == path )
+        if(Array.isArray(sound)) sound = sound[0] // just in case multiple sounds have the same path
         if(!sound) {
-          const name = fav.name
+          const name = path.split("/").pop()
           const repeat = false
-          sound = await playlist.createEmbeddedEntity("PlaylistSound", {name: name, path: path, volume: fav.volume}, {});
+          if(game.data.version.startsWith("0.7")) {
+            sound = await playlist.createEmbeddedEntity("PlaylistSound", {name: name, path: path, volume: fav.volume}, {});
+          } else {
+            sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [{name: name, path: path, volume: Number(fav.volume)}], {}))[0]
+          }
         }
-        playlist.updateEmbeddedEntity("PlaylistSound", {_id: sound._id, playing: !sound.playing, volume: fav.volume });
-        
-        if(game.settings.get("moulinette", "soundboardPin")) {
-          event.stopPropagation();
+        if(game.data.version.startsWith("0.7")) {
+          playlist.updateEmbeddedEntity("PlaylistSound", {_id: sound._id, playing: !sound.playing, volume: fav.volume });
+        } else {
+          playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: !sound.data.playing, volume: Number(fav.volume) }]);
         }
       } else {
         ui.notifications.warn(game.i18n.localize("mtte.slotNotAssigned"));

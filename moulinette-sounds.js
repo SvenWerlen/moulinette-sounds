@@ -29,10 +29,8 @@ Hooks.once("init", async function () {
  */
 Hooks.once("ready", async function () {
   if (game.user.isGM) {
-    // create default home folder for game icons
-    await game.moulinette.applications.MoulinetteFileUtil.createFolderIfMissing(".", "moulinette");
-    await game.moulinette.applications.MoulinetteFileUtil.createFolderIfMissing("moulinette", "moulinette/sounds");
-    await game.moulinette.applications.MoulinetteFileUtil.createFolderIfMissing("moulinette/sounds", "moulinette/sounds/custom");
+    // create default home folder for sounds
+    await game.moulinette.applications.MoulinetteFileUtil.createFolderRecursive("moulinette/sounds/custom");
     
     const moduleClass = (await import("./modules/moulinette-sounds.js")).MoulinetteSounds
     game.moulinette.forge.push({
@@ -64,9 +62,15 @@ Hooks.once("ready", async function () {
 });
 
 
-// Change Sound play status
-Hooks.on("preUpdatePlaylistSound", (parent, data, update) => {
+/**
+ * Change Sound play status
+ * 
+ * !! Signature changed from (parent, data, update) to (parent, update) in 0.8
+ */
+Hooks.on("preUpdatePlaylistSound", (parent, dataOrUpdate, updateV7) => {
   if (game.user.isGM) {
+    const update = game.data.version.startsWith("0.7") ? updateV7 : dataOrUpdate
+    const data = game.data.version.startsWith("0.7") ? dataOrUpdate : parent.data
     if(Object.keys(update).includes("playing")) {
       $(`.list .sound[data-path='${data.path}'] a[data-action='sound-play'] i`).attr("class", update.playing ? "fas fa-square" : "fas fa-play")
     } else if(Object.keys(update).includes("volume")) {
