@@ -15,6 +15,8 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     super()
   }
   
+  supportsModes() { return false }
+  
   /**
    * Returns the list of available packs
    */
@@ -103,24 +105,10 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         `<span class="audioSource"><b>${game.i18n.localize("mtte.publisher")} | ${game.i18n.localize("mtte.pack")}</b></span>`+
         "</div>")
 
-    // view #1 (all mixed)
-    if(viewMode == "tiles") {
-      let idx = 0
-      for(const r of this.searchResults) {
-        idx++
-        assets.push(this.generateAsset(playlist, r, idx))
-      }
-    }
-    // view #2 (by folder)
-    else {
-      const folders = game.moulinette.applications.MoulinetteFileUtil.foldersFromIndex(this.searchResults, this.assetsPacks);
-      const keys = Object.keys(folders).sort()
-      for(const k of keys) {
-        assets.push(`<div class="folder"><h2>${k}</h2></div>`)
-        for(const a of folders[k]) {
-          assets.push(this.generateAsset(playlist, a, a.idx))
-        }
-      }
+    let idx = 0
+    for(const r of this.searchResults) {
+      idx++
+      assets.push(this.generateAsset(playlist, r, idx))
     }
     
     return assets.length == 1 ? [] : assets
