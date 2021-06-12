@@ -15,6 +15,13 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     super()
   }
   
+  clearCache() {
+    this.assets = null
+    this.assetsPacks = null
+    this.searchResults = null
+    this.pack = null
+  }
+  
   supportsModes() { return false }
   
   /**
@@ -229,6 +236,9 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       publishers.push(...await FileUtil.scanSourceAssets("sounds", EXT))
       await FileUtil.upload(new File([JSON.stringify(publishers)], "index.json", { type: "application/json", lastModified: new Date() }), "index.json", "/moulinette/sounds", MoulinetteSounds.FOLDER_CUSTOM_SOUNDS, true)
       ui.notifications.info(game.i18n.localize("mtte.indexingDone"));
+      // clear cache
+      game.moulinette.cache.clear()
+      this.clearCache()
       return true
     }
     else if(classList.contains("customReferences")) {
