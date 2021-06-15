@@ -2,6 +2,8 @@
   "mtte.activatePlaylistTab": "Voir playlist",
   "mtte.activatePlaylistTabToolTip": "Activer l'onglet playlist",
   "mtte.browse": "Consultez vos r\u00e9pertoires et s\u00e9lectionnez une image/ic\u00f4ne",
+  "mtte.configDefaultEffectRadius": "Rayon sonore par d\u00e9faut",
+  "mtte.configDefaultEffectRadiusHint": "Rayon sonore par d\u00e9faut lorsque vous glissez et d\u00e9posez un son sur une sc\u00e8ne",
   "mtte.configSoundboardColumns": "Table de mixage: raccourcis par ligne",
   "mtte.configSoundboardColumnsHint": "Nombre de raccourcis (boutons) sur une ligne de la tablie de mixage",
   "mtte.configSoundboardRows": "Table de mixage: nombre de lignes",

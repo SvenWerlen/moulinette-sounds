@@ -50,7 +50,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     const volume = sound ? sound.volume : 0.5
     
     let html = `<div class="sound" data-path="${r.assetURL}" data-idx="${idx}">` 
-    html += `<input type="checkbox" class="check">`
+    html += `<span class="draggable"><i class="fas fa-music"></i></span><input type="checkbox" class="check">`
     if(pack.special) {
       const shortName = name.length <= 30 ? name : name.substring(0,30) + "..."
       html += `<span class="audio" title="${name}">${shortName}</span><span class="audioSource"><a href="${pack.pubWebsite}" target="_blank">${pack.publisher}</a> | <a href="${pack.url}" target="_blank">${pack.name}</a></span><div class="sound-controls flexrow">`
@@ -132,6 +132,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     this.html.find('.check.all').change(event => html.find('.check:not(".all")').prop('checked', event.currentTarget.checked) );
     this.html.find('.sound-volume').change(event => this._onSoundVolume(event));
     this.html.find(".sound-control").click(this._onSoundControl.bind(this))
+    this.html.find(".draggable").click(this._onToggleSelect.bind(this))
     
     this._alternateColors()
   }
@@ -140,6 +141,50 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     $('.forge .sound').removeClass("alt");
     $('.forge .sound:even').addClass("alt");
   }
+  
+  onDragStart(event) {
+    const div = event.currentTarget.closest(".sound");
+    const idx = div.dataset.idx;
+    
+    // invalid action
+    if(!this.searchResults || idx < 0 || idx > this.searchResults.length) return
+    
+    const sound = this.searchResults[idx-1]
+    const pack = this.assetsPacks[sound.pack]
+
+    let dragData = {}
+    dragData = {
+      type: "Sound",
+      sound: sound,
+      pack: pack
+    };
+    
+    dragData.source = "mtte"
+    event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+  }
+  
+  /**
+   * Generate a sound from the dragged image
+   */
+  static async createSound(data) {
+    if ( !data.sound || !data.pack ) return;
+    //await MoulinetteTiles.downloadAsset(data)
+    
+    // Validate that the drop position is in-bounds and snap to grid
+    if ( !canvas.grid.hitArea.contains(data.x, data.y) ) return false;
+    
+    const sound = AmbientSound.create({
+      t: "l",
+      x: data.x,
+      y: data.y,
+      path: data.sound.assetURL,
+      radius: game.settings.get("moulinette-sounds", "defaultEffectRadius"),
+      repeat: true,
+      volume: 1
+    });
+    canvas.getLayer("SoundsLayer").activate();
+  }
+
   
   _onSoundVolume(event) {
     event.preventDefault();
@@ -167,6 +212,24 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       let sound = playlist.audio[sound.id];
       if (!sound.howl) return;
       sound.howl.volume(volume, sound.id);
+    }
+  }
+  
+  async _onToggleSelect(event) {
+    event.preventDefault();
+    const source = event.currentTarget;
+    const list = source.closest(".list")
+    const parent = source.closest(".sound")
+    const isSelected = $(parent).hasClass("selected")
+    $(list).find(".sound").removeClass("selected")
+    if(!isSelected) {
+      const idx = parent.dataset.idx
+      if(this.searchResults && idx > 0 && idx <= this.searchResults.length) {
+        $(parent).addClass("selected")
+        game.moulinette.cache.setData("selSound", this.searchResults[idx-1])
+      }
+    } else {
+      game.moulinette.cache.setData("selSound", null)
     }
   }
   

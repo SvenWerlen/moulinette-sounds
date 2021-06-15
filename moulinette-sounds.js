@@ -20,6 +20,14 @@ Hooks.once("init", async function () {
     type: Number,
     choices: { 1: "1", 2: "2", 3: "3", 4: "4", 5: "5" }
   });
+  game.settings.register("moulinette-sounds", "defaultEffectRadius", {
+    name: game.i18n.localize("mtte.configDefaultEffectRadius"), 
+    hint: game.i18n.localize("mtte.configDefaultEffectRadiusHint"), 
+    scope: "world",
+    config: true,
+    default: 10,
+    type: Number
+  });
   game.settings.register("moulinette", "soundboardPin", { scope: "world", config: false, type: Boolean, default: false })
 });
 
@@ -80,3 +88,35 @@ Hooks.on("preUpdatePlaylistSound", (parent, dataOrUpdate, updateV7) => {
     }
   }
 });
+
+
+/**
+ * Manage canvas drop
+ */
+Hooks.on('dropCanvasData', (canvas, data) => { 
+  if(data.source == "mtte") {
+    if(data.type == "Sound") {
+      import("./modules/moulinette-sounds.js").then( c => {
+        c.MoulinetteSounds.createSound(data)
+      })
+      return false;
+    }
+  }
+});
+
+
+/**
+ * Manage canvas drop
+ */
+Hooks.on('renderAmbientSoundConfig', (cl, html, sound) => { 
+  const selSound = game.moulinette.cache.getData("selSound")
+  if( !sound.data.path && selSound ) {
+    console.log(selSound)
+    html.find("input[name='path']").val(selSound.assetURL)
+    
+  }
+  //sound.document.data.path = "hasdfls"
+  //sound.document.data.radius = 3
+  //console.log(sound)
+});
+

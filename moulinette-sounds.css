@@ -9,7 +9,7 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-.mtte .list .sound:hover {
+.mtte .list .sound:hover, .mtte .list .sound.selected {
   background-color: #666;
   color: #eee;
 }
