@@ -28,5 +28,5 @@
   "download": "https://github.com/SvenWerlen/moulinette-sounds/archive/v-2.2.0.zip",
   "manifest": "https://raw.githubusercontent.com/SvenWerlen/moulinette-sounds/master/module.json",
   "minimumCoreVersion": "0.7.6",
-  "compatibleCoreVersion": "0.8.6"
+  "compatibleCoreVersion": "0.8.7"
 }
