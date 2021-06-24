@@ -79,12 +79,19 @@ Hooks.on("preUpdatePlaylistSound", (parent, dataOrUpdate, updateV7) => {
   if (game.user.isGM) {
     const update = game.data.version.startsWith("0.7") ? updateV7 : dataOrUpdate
     const data = game.data.version.startsWith("0.7") ? dataOrUpdate : parent.data
+    let sound = -1
+    // find matching sound
+    $(`.list .sound`).each(function( idx, snd ) { 
+      if(data.path.endsWith($(snd).attr("data-path"))) { 
+        sound = $(snd).attr("data-idx") 
+      }
+    })
     if(Object.keys(update).includes("playing")) {
-      $(`.list .sound[data-path='${data.path}'] a[data-action='sound-play'] i`).attr("class", update.playing ? "fas fa-square" : "fas fa-play")
+      $(`.list .sound[data-idx='${sound}'] a[data-action='sound-play'] i`).attr("class", update.playing ? "fas fa-square" : "fas fa-play")
     } else if(Object.keys(update).includes("volume")) {
-      $(`.list .sound[data-path='${data.path}'] input.sound-volume`).val(AudioHelper.volumeToInput(update.volume))
+      $(`.list .sound[data-idx='${sound}'] input.sound-volume`).val(AudioHelper.volumeToInput(update.volume))
     } else if(Object.keys(update).includes("repeat")) {
-      $(`.list .sound[data-path='${data.path}'] a[data-action='sound-repeat']`).attr("class", update.repeat ? "sound-control" : "sound-control inactive")
+      $(`.list .sound[data-idx='${sound}'] a[data-action='sound-repeat']`).attr("class", update.repeat ? "sound-control" : "sound-control inactive")
     }
   }
 });
@@ -108,15 +115,12 @@ Hooks.on('dropCanvasData', (canvas, data) => {
 /**
  * Manage canvas drop
  */
-Hooks.on('renderAmbientSoundConfig', (cl, html, sound) => { 
+Hooks.on('renderAmbientSoundConfig', async function(cl, html, sound) { 
   const selSound = game.moulinette.cache.getData("selSound")
-  if( !sound.data.path && selSound ) {
-    console.log(selSound)
-    html.find("input[name='path']").val(selSound.assetURL)
-    
+  if( !sound.data.path && selSound ) { 
+    const clSound = await import("./modules/moulinette-sounds.js")
+    await clSound.MoulinetteSounds.downloadAsset(selSound)
+    html.find("input[name='path']").val(selSound.path)
   }
-  //sound.document.data.path = "hasdfls"
-  //sound.document.data.radius = 3
-  //console.log(sound)
 });
 

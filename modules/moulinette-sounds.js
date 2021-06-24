@@ -29,8 +29,20 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
    */
   async getPackList() {
     const bbc = [{ special: "bbc", publisher: "BBC", name: "Sounds Effects (bbc.co.uk – © copyright 2021 BBC)", pubWebsite: "https://www.bbc.co.uk", url: "https://sound-effects.bbcrewind.co.uk", "license": "check website", isRemote: true }]
-    const index = await game.moulinette.applications.MoulinetteFileUtil.buildAssetIndex([game.moulinette.applications.MoulinetteFileUtil.getBaseURL() + "moulinette/sounds/custom/index.json"], bbc)
-    this.assets = index.assets.filter(i => i.type == "img")
+    const user = await game.moulinette.applications.Moulinette.getUser()
+    const index = await game.moulinette.applications.MoulinetteFileUtil.buildAssetIndex([
+      game.moulinette.applications.MoulinetteClient.SERVER_URL + "/assets/" + game.moulinette.user.id,
+      game.moulinette.applications.MoulinetteFileUtil.getBaseURL() + "moulinette/sounds/custom/index.json"], bbc)
+    
+    // remove thumbnails and non-sounds from assets
+    this.assets = index.assets.filter(a => {
+      if(a.type != "snd") {
+        // decrease count in pack
+        index.packs[a.pack].count--
+        return false;
+      }
+      return true;
+    })
     this.assetsPacks = index.packs
     return duplicate(this.assetsPacks)
   }
@@ -39,17 +51,18 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
    * Generate a new asset (HTML) for the given result and idx
    */
   generateAsset(playlist, r, idx) {
-    const URL = this.assetsPacks[r.pack].isRemote ? `${game.moulinette.applications.MoulinetteClient.SERVER_URL}/assets/` : game.moulinette.applications.MoulinetteFileUtil.getBaseURL()
+    const URL = this.assetsPacks[r.pack].isRemote ? "" : game.moulinette.applications.MoulinetteFileUtil.getBaseURL()
     const pack   = this.assetsPacks[r.pack]
     
+    r.sas = pack.sas ? "?" + pack.sas : ""
     r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? r.filename : `${URL}${this.assetsPacks[r.pack].path}/${r.filename}`)
     const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
-    const name   = game.moulinette.applications.Moulinette.prettyText(r.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
+    const name   = game.moulinette.applications.Moulinette.prettyText(r.filename.replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
     const icon   = sound && sound.playing ? "fa-square" : "fa-play"
     const repeat = sound && sound.repeat ? "" : "inactive"
     const volume = sound ? sound.volume : 0.5
     
-    let html = `<div class="sound" data-path="${r.assetURL}" data-idx="${idx}">` 
+    let html = `<div class="sound" data-path="${r.filename}" data-idx="${idx}">` 
     html += `<span class="draggable"><i class="fas fa-music"></i></span><input type="checkbox" class="check">`
     if(pack.special) {
       const shortName = name.length <= 30 ? name : name.substring(0,30) + "..."
@@ -166,11 +179,31 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
   }
   
   /**
+   * Download the asset received from event
+   * - data.path will be set with local path
+   */
+  static async downloadAsset(data) {
+    if(!data.pack.isRemote) {
+      const baseURL = game.moulinette.applications.MoulinetteFileUtil.getBaseURL()
+      data.path =  data.sound.assetURL
+    }
+    else {
+      await game.moulinette.applications.MoulinetteFileUtil.downloadAssetDependencies(data.sound, data.pack, "sounds")
+      data.path = game.moulinette.applications.MoulinetteFileUtil.getBaseURL() + game.moulinette.applications.MoulinetteFileUtil.getMoulinetteBasePath("sounds", data.pack.publisher, data.pack.name) + data.sound.filename      
+    }
+
+    // Clear useless info
+    delete data.pack
+    delete data.sound
+  }
+  
+  
+  /**
    * Generate a sound from the dragged image
    */
   static async createSound(data) {
     if ( !data.sound || !data.pack ) return;
-    //await MoulinetteTiles.downloadAsset(data)
+    await MoulinetteSounds.downloadAsset(data)
     
     // Validate that the drop position is in-bounds and snap to grid
     if ( !canvas.grid.hitArea.contains(data.x, data.y) ) return false;
@@ -179,7 +212,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       t: "l",
       x: data.x,
       y: data.y,
-      path: data.sound.assetURL,
+      path: data.path,
       radius: game.settings.get("moulinette-sounds", "defaultEffectRadius"),
       repeat: true,
       volume: 1
@@ -228,7 +261,9 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       const idx = parent.dataset.idx
       if(this.searchResults && idx > 0 && idx <= this.searchResults.length) {
         $(parent).addClass("selected")
-        game.moulinette.cache.setData("selSound", this.searchResults[idx-1])
+        const result = this.searchResults[idx-1]
+        let soundData = { sound: result, pack:  this.assetsPacks[result.pack] }
+        game.moulinette.cache.setData("selSound", soundData)
       }
     } else {
       game.moulinette.cache.setData("selSound", null)
@@ -247,16 +282,20 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       if(!playlist) {
         playlist = await Playlist.create({name: MoulinetteSounds.MOULINETTE_SOUNDBOARD, mode: -1})
       }
+      // download sound
+      let soundData = { sound: result, pack:  this.assetsPacks[result.pack] }
+      await MoulinetteSounds.downloadAsset(soundData)
       // get sound
-      let sound = playlist.sounds.find( s => s.path == result.assetURL )
+      let sound = playlist.sounds.find( s => s.path == soundData.path )
       if(!sound) {
-        const name = game.moulinette.applications.Moulinette.prettyText(result.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
-        const volume = AudioHelper.inputToVolume($(source.closest(".sound")).find(".sound-volume").val())
-        const repeat = $(source.closest(".sound")).find("a[data-action='sound-repeat']").hasClass('inactive')
+        sound = soundData
+        sound.name = game.moulinette.applications.Moulinette.prettyText(result.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
+        sound.volume = AudioHelper.inputToVolume($(source.closest(".sound")).find(".sound-volume").val())
+        sound.repeat = $(source.closest(".sound")).find("a[data-action='sound-repeat']").hasClass('inactive')
         if(game.data.version.startsWith("0.7")) {
-          sound = await playlist.createEmbeddedEntity("PlaylistSound", {name: name, path: result.assetURL, volume: volume}, {});
+          sound = await playlist.createEmbeddedEntity("PlaylistSound", sound, {});
         } else {
-          sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [{name: name, path: result.assetURL, volume: volume}], {}))[0]
+          sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
         }
       }
       // toggle play
