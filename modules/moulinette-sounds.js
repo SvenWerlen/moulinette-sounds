@@ -62,7 +62,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     const repeat = sound && sound.repeat ? "" : "inactive"
     const volume = sound ? sound.volume : 0.5
     
-    let html = `<div class="sound" data-path="${r.filename}" data-idx="${idx}">` 
+    let html = `<div class="sound" data-path="${r.assetURL}" data-idx="${idx}">` 
     html += `<span class="draggable"><i class="fas fa-music"></i></span><input type="checkbox" class="check">`
     if(pack.special) {
       const shortName = name.length <= 30 ? name : name.substring(0,30) + "..."
@@ -183,7 +183,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
    * - data.path will be set with local path
    */
   static async downloadAsset(data) {
-    if(!data.pack.isRemote) {
+    if(!data.pack.isRemote || data.pack.special) {
       const baseURL = game.moulinette.applications.MoulinetteFileUtil.getBaseURL()
       data.path =  data.sound.assetURL
     }

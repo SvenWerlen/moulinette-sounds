@@ -60,6 +60,7 @@ export class MoulinetteFavorite extends FormApplication {
   }
   
   async _onClick(event) {
+    event.preventDefault();
     const button = event.currentTarget;
     if(button.classList.contains("cancel")) {
       this.close()

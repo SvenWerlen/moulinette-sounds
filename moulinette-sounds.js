@@ -81,8 +81,10 @@ Hooks.on("preUpdatePlaylistSound", (parent, dataOrUpdate, updateV7) => {
     const data = game.data.version.startsWith("0.7") ? dataOrUpdate : parent.data
     let sound = -1
     // find matching sound
+    const filename = data.path.split("/").pop()
     $(`.list .sound`).each(function( idx, snd ) { 
-      if(data.path.endsWith($(snd).attr("data-path"))) { 
+      const path = $(snd).attr("data-path")
+      if(path && path.endsWith(filename)) { 
         sound = $(snd).attr("data-idx") 
       }
     })
