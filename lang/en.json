@@ -41,7 +41,7 @@
   "mtte.pinSoundBoard": "Keep soundboard open when playing sound",
   "mtte.playChecked": "Play selected",
   "mtte.playCheckedToolTip": "Creates a new playlist with the selected sounds and plays them.",
-  "mtte.publisher": "Publisher",
+  "mtte.publisher": "Creator",
   "mtte.saveFavorite": "Save favorite",
   "mtte.saveFavoriteToolTip": "Saves favorite into selected slot",
   "mtte.shortText": "Short text",
