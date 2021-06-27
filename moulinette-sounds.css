@@ -20,7 +20,10 @@
 }
 
 .mtte .audio {
-  width: 250px;
+  flex: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin-right: 3px;
 }
 
 .mtte .audioSource {

@@ -22,8 +22,6 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     this.pack = null
   }
   
-  supportsModes() { return false }
-  
   /**
    * Returns the list of available packs
    */
@@ -57,18 +55,18 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     r.sas = pack.sas ? "?" + pack.sas : ""
     r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? r.filename : `${URL}${this.assetsPacks[r.pack].path}/${r.filename}`)
     const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
-    const name   = game.moulinette.applications.Moulinette.prettyText(r.filename.replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
+    const name   = game.moulinette.applications.Moulinette.prettyText(r.filename.split("/").pop().replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
     const icon   = sound && sound.playing ? "fa-square" : "fa-play"
     const repeat = sound && sound.repeat ? "" : "inactive"
     const volume = sound ? sound.volume : 0.5
     
-    let html = `<div class="sound" data-path="${r.assetURL}" data-idx="${idx}">` 
+    let html = `<div class="sound" data-path="${r.filename}" data-idx="${idx}">` 
     html += `<span class="draggable"><i class="fas fa-music"></i></span><input type="checkbox" class="check">`
     if(pack.special) {
-      const shortName = name.length <= 30 ? name : name.substring(0,30) + "..."
-      html += `<span class="audio" title="${name}">${shortName}</span><span class="audioSource"><a href="${pack.pubWebsite}" target="_blank">${pack.publisher}</a> | <a href="${pack.url}" target="_blank">${pack.name}</a></span><div class="sound-controls flexrow">`
+      const shortName = name.length <= 50 ? name : name.substring(0,50) + "..."
+      html += `<span class="audio" title="${name}">${shortName}</span><div class="sound-controls flexrow">`
     } else {
-      html += `<span class="audio">${name}</span><span class="audioSource">${pack.publisher} | ${pack.name}</span><div class="sound-controls flexrow">`
+      html += `<span class="audio">${name}</span><div class="sound-controls flexrow">`
     }
     html += `<input class="sound-volume" type="range" title="${game.i18n.localize("PLAYLIST.SoundVolume")}" value="${volume}" min="0" max="1" step="0.05">`
     html += `<a class="sound-control ${repeat}" data-action="sound-repeat" title="${game.i18n.localize("PLAYLIST.SoundLoop")}"><i class="fas fa-sync"></i></a>`
@@ -114,23 +112,39 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         return true;
       })
     }
-    
+
     const viewMode = game.settings.get("moulinette", "displayMode")
-    
-    // playlist
     const playlist = game.playlists.find( pl => pl.data.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
     
     // header
     assets.push(`<div class="pack header sound"><span><i class="fas fa-music"></i></span>` +
         `<input type="checkbox" class="check all" name="all" value="-1">` +
         `<span class="audio"><b>${game.i18n.localize("mtte.name")}</b></span>`+
-        `<span class="audioSource"><b>${game.i18n.localize("mtte.publisher")} | ${game.i18n.localize("mtte.pack")}</b></span>`+
         "</div>")
-
-    let idx = 0
-    for(const r of this.searchResults) {
-      idx++
-      assets.push(this.generateAsset(playlist, r, idx))
+    
+    // view #1 (all mixed)
+    if(viewMode == "tiles") {
+      let idx = 0
+      this.searchResults.sort((a,b) => a.filename.split("/").pop().localeCompare(b.filename.split("/").pop()))
+      for(const r of this.searchResults) {
+        idx++
+        assets.push(this.generateAsset(playlist, r, idx))
+      }
+    }
+    // view #2 (by folder)
+    else if(viewMode == "list" || viewMode == "browse") {
+      const folders = game.moulinette.applications.MoulinetteFileUtil.foldersFromIndex(this.searchResults, this.assetsPacks);
+      const keys = Object.keys(folders).sort()
+      for(const k of keys) {
+        if(viewMode == "browse") {
+          assets.push(`<div class="folder" data-path="${k}"><h2 class="expand">${k} (${folders[k].length}) <i class="fas fa-angle-double-down"></i></h2></div>`)
+        } else {
+          assets.push(`<div class="folder" data-path="${k}"><h2>${k} (${folders[k].length})</div>`)
+        }
+        for(const a of folders[k]) {
+          assets.push(this.generateAsset(playlist, a, a.idx))
+        }
+      }
     }
     
     return assets.length == 1 ? [] : assets
