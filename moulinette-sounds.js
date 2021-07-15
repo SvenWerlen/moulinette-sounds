@@ -83,8 +83,8 @@ Hooks.on("preUpdatePlaylistSound", (parent, dataOrUpdate, updateV7) => {
     // find matching sound
     const filename = data.path.split("/").pop()
     $(`.list .sound`).each(function( idx, snd ) { 
-      const path = $(snd).attr("data-path")
-      if(path && path.endsWith(filename)) { 
+      const fn = $(snd).attr("data-filename")
+      if(fn && fn.endsWith(filename)) { 
         sound = $(snd).attr("data-idx") 
       }
     })

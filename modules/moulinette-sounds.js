@@ -60,13 +60,13 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     const repeat = sound && sound.repeat ? "" : "inactive"
     const volume = sound ? sound.volume : 0.5
     
-    let html = `<div class="sound" data-path="${r.filename}" data-idx="${idx}">` 
-    html += `<span class="draggable"><i class="fas fa-music"></i></span><input type="checkbox" class="check">`
+    let html = `<div class="sound" data-path="${r.assetURL}" data-filename="${r.filename}" data-idx="${idx}">` 
+    html += `<span class="draggable"><i class="fas fa-music"></i></span><input id="snd-${idx}" type="checkbox" class="check">`
     if(pack.special) {
       const shortName = name.length <= 50 ? name : name.substring(0,50) + "..."
-      html += `<span class="audio" title="${name}">${shortName}</span><div class="sound-controls flexrow">`
+      html += `<span class="audio" title="${name}"><label for="snd-${idx}">${shortName}</label></span><div class="sound-controls flexrow">`
     } else {
-      html += `<span class="audio">${name}</span><div class="sound-controls flexrow">`
+      html += `<span class="audio"><label for="snd-${idx}">${name}</label></span><div class="sound-controls flexrow">`
     }
     html += `<input class="sound-volume" type="range" title="${game.i18n.localize("PLAYLIST.SoundVolume")}" value="${volume}" min="0" max="1" step="0.05">`
     html += `<a class="sound-control ${repeat}" data-action="sound-repeat" title="${game.i18n.localize("PLAYLIST.SoundLoop")}"><i class="fas fa-sync"></i></a>`
@@ -415,12 +415,31 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       // prepare selected sounds
       let selected = []
       let isFirst = true
+      const instance = this
       this.html.find(".check:checkbox:checked").each(function(index) { 
-        const path = $(this).closest(".sound").data('path')
+        const idx = this.closest(".sound").dataset.idx;
         const name = $(this).closest(".sound").find('.audio').text()
         const volume = $(this).closest(".sound").find('.sound-volume').val()
-        if(path) { selected.push({name: name, path: path, volume: volume, playing: isFirst}); isFirst = false }
+        
+        if(instance.searchResults && idx > 0 && idx <= instance.searchResults.length) {
+          const result = instance.searchResults[idx-1]
+          let soundData = { sound: result, pack: instance.assetsPacks[result.pack] }
+          selected.push({name: name, soundData: soundData, volume: volume, playing: isFirst})
+          isFirst = false
+        }
       })
+      
+      // download all sounds (if from cloud)
+      SceneNavigation._onLoadProgress(game.i18n.localize("mtte.downloadingSounds"),0);  
+      let idx = 0
+      for(const sel of selected) {
+        idx++;
+        await MoulinetteSounds.downloadAsset(sel.soundData)
+        sel.path = sel.soundData.path // retrieve new path
+        delete sel.soundData          // delete soundData that is not used by FVTT
+        SceneNavigation._onLoadProgress(game.i18n.localize("mtte.downloadingSounds"), Math.round((idx / selected.length)*100));
+      }
+      SceneNavigation._onLoadProgress(game.i18n.localize("mtte.downloadingSounds"),100);
       
       if(selected.length == 0) return;
       
@@ -431,11 +450,12 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         playlist = await Playlist.create({name: MoulinetteSounds.MOULINETTE_PLAYLIST})
         
         if(game.data.version.startsWith("0.7")) {
-          playlist.createEmbeddedEntity("PlaylistSound", selected)
+          await playlist.createEmbeddedEntity("PlaylistSound", selected)
+          await playlist.update({ playing: true})
         } else {
-          playlist.createEmbeddedDocuments("PlaylistSound", selected)
+          await playlist.createEmbeddedDocuments("PlaylistSound", selected)
+          await playlist.playAll()
         }
-        playlist.update({ playing: true})
       }
       else if (classList.contains("favoriteChecked")) { 
         const paths = selected.length == 1 ? selected[0].path : selected.map( (sound, idx) => sound.path )
@@ -446,8 +466,6 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       }
     }
   }
-
-  
   
   
   /*** **************************** Soundboard *******************************************/

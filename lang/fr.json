@@ -15,6 +15,7 @@
   "mtte.deletePlayListContent": "\u00cates-vous certain de vouloir supprimer la playlist <em>Moulinette Soundboard</em>?",
   "mtte.deletePlaylist": "Supprimer playlist",
   "mtte.deletePlaylistToolTip": "Supprimes la playlist \"Moulinette Soundboard\"",
+  "mtte.downloadingSounds": "T\u00e9l\u00e9chargement des sons...",
   "mtte.errorChooseSlot": "Veuillez choisir un emplacement pour le favori",
   "mtte.errorDoubleIconDefined": "Vous devez SOIT choisir une ic\u00f4ne Font Awesome OU sp\u00e9cifier une image MAIS pas les deux!",
   "mtte.errorEnterShortText": "Vous devez sp\u00e9cifier un texte court",
