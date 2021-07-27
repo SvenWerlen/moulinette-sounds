@@ -52,12 +52,14 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     const URL = this.assetsPacks[r.pack].isRemote ? "" : game.moulinette.applications.MoulinetteFileUtil.getBaseURL()
     const pack   = this.assetsPacks[r.pack]
     
+    const repeatDefault = game.settings.get("moulinette-sounds", "defaultRepeatOn")
+    
     r.sas = pack.sas ? "?" + pack.sas : ""
     r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? r.filename : `${URL}${this.assetsPacks[r.pack].path}/${r.filename}`)
     const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
     const name   = game.moulinette.applications.Moulinette.prettyText(r.filename.split("/").pop().replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
     const icon   = sound && sound.playing ? "fa-square" : "fa-play"
-    const repeat = sound && sound.repeat ? "" : "inactive"
+    const repeat = sound ? (sound.repeat ? "" : "inactive") : (repeatDefault ? "" : "inactive")
     const volume = sound ? sound.volume : 0.5
     
     let html = `<div class="sound" data-path="${r.assetURL}" data-filename="${r.filename}" data-idx="${idx}">` 

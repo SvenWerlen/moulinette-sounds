@@ -4,6 +4,8 @@
   "mtte.browse": "Browse folders and select an icon",
   "mtte.configDefaultEffectRadius": "Default effect radius",
   "mtte.configDefaultEffectRadiusHint": "Default effect radius when dragging and dropping a sound on a scene",
+  "mtte.configDefaultRepeatOn": "Repeat sounds by default",
+  "mtte.configDefaultRepeatOnHint": "Moulinette enables 'repeat' mode by default",
   "mtte.configSoundboardColumns": "Soundboard: shortcuts per row",
   "mtte.configSoundboardColumnsHint": "Number of shortcuts rendered on one row on the soundboard",
   "mtte.configSoundboardRows": "Soundboard: number of rows",

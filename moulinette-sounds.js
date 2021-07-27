@@ -28,6 +28,14 @@ Hooks.once("init", async function () {
     default: 10,
     type: Number
   });
+  game.settings.register("moulinette-sounds", "defaultRepeatOn", {
+    name: game.i18n.localize("mtte.configDefaultRepeatOn"), 
+    hint: game.i18n.localize("mtte.configDefaultRepeatOnHint"), 
+    scope: "world",
+    config: true,
+    default: false,
+    type: Boolean
+  });
   game.settings.register("moulinette", "soundboardPin", { scope: "world", config: false, type: Boolean, default: false })
 });
 
