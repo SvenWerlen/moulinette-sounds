@@ -126,3 +126,38 @@ Hooks.on('renderAmbientSoundConfig', async function(cl, html, sound) {
   }
 });
 
+
+// Initiate Drop functionality
+Hooks.on("renderPlaylistDirectory", (app, html) => {
+
+  const playlists = html.find(".directory-list .playlist");
+  playlists.each((index, pl) => {
+    pl.ondrop = async function(event) {
+      try {
+        const source = event.currentTarget;
+        const data = JSON.parse(event.dataTransfer.getData('text/plain'));
+        if(data && data.source == "mtte" && data.sound && data.pack) {
+          const sound = data.sound
+          const clSound = await import("./modules/moulinette-sounds.js")
+          await clSound.MoulinetteSounds.downloadAsset(data)
+          sound.name = game.moulinette.applications.Moulinette.prettyText(sound.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
+          sound.volume = AudioHelper.inputToVolume(data.volume)
+          sound.repeat = data.repeat
+          sound.path = data.path
+          const playlist = game.playlists.get($(pl).data("entity-id"))
+          if(playlist) {
+            if(game.data.version.startsWith("0.7")) {
+              await playlist.createEmbeddedEntity("PlaylistSound", sound, {});
+            } else {
+              (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
+            }
+          } else {
+            console.warn("Moulinette Sounds | Couldn't find playlist")
+          }
+        }
+      } catch(e) {
+        console.warn("Moulinette Sounds | Not able to create sound in selected playlist", e)
+      }
+    }
+  });
+});

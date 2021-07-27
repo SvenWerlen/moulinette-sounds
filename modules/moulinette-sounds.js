@@ -180,12 +180,17 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     
     const sound = this.searchResults[idx-1]
     const pack = this.assetsPacks[sound.pack]
+    const volume = $(div).find('.sound-volume').val()
+    const repeat = !$(div).find("a[data-action='sound-repeat']").hasClass('inactive')
 
     let dragData = {}
     dragData = {
+      source: "mtte",
       type: "Sound",
       sound: sound,
-      pack: pack
+      pack: pack,
+      volume: volume,
+      repeat: repeat
     };
     
     dragData.source = "mtte"
@@ -305,7 +310,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         sound = soundData
         sound.name = game.moulinette.applications.Moulinette.prettyText(result.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
         sound.volume = AudioHelper.inputToVolume($(source.closest(".sound")).find(".sound-volume").val())
-        sound.repeat = $(source.closest(".sound")).find("a[data-action='sound-repeat']").hasClass('inactive')
+        sound.repeat = !$(source.closest(".sound")).find("a[data-action='sound-repeat']").hasClass('inactive')
         if(game.data.version.startsWith("0.7")) {
           sound = await playlist.createEmbeddedEntity("PlaylistSound", sound, {});
         } else {
