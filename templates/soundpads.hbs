@@ -1,0 +1,27 @@
+<form autocomplete="off" onsubmit="event.preventDefault();">
+
+  <div class="sidebar">
+
+    <nav class="sheet-tabs tabs"></nav>
+
+    <div class="info">{{localize "mtte.clickToClose"}}</div>
+
+    <div class="search">
+        <input id="search" type="text" placeholder="{{localize "mtte.filter"}}"></input>
+    </div>
+
+    <div class="sounds">
+        {{#if noAsset}}<div class="warning error">{{localize "mtte.noSoundPads"}}</div>{{/if}}
+
+        {{#each assets as |a|}}{{{a}}}{{/each}}
+        <div class="warning">{{localize "mtte.noMatch"}}</div>
+    </div>
+
+    <footer>
+      <!--<a class="action refresh-access" title="{{localize "mtte.refreshAccess"}}"><i class="fas fa-unlock-alt"></i> </a>-->
+    </footer>
+
+  </div>
+
+
+</form>

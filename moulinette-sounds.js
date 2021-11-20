@@ -1,3 +1,4 @@
+import { MoulinetteSoundPads } from "./modules/moulinette-soundpads.js"
 
 Hooks.once("init", async function () {
   console.log("Moulinette Sounds | Init")
@@ -48,6 +49,7 @@ Hooks.once("ready", async function () {
     // create default home folder for sounds
     await game.moulinette.applications.MoulinetteFileUtil.createFolderRecursive("moulinette/sounds/custom");
     
+    game.moulinette.applications["MoulinetteSoundPads"] = MoulinetteSoundPads
     const moduleClass = (await import("./modules/moulinette-sounds.js")).MoulinetteSounds
     game.moulinette.forge.push({
       id: "sounds",
@@ -73,6 +75,22 @@ Hooks.once("ready", async function () {
       }]
     })
     
+    // Binding with a default key and a simple callback
+    if(typeof KeybindLib != "undefined") {
+      KeybindLib.register("moulinette-core", "soundpadsKey", {
+        name: game.i18n.localize("mtte.configSoundPadKey"),
+        hint: game.i18n.localize("mtte.configSoundPadHint"),
+        default: "Alt + KeyS",
+        onKeyDown: () => {
+          if(game.moulinette.applications.MoulinetteSoundPads) {
+            (new game.moulinette.applications.MoulinetteSoundPads()).render(true)
+          } else {
+            console.warn("Moulinette Sounds not enabled (or not up-to-date?)")
+          }
+        }
+      });
+    }
+
     console.log("Moulinette Sounds | Module loaded")
   }
 });

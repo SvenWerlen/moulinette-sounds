@@ -75,3 +75,108 @@
 .mttedialog.listPacks td.num, .mttedialog.listPacks th.num {
   text-align: right;
 }
+
+#moulinette-soundpads header {
+  display: none;
+}
+
+#moulinette-soundpads .window-content {
+  background: none;
+}
+
+#moulinette-soundpads .tabs {
+  color: white;
+  border-bottom: 1px solid white;
+  padding-bottom: 3px;
+  background-image: url("img/tabletop.png");
+  background-size: 100%;
+}
+
+#moulinette-soundpads .tileres:hover {
+  background: white;
+}
+
+#moulinette-soundpads .sidebar {
+  position: relative;
+  height: 100%;
+}
+
+#moulinette-soundpads nav, #moulinette-soundpads footer, #moulinette-soundpads .info, #moulinette-soundpads .sounds {
+  position: absolute;
+}
+
+#moulinette-soundpads nav {
+  height: 55px;
+  width: 100%;
+}
+
+#moulinette-soundpads nav a {
+  margin: 2px;
+}
+
+#moulinette-soundpads .info {
+  top: 58px;
+  font-style: italic;
+  color: #ccc;
+  font-size: 10px;
+  text-align: center;
+  width: 100%;
+}
+
+#moulinette-soundpads .search {
+  position: absolute;
+  top: 78px;
+  width: 100%;
+}
+
+#moulinette-soundpads input {
+  color: #ccc;
+}
+
+#moulinette-soundpads input#search::placeholder {
+  color: #aaa;
+}
+
+#moulinette-soundpads .sounds {
+  color: #ccc;
+  top: 110px;
+  bottom: 30px;
+  width: 100%;
+  overflow: scroll;
+}
+
+#moulinette-soundpads .sound {
+  padding: 2px 5px;
+}
+
+#moulinette-soundpads .sound:hover {
+  background-color: #ccc;
+  color: #333;
+  cursor: pointer;
+}
+
+#moulinette-soundpads .sounds h2 {
+  margin-top: 5px;
+  border-bottom: 0px;
+}
+
+#moulinette-soundpads .sounds .assets {
+  display: none;
+}
+
+#moulinette-soundpads footer {
+  font-size: 20px;
+  color: white;
+  height: 30px;
+  bottom: 0px;
+  width: 100%;
+  border-top: 1px solid white;
+  padding-top: 5px;
+  text-align: center;
+}
+
+#moulinette-soundpads .warning {
+  display: none;
+  color: red;
+  text-align: center;
+}
