@@ -80,6 +80,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     html += `<a class="sound-control ${repeat}" data-action="sound-repeat" title="${game.i18n.localize("PLAYLIST.SoundLoop")}"><i class="fas fa-sync"></i></a>`
     html += `<a class="sound-control" data-action="sound-play" title="${game.i18n.localize("PLAYLIST.SoundPlay")} / ${game.i18n.localize("PLAYLIST.SoundStop")}"><i class="fas ${icon}"></i></a>`
     html += `<a class="sound-control" data-action="favorite" title="${game.i18n.localize("mtte.favoriteSound")}")}"><i class="far fa-bookmark"></i></a>`
+    html += `<a class="sound-control" data-action="clipboard" title="${game.i18n.localize("mtte.clipboardImageToolTip")}")}"><i class="far fa-clipboard"></i></a>`
     html += "</div></div>"
     return html
   }
@@ -342,6 +343,17 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         }
       } else if(source.dataset.action == "favorite") {
         new MoulinetteFavorite({path: sound.path, name: sound.name, label: sound.name, volume: sound.volume }).render(true)
+      } else if(source.dataset.action == "clipboard") {
+        // put path into clipboard
+        if(navigator.clipboard) {
+          navigator.clipboard.writeText(sound.path)
+          .catch(err => {
+            console.warn("Moulinette Sounds | Not able to copy path into clipboard")
+          });
+          ui.notifications.info(game.i18n.localize("mtte.clipboardSoundSuccess"));
+        } else {
+          ui.notifications.warn(game.i18n.localize("mtte.clipboardUnsupported"));
+        }
       } else {
         console.log(`MoulinetteSounds | Action ${source.dataset.action} not implemented`)
       }
