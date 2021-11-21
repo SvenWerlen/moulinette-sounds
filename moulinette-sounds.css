@@ -76,9 +76,9 @@
   text-align: right;
 }
 
-#moulinette-soundpads header {
+/**#moulinette-soundpads header {
   display: none;
-}
+}**/
 
 #moulinette-soundpads .window-content {
   background: none;
@@ -89,7 +89,9 @@
   border-bottom: 1px solid white;
   padding-bottom: 3px;
   background-image: url("img/tabletop.png");
-  background-size: 100%;
+  background-size: 220px;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 #moulinette-soundpads .tileres:hover {
