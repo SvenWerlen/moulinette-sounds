@@ -43,7 +43,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       return true;
     })
     // 3$/mo cannot download sounds
-    if(game.moulinette.user.pledges.find(p => p.id == "362212")) {
+    if(game.moulinette.user && game.moulinette.user.pledges && game.moulinette.user.pledges.find(p => p.id == "362212")) {
       this.assetsPacks = index.packs.filter(p => p.publisher != "Tabletop Audio")
     } else {
       this.assetsPacks = index.packs
