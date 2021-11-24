@@ -107,7 +107,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     }
     // normal cases
     else {
-      searchTerms = searchTerms.split(" ")
+      searchTerms = searchTerms ? searchTerms.split(" ") : []
       // filter list according to search terms and selected pack
       this.searchResults = this.assets.filter( t => {
         // pack doesn't match selection
