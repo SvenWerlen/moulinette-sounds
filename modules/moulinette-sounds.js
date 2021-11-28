@@ -42,8 +42,11 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       }
       return true;
     })
-    // 3$/mo cannot download sounds
-    if(game.moulinette.user && game.moulinette.user.pledges && game.moulinette.user.pledges.find(p => p.id == "362212")) {
+    // 5$, 10$, 20$, 50$ can download sounds
+    const TTA = ["362213", "362214", "362215", "362216"]
+    const three = game.moulinette.user.pledges.find(p => p.id == "362212")
+    const fiveOrMore = game.moulinette.user.pledges.find(p => TTA.includes(p.id))
+    if(game.moulinette.user && game.moulinette.user.pledges && three && !fiveOrMore) {
       this.assetsPacks = index.packs.filter(p => p.publisher != "Tabletop Audio")
     } else {
       this.assetsPacks = index.packs

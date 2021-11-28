@@ -4,8 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.11.4] - 2021-11-23
+## [2.11.5] - 2021-11-27
 ### Fixed
+- 2.11.5 : TTA not properly listed when user change subscription from 3$+ to 5$+
 - 2.11.4 : tentative fix for split error
 - 2.11.3 : support for PopOut!
 - 2.11.2 : reduce font-size of folders (too big!)
