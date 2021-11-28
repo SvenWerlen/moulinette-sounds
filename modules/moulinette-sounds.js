@@ -33,24 +33,25 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       game.moulinette.applications.MoulinetteClient.SERVER_URL + "/byoa/assets/" + game.moulinette.user.id,
       game.moulinette.applications.MoulinetteFileUtil.getBaseURL() + "moulinette/sounds/custom/index.json"], bbc)
     
+    // 5$, 10$, 20$, 50$ can download sounds
+    const TTA = ["362213", "362214", "362215", "362216"]
+    const three = game.moulinette.user.pledges.find(p => p.id == "362212")
+    const fiveOrMore = game.moulinette.user.pledges.find(p => TTA.includes(p.id))
+    // 3$ but not 5$+? => filter assets out
+    const TTAPack = three && !fiveOrMore ? index.packs.find(p => p.publisher == "Tabletop Audio" && p.isRemote) : null
+    const TTAFilter = TTAPack ? TTAPack.idx : -1
+
     // remove thumbnails and non-sounds from assets
     this.assets = index.assets.filter(a => {
-      if(a.type != "snd") {
+      if(a.type != "snd" || a.pack == TTAFilter) {
         // decrease count in pack
         index.packs[a.pack].count--
         return false;
       }
       return true;
     })
-    // 5$, 10$, 20$, 50$ can download sounds
-    const TTA = ["362213", "362214", "362215", "362216"]
-    const three = game.moulinette.user.pledges.find(p => p.id == "362212")
-    const fiveOrMore = game.moulinette.user.pledges.find(p => TTA.includes(p.id))
-    if(game.moulinette.user && game.moulinette.user.pledges && three && !fiveOrMore) {
-      this.assetsPacks = index.packs.filter(p => p.publisher != "Tabletop Audio")
-    } else {
-      this.assetsPacks = index.packs
-    }
+    this.assetsPacks = index.packs
+
     return duplicate(this.assetsPacks)
   }
   
