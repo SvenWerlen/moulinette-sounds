@@ -35,8 +35,8 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     
     // 5$, 10$, 20$, 50$ can download sounds
     const TTA = ["362213", "362214", "362215", "362216"]
-    const three = game.moulinette.user.pledges.find(p => p.id == "362212")
-    const fiveOrMore = game.moulinette.user.pledges.find(p => TTA.includes(p.id))
+    const three = game.moulinette.user.pledges ? game.moulinette.user.pledges.find(p => p.id == "362212") : null
+    const fiveOrMore = game.moulinette.user.pledges ? game.moulinette.user.pledges.find(p => TTA.includes(p.id)) : null
     // 3$ but not 5$+? => filter assets out
     const TTAPack = three && !fiveOrMore ? index.packs.find(p => p.publisher == "Tabletop Audio" && p.isRemote) : null
     const TTAFilter = TTAPack ? TTAPack.idx : -1
