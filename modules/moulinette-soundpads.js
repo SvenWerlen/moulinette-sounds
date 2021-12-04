@@ -55,6 +55,27 @@ export class MoulinetteSoundPads extends FormApplication {
     this.pack = tabletopPack
     this.folders = game.moulinette.applications.MoulinetteFileUtil.foldersFromIndex(sounds, [tabletopPack]);
 
+    // add ambience & music
+    let musicList
+    if(game.moulinette.cache.hasData("ttaMusic")) {
+      musicList = game.moulinette.cache.getData("ttaMusic")
+    } else {
+      const music = await fetch(game.moulinette.applications.MoulinetteClient.SERVER_URL + "/assets/" + game.moulinette.user.id + "/tta")
+      musicList = await music.json()
+      musicList.sort((a, b) => { return a.track_title.localeCompare(b.track_title) });
+      game.moulinette.cache.setData("ttaMusic", musicList)
+    }
+
+    if(musicList.length > 0) {
+      const list = []
+      let idx = this.sounds.length+1
+      for(const m of musicList) {
+        list.push({ idx: idx, name: m.track_title, filename: m.link })
+        this.sounds.push({ idx: idx++, name: m.track_title, filename: m.link })
+      }
+      this.folders["/Ambience & Music/"] = list
+    }
+
     const keys = Object.keys(this.folders).sort()
     const assets = []
     for(const k of keys) {
@@ -144,16 +165,11 @@ export class MoulinetteSoundPads extends FormApplication {
   async _onPlaySound(event) {
     event.preventDefault();
     const soundIdx = $(event.currentTarget).data('idx')
+
+    // sounds
     if(soundIdx && soundIdx > 0 && soundIdx <= this.sounds.length) {
-      const url = `${this.pack.path}/${this.sounds[soundIdx-1].filename}`
-//       for( const a of game.audio.playing ) {
-//         const sound = a[1]
-//         if(sound.src.startsWith(url)) {
-//           return sound.stop();
-//         }
-//       }
-      //const sound = await AudioHelper.play({src: url, volume: 1, loop: false}, true);
-      //game.audio.play(url + "?" + this.pack.sas, {volume: 1, loop: false});
+      const soundData = this.sounds[soundIdx-1]
+      const url = soundData.pack ? `${this.pack.path}/${soundData.filename}` : soundData.filename
 
       // add to playlist
       let playlist = game.playlists.find( pl => pl.data.name == MoulinetteSoundPads.MOULINETTE_PLAYLIST )
@@ -165,9 +181,9 @@ export class MoulinetteSoundPads extends FormApplication {
       // create sound if doesn't exist
       if(!sound) {
         sound = {}
-        sound.name = MoulinetteSoundPads.cleanSoundName(this.sounds[soundIdx-1].filename.replaceAll("/", " | "))
+        sound.name = soundData.pack ? MoulinetteSoundPads.cleanSoundName(soundData.filename.replaceAll("/", " | ")) : "Tabletopaudio | Music | " + soundData.name
         sound.volume = 1
-        sound.repeat = this.sounds[soundIdx-1].filename.includes("loop")
+        sound.repeat = soundData.pack ? soundData.filename.includes("loop") : true
         sound.path = url + "?" + this.pack.sas
         sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
       }
