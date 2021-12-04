@@ -19,6 +19,7 @@ export class MoulinetteSoundPads extends FormApplication {
       left: 0,
       width: 250,
       height: 30000, // force 100%
+      resizable: true,
       minimizable: false,
       closeOnSubmit: true,
       submitOnClose: false
