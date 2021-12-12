@@ -64,6 +64,7 @@ Hooks.once("ready", async function () {
         {id: "customReferences", icon: "fas fa-plus-square" ,name: game.i18n.localize("mtte.customReferences"), help: game.i18n.localize("mtte.customReferencesToolTip") }
       ],
       actionsExt: [
+        {id: "showSoundPads", icon: "fas fa-music" ,name: game.i18n.localize("mtte.showSoundPads"), help: game.i18n.localize("mtte.showSoundPadsToolTip") },
         {id: "activatePlaylist", icon: "fas fa-music" ,name: game.i18n.localize("mtte.activatePlaylistTab"), help: game.i18n.localize("mtte.activatePlaylistTabToolTip") },
         {id: "deletePlaylist", icon: "fas fa-trash" ,name: game.i18n.localize("mtte.deletePlaylist"), help: game.i18n.localize("mtte.deletePlaylistToolTip") },
         {id: "howto", icon: "fas fa-question-circle" ,name: game.i18n.localize("mtte.howto"), help: game.i18n.localize("mtte.howtoSoundsToolTip") }

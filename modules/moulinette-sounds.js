@@ -394,6 +394,9 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     else if(classList.contains("howto")) {
       new Dialog({title: game.i18n.localize("mtte.howto"), buttons: {}}, { id: "moulinette-help", classes: ["howto"], template: `modules/moulinette-sounds/templates/help.hbs`, width: 650, height: 700, resizable: true }).render(true)
     }
+    else if (classList.contains("showSoundPads")) {
+      (new game.moulinette.applications.MoulinetteSoundPads()).render(true)
+    }
     else if (classList.contains("activatePlaylist")) {
       ui.playlists.activate()
       // collapse all playlists but Moulinette

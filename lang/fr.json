@@ -58,6 +58,8 @@
   "mtte.saveFavorite": "Enregistrer favori",
   "mtte.saveFavoriteToolTip": "Enregistre le favori dans l'emplacement s\u00e9lectionn\u00e9",
   "mtte.shortText": "Texte court",
+  "mtte.showSoundPads": "Voir mixage",
+  "mtte.showSoundPadsToolTip": "Ouvre l'interface de mixage (populated from Moulinette Cloud)",
   "mtte.slot": "Emplacement",
   "mtte.slotNotAssigned": "Cet emplacement n'a pas \u00e9t\u00e9 d\u00e9fini! Ouverture de Moulinette Audio...",
   "mtte.soundboard": "Table de mixage",

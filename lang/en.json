@@ -58,6 +58,8 @@
   "mtte.saveFavorite": "Save favorite",
   "mtte.saveFavoriteToolTip": "Saves favorite into selected slot",
   "mtte.shortText": "Short text",
+  "mtte.showSoundPads": "Show soundpads",
+  "mtte.showSoundPadsToolTip": "Opens the SoundPad UI (populated from Moulinette Cloud)",
   "mtte.slot": "Slot",
   "mtte.slotNotAssigned": "This slot has not been yet defined! Opening Moulintte Audio...",
   "mtte.soundboard": "Soundboard",
