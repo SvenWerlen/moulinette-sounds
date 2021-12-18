@@ -14,6 +14,8 @@
   "mtte.configSoundPadKey": "SoundPads",
   "mtte.configSoundboardColumns": "Soundboard: shortcuts per row",
   "mtte.configSoundboardColumnsHint": "Number of shortcuts rendered on one row on the soundboard",
+  "mtte.configSoundboardHideUI": "Hide UI below soundboard",
+  "mtte.configSoundboardHideUIHint": "Hides the controls, navigation and logo when SoundBoard UI is opened. Improves the look-and-feel but could be annoying if you need both.",
   "mtte.configSoundboardRows": "Soundboard: number of rows",
   "mtte.configSoundboardRowsHint": "Number of rows on the soundboard",
   "mtte.customReferences": "Additional packs?",

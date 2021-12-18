@@ -95,10 +95,12 @@ export class MoulinetteSoundPads extends FormApplication {
    * Implements listeners
    */
   activateListeners(html) {
-    $("#controls").hide()
-    $("#logo").hide()
-    $("#navigation").hide()
-    $("#players").hide()
+    if(game.settings.get("moulinette-sounds", "soundboardHideUI")) {
+      $("#controls").hide()
+      $("#logo").hide()
+      $("#navigation").hide()
+      $("#players").hide()
+    }
 
     // keep html for later usage
     this.html = html
@@ -134,10 +136,12 @@ export class MoulinetteSoundPads extends FormApplication {
 
   close() {
     super.close()
-    $("#controls").show()
-    $("#logo").show()
-    $("#navigation").show()
-    $("#players").show()
+    if(game.settings.get("moulinette-sounds", "soundboardHideUI")) {
+      $("#controls").show()
+      $("#logo").show()
+      $("#navigation").show()
+      $("#players").show()
+    }
   }
 
   /**

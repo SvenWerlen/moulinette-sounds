@@ -37,6 +37,14 @@ Hooks.once("init", async function () {
     default: false,
     type: Boolean
   });
+  game.settings.register("moulinette-sounds", "soundboardHideUI", {
+    name: game.i18n.localize("mtte.configSoundboardHideUI"),
+    hint: game.i18n.localize("mtte.configSoundboardHideUIHint"),
+    scope: "world",
+    config: true,
+    default: true,
+    type: Boolean
+  });
   game.settings.register("moulinette", "soundboardPin", { scope: "world", config: false, type: Boolean, default: false })
 });
 

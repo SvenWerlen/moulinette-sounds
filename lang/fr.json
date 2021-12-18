@@ -14,6 +14,8 @@
   "mtte.configSoundPadKey": "Mixage Audio",
   "mtte.configSoundboardColumns": "Table de mixage: raccourcis par ligne",
   "mtte.configSoundboardColumnsHint": "Nombre de raccourcis (boutons) sur une ligne de la tablie de mixage",
+  "mtte.configSoundboardHideUI": "Masquer l'interface sous UI",
+  "mtte.configSoundboardHideUIHint": "Cache les contr\u00f4les, la navigation et le logo lorsque la table de mixage est ouverte. Am\u00e9liore le rendu de l'interface mais peut d\u00e9ranger si vous voulez utiliser les deux.",
   "mtte.configSoundboardRows": "Table de mixage: nombre de lignes",
   "mtte.configSoundboardRowsHint": "Nombre de lignes sur la table de mixage",
   "mtte.customReferences": "Packs additionnels?",
