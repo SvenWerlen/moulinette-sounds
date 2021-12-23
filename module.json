@@ -6,9 +6,9 @@
   "authors": [],
   "url": "https://github.com/SvenWerlen/moulinette-sounds",
   "flags": {},
-  "version": "2.13.0",
-  "minimumCoreVersion": "0.7.6",
-  "compatibleCoreVersion": "0.8.9",
+  "version": "3.0.1",
+  "minimumCoreVersion": "9",
+  "compatibleCoreVersion": "9",
   "scripts": [],
   "esmodules": [
     "moulinette-sounds.js"

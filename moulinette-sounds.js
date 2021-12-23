@@ -110,10 +110,10 @@ Hooks.once("ready", async function () {
  * 
  * !! Signature changed from (parent, data, update) to (parent, update) in 0.8
  */
-Hooks.on("preUpdatePlaylistSound", (parent, dataOrUpdate, updateV7) => {
+Hooks.on("preUpdatePlaylistSound", (parent, dataOrUpdate) => {
   if (game.user.isGM) {
-    const update = game.data.version.startsWith("0.7") ? updateV7 : dataOrUpdate
-    const data = game.data.version.startsWith("0.7") ? dataOrUpdate : parent.data
+    const update = dataOrUpdate
+    const data = parent.data
     let sound = -1
     // find matching sound
     const filename = data.path.split("/").pop()
@@ -181,11 +181,7 @@ Hooks.on("renderPlaylistDirectory", (app, html) => {
           sound.path = data.path
           const playlist = game.playlists.get($(pl).data("entity-id"))
           if(playlist) {
-            if(game.data.version.startsWith("0.7")) {
-              await playlist.createEmbeddedEntity("PlaylistSound", sound, {});
-            } else {
-              (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
-            }
+            (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
           } else {
             console.warn("Moulinette Sounds | Couldn't find playlist")
           }
