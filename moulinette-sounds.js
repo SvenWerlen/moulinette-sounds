@@ -46,6 +46,7 @@ Hooks.once("init", async function () {
     type: Boolean
   });
   game.settings.register("moulinette", "soundboardPin", { scope: "world", config: false, type: Boolean, default: false })
+  game.settings.register("moulinette", "soundpadVolume", { scope: "world", config: false, default: 1, type: Number });
 });
 
 

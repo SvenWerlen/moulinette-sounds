@@ -87,7 +87,7 @@ export class MoulinetteSoundPads extends FormApplication {
       assets.push("</div></div>")
     }
 
-    return { assets, 'noAsset': this.sounds.length == 0 }
+    return { assets, 'noAsset': this.sounds.length == 0, 'volume':  AudioHelper.volumeToInput(game.settings.get("moulinette", "soundpadVolume")) }
   }
 
 
@@ -120,11 +120,25 @@ export class MoulinetteSoundPads extends FormApplication {
     // actions
     html.find('.action').click(this._onAction.bind(this))
 
+    // keep in settings
+    html.find('.sound-volume').change(event => this._onSoundVolume(event));
+
     // put focus on search
     if(Object.keys(this.folders).length === 0) {
       html.find(".error").show()
     } else {
       html.find("#search").on('input', this._onSearch.bind(this));
+    }
+  }
+
+  _onSoundVolume(event) {
+    event.preventDefault();
+    const slider = event.currentTarget;
+
+    // store as setting
+    const volume = AudioHelper.inputToVolume(slider.value);
+    if (game.user.isGM) {
+      game.settings.set("moulinette", "soundpadVolume", volume);
     }
   }
 
@@ -192,8 +206,12 @@ export class MoulinetteSoundPads extends FormApplication {
         sound.path = url + "?" + this.pack.sas
         sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
       }
+
+      // adjust volume
+      const volume = game.settings.get("moulinette", "soundpadVolume");
+
       // play sound (reset URL)
-      playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, path: url + "?" + this.pack.sas, playing: !sound.data.playing}]);
+      playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, path: url + "?" + this.pack.sas, playing: !sound.data.playing, volume: volume}]);
     }
   }
 

@@ -133,6 +133,11 @@
 
 #moulinette-soundpads input {
   color: #ccc;
+  vertical-align: middle;
+}
+
+#moulinette-soundpads .volume {
+  font-size: 15px;
 }
 
 #moulinette-soundpads input#search::placeholder {
