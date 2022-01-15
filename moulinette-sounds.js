@@ -47,6 +47,23 @@ Hooks.once("init", async function () {
   });
   game.settings.register("moulinette", "soundboardPin", { scope: "world", config: false, type: Boolean, default: false })
   game.settings.register("moulinette", "soundpadVolume", { scope: "world", config: false, default: 1, type: Number });
+
+  game.keybindings.register("moulinette-core", "soundpadsKey", {
+    name: game.i18n.localize("mtte.configSoundPadKey"),
+    hint: game.i18n.localize("mtte.configSoundPadHint"),
+    editable: [{ key: "KeyS", modifiers: [ "Alt" ]}],
+    onDown: () => {
+      if(game.moulinette.applications.MoulinetteSoundPads) {
+        (new game.moulinette.applications.MoulinetteSoundPads()).render(true)
+      } else {
+        console.warn("Moulinette Sounds not enabled (or not up-to-date?)")
+      }
+    },
+    onUp: () => {},
+    restricted: true,  // Restrict this Keybinding to gamemaster only?
+    reservedModifiers: [],
+    precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL
+  })
 });
 
 
@@ -84,22 +101,6 @@ Hooks.once("ready", async function () {
         icon: "fas fa-thumbtack"
       }]
     })
-    
-    // Binding with a default key and a simple callback
-    if(typeof KeybindLib != "undefined") {
-      KeybindLib.register("moulinette-core", "soundpadsKey", {
-        name: game.i18n.localize("mtte.configSoundPadKey"),
-        hint: game.i18n.localize("mtte.configSoundPadHint"),
-        default: "Alt + KeyS",
-        onKeyDown: () => {
-          if(game.moulinette.applications.MoulinetteSoundPads) {
-            (new game.moulinette.applications.MoulinetteSoundPads()).render(true)
-          } else {
-            console.warn("Moulinette Sounds not enabled (or not up-to-date?)")
-          }
-        }
-      });
-    }
 
     console.log("Moulinette Sounds | Module loaded")
   }
