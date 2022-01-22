@@ -5,9 +5,10 @@ export class MoulinetteFavorite extends FormApplication {
   
   static WIDTH = {10: 420, 15: 630, 20: 840}
   
-  constructor(data) {
+  constructor(data, parent) {
     super()
     this.data = data
+    this.parent = parent
     if(this.data.slot) {
       this.selected = this.data.slot
     }
@@ -44,7 +45,7 @@ export class MoulinetteFavorite extends FormApplication {
             const fav = favorites["fav" + i]
             data["name"] = ""
             if(fav.faIcon) {
-              data["faIcon"] = fav.icon
+              data["faIcon"] = fav.icon.startsWith("fa") ? fav.icon : "fas fa-" + fav.icon
             } else if(fav.icon) {
               data["icon"] = fav.icon
             } else {
@@ -75,6 +76,22 @@ export class MoulinetteFavorite extends FormApplication {
       const icon = this.html.find("input.icon2").val()
       new FilePicker({callback: this._onPathChosen.bind(this), current: icon ? icon : "moulinette/images/", type: "image"}).render(true);
     }
+    else if(button.classList.contains("delete")) {
+      // prompt confirmation
+      let favorites = game.settings.get("moulinette", "soundboard")
+      const dialogDecision = await Dialog.confirm({
+        title: game.i18n.localize("mtte.deleteFavorite"),
+        content: game.i18n.format("mtte.deleteFavoriteContent", { from: favorites["fav" + this.selected].name }),
+      })
+      if(!dialogDecision) return;
+
+      delete favorites["fav" + this.selected]
+      await game.settings.set("moulinette", "soundboard", favorites)
+      this.close()
+      if(this.parent) {
+        this.parent.render()
+      }
+    }
     else if(button.classList.contains("save")) {
       const text = this.html.find("input.shortText").val()
       const icon = this.html.find("input.icon").val()
@@ -91,8 +108,10 @@ export class MoulinetteFavorite extends FormApplication {
       let favorites = game.settings.get("moulinette", "soundboard")
       favorites["fav" + this.selected] = { name: text, icon: (icon.length > 0 ? icon : icon2), faIcon: icon.length > 0, path: this.data.path, volume: this.data.volume }
       await game.settings.set("moulinette", "soundboard", favorites)
-      //Moulinette._createOptionsTable($('#controls'))
       this.close()
+      if(this.parent) {
+        this.parent.render()
+      }
     }
   }
   
@@ -136,6 +155,19 @@ export class MoulinetteFavorite extends FormApplication {
 
   activateListeners(html) {
     this.html = html
+
+    IconPicker.Init({
+      // Required: You have to set the path of IconPicker JSON file to "jsonUrl" option. e.g. '/content/plugins/IconPicker/dist/iconpicker-1.5.0.json'
+      jsonUrl: "/modules/moulinette-core/iconpicker/iconpicker.json",
+      // Optional: Change the buttons or search placeholder text according to the language.
+      searchPlaceholder: game.i18n.localize("mtte.searchIcon"),
+      showAllButton: game.i18n.localize("mtte.showAll"),
+      cancelButton: game.i18n.localize("mtte.cancel"),
+      noResultsFound: game.i18n.localize("mtte.noResultsFound"),
+      // v1.5.0 and the next versions borderRadius: '20px', // v1.5.0 and the next versions
+    });
+    IconPicker.Run('#GetIconPickerEdit');
+
     html.find("button").click(this._onClick.bind(this))
     html.find("h2 a.sound-control i").click(this._onTogglePreview.bind(this))
     html.find('.sound-volume').change(event => this._onSoundVolume(event));

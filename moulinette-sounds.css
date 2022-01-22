@@ -188,3 +188,52 @@
   color: red;
   text-align: center;
 }
+
+#moulinette-soundboard .boardrow {
+  display: flex;
+}
+
+#moulinette-soundboard .snd {
+  overflow: hidden;
+  width: 36px;
+  height: 36px;
+  box-sizing: content-box;
+  font-size: 24px;
+  line-height: 36px;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 4px var(--color-shadow-dark);
+  margin: 0 0 8px 0;
+  color: var(--color-text-light-4);
+  text-align: center;
+  border: 1px solid var(--color-border-dark);
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-block;
+  margin: 5px;
+}
+
+#moulinette-soundboard .snd.used:hover {
+  font-weight: bold;
+  font-size: large;
+  border: 1px solid red;
+  border-bottom: 1px solid #ff6400;
+  box-shadow: 0 0 4px #ff6400;
+}
+
+#moulinette-soundboard .snd.unused {
+  background: rgba(0, 0, 0, 0.1);
+  cursor: auto;
+}
+
+#moulinette-soundboard .gotoSounds {
+  color: var(--color-text-hyperlink);
+  text-decoration: underline;
+}
+
+#moulinette-soundboard .helpMsg {
+  display: none;
+}
+
+#moulinette-soundboard a i {
+  margin-left: 5px;
+}

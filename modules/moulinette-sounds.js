@@ -1,5 +1,6 @@
 import { MoulinetteBBCClient } from "./moulinette-bbc-client.js"
 import { MoulinetteFavorite } from "./moulinette-favorite.js"
+import { MoulinetteSoundBoard } from "./moulinette-soundboard.js"
 
 /**
  * Forge Module for sounds
@@ -7,10 +8,10 @@ import { MoulinetteFavorite } from "./moulinette-favorite.js"
 export class MoulinetteSounds extends game.moulinette.applications.MoulinetteForgeModule {
 
   static FOLDER_CUSTOM_SOUNDS   = "moulinette/sounds/custom"
-  
+
   static MOULINETTE_SOUNDBOARD  = "Moulinette Soundboard"
   static MOULINETTE_PLAYLIST    = "Moulinette Playlist"
-  
+
   constructor() {
     super()
   }
@@ -470,155 +471,13 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       }
     }
   }
-  
-  
-  /*** **************************** Soundboard *******************************************/
-  
-  getControls() {
-    let html = ""
-    let favorites = game.settings.get("moulinette", "soundboard")
-    const cols = game.settings.get("moulinette-sounds", "soundboardCols")
-    const rows = game.settings.get("moulinette-sounds", "soundboardRows")
-    
-    for(let r=0; r<rows; r++) {
-      html += `<ul><li class="title" data-type="sounds">${r == 0 ? game.i18n.localize("mtte.soundboard") : ""}</li>`
-      for(let c=0; c<cols; c++) {
-        const i = 1 + (r*cols) + c
-        let name = `${i}`
-        if(Object.keys(favorites).includes("fav" + i)) {
-          const fav = favorites["fav" + i]
-          if(fav.icon && fav.icon.length > 0) {
-            if(fav.faIcon) {
-              name = `<i class="fas fa-${fav.icon}" title="${fav.name}"></i>`
-            } else {
-              name = `<img class="icon" title="${fav.name}" src="${fav.icon}" draggable="true"/>`
-            }
-          } else {
-            name = fav.name
-          }
-        }
-        html += `<li class="fav" data-slot="${i}" draggable="true">${name}</li>`
-      }
-      html += "</ul>"
-    }
-    return html
-  }
-  
-  
-  async activateControlsListeners(html) {
-    html.find('.moulinette-options li.fav').click(ev => this._playFavorite(ev, html))
-    html.find('.moulinette-options li.fav').mousedown(ev => this._editFavorite(ev, html))
-    
-    html.find('.moulinette-options li.fav').on('dragstart',function (event) {
-      const slot = event.currentTarget.dataset.slot
-      event.originalEvent.dataTransfer.setData("text/plain", slot)
-    })
 
-    html.find('.moulinette-options li.fav').on('drop', async function (event) {
-      event.preventDefault();
-      const fromSlot = event.originalEvent.dataTransfer.getData("text/plain");
-      const toSlot = event.currentTarget.dataset.slot
-      let favorites = game.settings.get("moulinette", "soundboard")
-      if(fromSlot && toSlot && fromSlot != toSlot && Object.keys(favorites).includes("fav" + fromSlot)) {
-        const fromFav = favorites["fav" + fromSlot]
-        const toFav = Object.keys(favorites).includes("fav" + toSlot) ? favorites["fav" + toSlot] : null
-        let overwrite = null
-        // target not defined => move
-        if(!toFav) {
-          overwrite = true
-        }
-        // target defined => prompt for desired behaviour
-        else {
-          overwrite = await Dialog.confirm({
-            title: game.i18n.localize("mtte.moveFavorite"),
-            content: game.i18n.format("mtte.moveFavoriteContent", { from: fromFav.name, to: toFav.name}),
-          })
-          if(overwrite == null) return;
-        }
-        favorites["fav" + toSlot] = fromFav
-        if(overwrite) {
-          delete favorites["fav" + fromSlot]
-        } else {
-          favorites["fav" + fromSlot] = toFav
-        }
-        await game.settings.set("moulinette", "soundboard", favorites)
-        game.moulinette.applications.Moulinette._createOptionsTable($('#controls'))
-      }
-    })
-    
-    html.find('.moulinette-options li.fav').on('dragover',function (event) {
-      event.preventDefault();
-    })
-    
-    if(game.settings.get("moulinette", "soundboardPin")) {
-      html.find(".shortcut[data-type='pin']").addClass("active")
-    } 
-  }
-  
-  async _editFavorite(event, html) {
-    // right click only
-    if(event.which == 3) {
-      const slot = event.currentTarget.dataset.slot;
-      let favorites = game.settings.get("moulinette", "soundboard")
-      if(Object.keys(favorites).includes("fav" + slot)) {
-        const fav = favorites["fav" + slot]
-        let data = {name: fav.name, label: fav.name, path: fav.path, volume: fav.volume, slot: slot}
-        if(fav.faIcon) {
-          data["icon"] = fav.icon
-        } else if(fav.icon.length > 0) {
-          data["icon2"] = fav.icon
-        }
-        const moulinette = new MoulinetteFavorite(data);
-        moulinette.options.title = game.i18n.localize("mtte.favoriteEdit")
-        moulinette.render(true)
-      }
-    }
-  }
-  
-  async _playFavorite(event, html) {
-    if(game.settings.get("moulinette", "soundboardPin")) {
-      event.stopPropagation();
-    }
-    const slot = event.currentTarget.dataset.slot
-    if(slot) {
-      let favorites = game.settings.get("moulinette", "soundboard")
-      if(Object.keys(favorites).includes("fav" + slot)) {
-        const fav = favorites["fav" + slot]
-        // get playlist
-        let playlist = game.playlists.find( pl => pl.data.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
-        if(!playlist) {
-          playlist = await Playlist.create({name: MoulinetteSounds.MOULINETTE_SOUNDBOARD, mode: -1})
-        }
-        let path = fav.path
-        if(Array.isArray(path)) {
-          const rand = Math.floor((Math.random() * path.length));
-          path = path[rand]
-        } 
-        // get sound
-        let sound = playlist.sounds.find( s => s.path == path )
-        if(Array.isArray(sound)) sound = sound[0] // just in case multiple sounds have the same path
-        if(!sound) {
-          const name = path.split("/").pop()
-          const repeat = false
-          sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [{name: name, path: path, volume: Number(fav.volume)}], {}))[0]
-        }
-        playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: !sound.data.playing, volume: Number(fav.volume) }]);
-      } else {
-        ui.notifications.warn(game.i18n.localize("mtte.slotNotAssigned"));
-        const forgeClass = game.moulinette.modules.find(m => m.id == "forge").class
-        new forgeClass("sounds").render(true)
-        event.stopPropagation();
-      }
-    }
-  }
-  
-  
   async onShortcut(type) {
-    if(type == "pin") {
-      // toggle pin
-      await game.settings.set("moulinette", "soundboardPin", !game.settings.get("moulinette", "soundboardPin"))
-      $("#moulinetteOptions").find(".shortcut[data-type='pin']").toggleClass("active")
+    if(type == "soundpads") {
+      (new game.moulinette.applications.MoulinetteSoundPads()).render(true)
+    }
+    else if(type == "soundboard") {
+      (new MoulinetteSoundBoard()).render(true)
     }
   }
-  
 }

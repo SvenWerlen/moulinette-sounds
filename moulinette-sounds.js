@@ -79,6 +79,7 @@ Hooks.once("ready", async function () {
     const moduleClass = (await import("./modules/moulinette-sounds.js")).MoulinetteSounds
     game.moulinette.forge.push({
       id: "sounds",
+      layer: "sounds",
       icon: "fas fa-music",
       name: game.i18n.localize("mtte.sounds"),
       description: game.i18n.localize("mtte.soundsDescription"),
@@ -96,9 +97,13 @@ Hooks.once("ready", async function () {
         {id: "howto", icon: "fas fa-question-circle" ,name: game.i18n.localize("mtte.howto"), help: game.i18n.localize("mtte.howtoSoundsToolTip") }
       ],
       shortcuts: [{
-        id: "pin", 
-        name: game.i18n.localize("mtte.pinSoundBoard"),
-        icon: "fas fa-thumbtack"
+        id: "soundpads",
+        name: game.i18n.localize("mtte.soundpads"),
+        icon: "fas fa-file-audio"
+      },{
+        id: "soundboard",
+        name: game.i18n.localize("mtte.soundboard"),
+        icon: "fas fa-keyboard"
       }]
     })
 

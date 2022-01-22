@@ -50,13 +50,16 @@
   </p>
   <div class="form-group">
     <label>{{localize "mtte.faIcon"}} <a href="https://fontawesome.com/icons?d=gallery&m=free" target="_blank">Font Awesome</a></label>
-    <div class="form-fields">              
-      <input class="icon" type="text" name="icon" placeholder="ex: door-open" value="{{data.icon}}">
+    <div class="form-fields">
+      <input type="hidden" id="IconSourceIdEdit" name="icon" />
+      <input class="icon" type="text" id="IconInputEdit" placeHolder="{{localize "mtte.iconPlaceHolder"}}" value="{{data.icon}}"/>
+      <button type="button" id="GetIconPickerEdit" data-iconpicker-input="input#IconInputEdit" data-iconpicker-preview="i#PreviewIconEdit" class="search"><i class="fas fa-search" id="PreviewIconEdit"></i></button>
     </div>
   </div>
+
   <div class="form-group">
     <label>{{localize "mtte.localIcon"}}</label>
-    <div class="form-fields">              
+    <div class="form-fields">
       <input class="icon2" type="text" name="icon2" placeholder="ex: moulinette/images/gameicons/swordman.svg" value="{{data.icon2}}">
       <button type="submit" class="browse"><i class="fas fa-folder-open" title="{{localize "mtte.browse"}}"></i> </button>
     </div>
@@ -64,6 +67,7 @@
   <footer>
     <div class="actions">
       <button class="cancel"> {{localize "Cancel"}}</button>
+      <button class="delete"><i class="fas fa-trash"></i> {{localize "Delete"}}</button>
       <button class="save" title="{{localize "mtte.saveFavoriteToolTip"}}"><i class="fas fa-save"></i> {{localize "mtte.saveFavorite"}}</button>
     </div>
   </footer>
