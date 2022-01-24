@@ -69,24 +69,29 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? r.filename : `${URL}${this.assetsPacks[r.pack].path}/${r.filename}`)
     const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
     const name   = game.moulinette.applications.Moulinette.prettyText(r.filename.split("/").pop().replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
-    const icon   = sound && sound.playing ? "fa-square" : "fa-play"
-    const repeat = sound ? (sound.repeat ? "" : "inactive") : (repeatDefault ? "" : "inactive")
-    const volume = sound ? sound.volume : 0.5
-    
-    let html = `<div class="sound" data-path="${r.assetURL}" data-filename="${r.filename}" data-idx="${idx}">` 
-    html += `<span class="draggable"><i class="fas fa-music"></i></span><input id="snd-${idx}" type="checkbox" class="check">`
-    if(pack.special) {
-      const shortName = name.length <= 50 ? name : name.substring(0,50) + "..."
-      html += `<span class="audio" title="${name}"><label for="snd-${idx}">${shortName}</label></span><div class="sound-controls flexrow">`
-    } else {
-      html += `<span class="audio"><label for="snd-${idx}">${name}</label></span><div class="sound-controls flexrow">`
-    }
-    html += `<input class="sound-volume" type="range" title="${game.i18n.localize("PLAYLIST.SoundVolume")}" value="${volume}" min="0" max="1" step="0.05">`
-    html += `<a class="sound-control ${repeat}" data-action="sound-repeat" title="${game.i18n.localize("PLAYLIST.SoundLoop")}"><i class="fas fa-sync"></i></a>`
-    html += `<a class="sound-control" data-action="sound-play" title="${game.i18n.localize("PLAYLIST.SoundPlay")} / ${game.i18n.localize("PLAYLIST.SoundStop")}"><i class="fas ${icon}"></i></a>`
-    html += `<a class="sound-control" data-action="favorite" title="${game.i18n.localize("mtte.favoriteSound")}")}"><i class="far fa-bookmark"></i></a>`
-    html += `<a class="sound-control" data-action="clipboard" title="${game.i18n.localize("mtte.clipboardImageToolTip")}")}"><i class="far fa-clipboard"></i></a>`
-    html += "</div></div>"
+    const icon   = sound && sound.data.playing ? "fa-square" : "fa-play"
+    const repeat = sound ? (sound.data.repeat ? "" : "inactive") : (repeatDefault ? "" : "inactive")
+    const volume = sound ? sound.data.volume : 0.5
+
+    const durHr = Math.floor(r.duration / (3600))
+    const durMin = Math.floor((r.duration - 3600*durHr)/60)
+    const durSec = r.duration % 60
+    const duration = (durHr > 0 ? `${durHr}:${durMin.toString().padStart(2,'0')}` : durMin.toString()) + ":" + durSec.toString().padStart(2,'0')
+
+    const shortName = name.length <= 50 ? name : name.substring(0,50) + "..."
+    let html = `<div class="sound" data-path="${r.assetURL}" data-filename="${r.filename}" data-idx="${idx}">` +
+      `<div class="audio draggable">${name}</div>` +
+      `<div class="background"><i class="fas fa-music"></i></div>` +
+      `<div class="duration"><i class="far fa-hourglass"></i> ${duration}</div>` +
+      `<div class="sound-controls">` +
+        `<div class="ctrl sound-volume"><input type="range" title="${game.i18n.localize("PLAYLIST.SoundVolume")}" value="${volume}" min="0" max="1" step="0.05"></div>` +
+        `<div class="ctrl sound-repeat"><a class="${repeat}" data-action="sound-repeat" title="${game.i18n.localize("PLAYLIST.SoundLoop")}"><i class="fas fa-sync"></i></a></div>` +
+        `<div class="ctrl sound-play"><a data-action="sound-play" title="${game.i18n.localize("PLAYLIST.SoundPlay")} / ${game.i18n.localize("PLAYLIST.SoundStop")}"><i class="fas ${icon}"></i></a></div>` +
+        `<div class="ctrl sound-preview"><a data-action="sound-preview" title="${game.i18n.localize("mtte.previewSound")}"><i class="fas fa-headphones"></i></a></div>` +
+        `<div class="ctrl sound-favorite"><a data-action="favorite" title="${game.i18n.localize("mtte.favoriteSound")}")}"><i class="far fa-bookmark"></i></a></div>` +
+        `<div class="ctrl sound-clipboard"><a data-action="clipboard" title="${game.i18n.localize("mtte.clipboardImageToolTip")}")}"><i class="far fa-clipboard"></i></a></div>` +
+      "</div></div>"
+
     return html
   }
   
@@ -129,13 +134,10 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
 
     const viewMode = game.settings.get("moulinette", "displayMode")
     const playlist = game.playlists.find( pl => pl.data.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
-    
-    // header
-    assets.push(`<div class="pack header sound"><span><i class="fas fa-music"></i></span>` +
-        `<input type="checkbox" class="check all" name="all" value="-1">` +
-        `<span class="audio"><b>${game.i18n.localize("mtte.name")}</b></span>`+
-        "</div>")
-    
+
+    // header (hidden audio for preview)
+    assets.push("<audio id=\"previewSound\"></audio>")
+
     // view #1 (all mixed)
     if(viewMode == "tiles") {
       let idx = 0
@@ -173,18 +175,12 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     this.html = html
     
     this.html.find('.check.all').change(event => html.find('.check:not(".all")').prop('checked', event.currentTarget.checked) );
-    this.html.find('.sound-volume').change(event => this._onSoundVolume(event));
-    this.html.find(".sound-control").click(this._onSoundControl.bind(this))
+    this.html.find('.sound-volume input').change(event => this._onSoundVolume(event));
+    this.html.find(".sound-controls a").click(this._onSoundControl.bind(this))
     this.html.find(".draggable").click(this._onToggleSelect.bind(this))
-    
-    this._alternateColors()
+
   }
-  
-  _alternateColors() {
-    $('.forge .sound').removeClass("alt");
-    $('.forge .sound:even').addClass("alt");
-  }
-  
+
   onDragStart(event) {
     const div = event.currentTarget.closest(".sound");
     const idx = div.dataset.idx;
@@ -258,8 +254,12 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
   _onSoundVolume(event) {
     event.preventDefault();
     const slider = event.currentTarget;
+    const volume = AudioHelper.inputToVolume(slider.value);
     const path = slider.closest(".sound").dataset.path;
     
+    // Update preview volume, too
+    this.html.find("#previewSound").prop("volume", volume);
+
     // retrieve sound in play list
     const playlist = game.playlists.find( pl => pl.data.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
     if(!playlist) return;
@@ -267,7 +267,6 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     if(!sound) return
 
     // Only push the update if the user is a GM
-    const volume = AudioHelper.inputToVolume(slider.value);
     if (game.user.isGM) {
       playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, volume: volume}]);
     }
@@ -320,20 +319,41 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       if(!sound) {
         sound = soundData
         sound.name = game.moulinette.applications.Moulinette.prettyText(result.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
-        sound.volume = AudioHelper.inputToVolume($(source.closest(".sound")).find(".sound-volume").val())
+        sound.volume = AudioHelper.inputToVolume($(source.closest(".sound")).find(".sound-volume input").val())
         sound.repeat = !$(source.closest(".sound")).find("a[data-action='sound-repeat']").hasClass('inactive')
-        sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
       }
-      // toggle play
-      if(source.dataset.action == "sound-play") {
-        playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: !sound.data.playing}]);
-      } else if(source.dataset.action == "sound-repeat") {
-        if(sound) {
-          playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, repeat: !sound.data.repeat}]);
+      // CONTROL : preview sound
+      if(source.dataset.action == "sound-preview") {
+        const previewSound = document.getElementById("previewSound")
+        if(previewSound.paused) {
+          previewSound.src = sound.path
+          previewSound.play();
         }
-      } else if(source.dataset.action == "favorite") {
+        else {
+          previewSound.pause();
+          previewSound.currentTime = 0;
+        }
+      }
+      // CONTROL : toggle play
+      else if(source.dataset.action == "sound-play") {
+        // add sound to playlist before playing it (unless already exists)
+        if(!sound.id) sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
+        playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: !sound.data.playing}]);
+      }
+      // CONTROL : toggle loop mode
+      else if(source.dataset.action == "sound-repeat") {
+        if(sound.id) {
+          playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, repeat: !sound.data.repeat}]);
+        } else {
+          $(source).attr("class", !sound.repeat ? "sound-control" : "sound-control inactive")
+        }
+      }
+      // CONTROL : add to control board
+      else if(source.dataset.action == "favorite") {
         new MoulinetteFavorite({path: sound.path, name: sound.name, label: sound.name, volume: sound.volume }).render(true)
-      } else if(source.dataset.action == "clipboard") {
+      }
+      // CONTROL : copy path to clipboard
+      else if(source.dataset.action == "clipboard") {
         // put path into clipboard
         if(navigator.clipboard) {
           navigator.clipboard.writeText(sound.path)
@@ -349,8 +369,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       }
     }
   }
-  
-  
+
   /**
    * Implements actions
    *  
@@ -367,6 +386,30 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         publishers.push(...await FileUtil.scanAssetsInCustomFolders(customPath, EXT))
       }
       publishers.push(...await FileUtil.scanSourceAssets("sounds", EXT))
+      // append durations from all sounds
+      const audio = new Audio()
+      audio.preload = "metadata"
+      const promises = []
+      for(const c of publishers) {
+        for(const p of c.packs) {
+          const durations = []
+          for(const a of p.assets) {
+            audio.src = `${p.path}/${FileUtil.encodeURL(a)}`
+            const promise = new Promise( (resolve,reject)=>{
+              audio.onloadedmetadata = function() {
+                resolve(audio.duration);
+              }
+              audio.onerror = function() {
+                console.warn(`Moulinette Sounds | Audio file '${decodeURIComponent(audio.src)}' seems corrupted`)
+                resolve(0.0)
+              }
+            });
+            const duration = await promise
+            durations.push(Math.round(duration))
+          }
+          p.durations = durations
+        }
+      }
       await FileUtil.upload(new File([JSON.stringify(publishers)], "index.json", { type: "application/json", lastModified: new Date() }), "index.json", "/moulinette/sounds", MoulinetteSounds.FOLDER_CUSTOM_SOUNDS, true)
       ui.notifications.info(game.i18n.localize("mtte.indexingDone"));
       // clear cache

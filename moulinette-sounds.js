@@ -113,29 +113,48 @@ Hooks.once("ready", async function () {
 
 
 /**
- * Change Sound play status
- * 
- * !! Signature changed from (parent, data, update) to (parent, update) in 0.8
+ * Update playing status
  */
-Hooks.on("preUpdatePlaylistSound", (parent, dataOrUpdate) => {
+Hooks.on("preUpdatePlaylist", (playlist, updateData) => {
   if (game.user.isGM) {
-    const update = dataOrUpdate
-    const data = parent.data
+    const soundStatus = []
+    for(const s of updateData.sounds) {
+      const sound = playlist.data.sounds.find(snd => snd.id == s._id)
+      let soundIdx = -1
+      // find matching sound
+      const filename = sound.data.path.split("/").pop()
+      $(`.list .sound`).each(function( idx, snd ) {
+        const fn = $(snd).attr("data-filename")
+        if(fn && fn.endsWith(filename)) {
+          soundIdx = $(snd).attr("data-idx")
+        }
+      })
+      $(`.list .sound[data-idx='${soundIdx}'] a[data-action='sound-play'] i`).attr("class", s.playing ? "fas fa-square" : "fas fa-play")
+    }
+  }
+});
+
+
+/**
+ * Update sound properties
+ */
+Hooks.on("preUpdatePlaylistSound", (playlistSound, updateData) => {
+  if (game.user.isGM) {
     let sound = -1
     // find matching sound
-    const filename = data.path.split("/").pop()
-    $(`.list .sound`).each(function( idx, snd ) { 
+    const filename = playlistSound.path.split("/").pop()
+    $(`.list .sound`).each(function( idx, snd ) {
       const fn = $(snd).attr("data-filename")
-      if(fn && fn.endsWith(filename)) { 
-        sound = $(snd).attr("data-idx") 
+      if(fn && fn.endsWith(filename)) {
+        sound = $(snd).attr("data-idx")
       }
     })
-    if(Object.keys(update).includes("playing")) {
-      $(`.list .sound[data-idx='${sound}'] a[data-action='sound-play'] i`).attr("class", update.playing ? "fas fa-square" : "fas fa-play")
-    } else if(Object.keys(update).includes("volume")) {
-      $(`.list .sound[data-idx='${sound}'] input.sound-volume`).val(AudioHelper.volumeToInput(update.volume))
-    } else if(Object.keys(update).includes("repeat")) {
-      $(`.list .sound[data-idx='${sound}'] a[data-action='sound-repeat']`).attr("class", update.repeat ? "sound-control" : "sound-control inactive")
+    if(Object.keys(updateData).includes("volume")) {
+      $(`.list .sound[data-idx='${sound}'] .sound-volume input`).val(AudioHelper.volumeToInput(updateData.volume))
+    } else if(Object.keys(updateData).includes("repeat")) {
+      $(`.list .sound[data-idx='${sound}'] a[data-action='sound-repeat']`).attr("class", updateData.repeat ? "sound-control" : "sound-control inactive")
+    } else if(Object.keys(updateData).includes("playing")) {
+      $(`.list .sound[data-idx='${sound}'] a[data-action='sound-play'] i`).attr("class", updateData.playing ? "fas fa-square" : "fas fa-play")
     }
   }
 });

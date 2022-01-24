@@ -1,46 +1,116 @@
 .mtte .list .sound {
-  display:flex;
+  position: relative;
+  display: inline-flex;
   align-items:center;
-  padding-left: 3px;
-  min-height: 22px;
-}
-
-.mtte .list .sound.alt {
-  background: rgba(255, 255, 255, 0.2);
+  justify-content: center;
+  width: 100px;
+  height: 100px;
 }
 
 .mtte .list .sound:hover, .mtte .list .sound.selected {
-  background-color: #666;
-  color: #eee;
+  border: 1px solid red;
+  border-bottom: 1px solid #ff6400;
+  box-shadow: 0 0 4px #ff6400;
+  border-radius: 5px;
 }
 
-.mtte .list .sound.header {
-  background-color: #333;
-  color: #eee;
+.mtte .background {
+  position: absolute;
+  font-size: 64px;
+  opacity: 0.2;
+  color: #777;
+}
+
+.mtte .duration {
+  position: absolute;
+  left: 6px;
+  bottom: 2px;
+}
+
+.mtte .duration i {
+  font-size: 12px;
+}
+
+.mtte .list .sound:hover .duration {
+  visibility: hidden;
 }
 
 .mtte .audio {
-  flex: auto;
-  white-space: pre-wrap;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  font-size: 14px;
   word-wrap: break-word;
-  margin-right: 3px;
+  /*word-break: break-all;*/
+  width: 88px;
+  height: 60px;
+  overflow: hidden;
+}
+
+.mtte .list .sound:hover .audio {
+  font-size: 12px;
+  z-index: 5;
 }
 
 .mtte .audioSource {
   width: 350px;
 }
 
+.mtte .sound-controls {
+  z-index: 50;
+  visibility: hidden;
+}
+
+.mtte .sound-controls .sound-play .fa-square {
+  visibility: visible;
+}
+
+.mtte .list .sound:hover .sound-controls {
+  visibility: visible;
+}
+
 .mtte .sound-volume {
-  width: 100px;
-  margin-right: 10px;
+  position: absolute;
+  width: 90px;
+  bottom: 2px;
+  left: 4px;
 }
 
-.mtte .sound-control {
-  margin-right: 10px;
+.mtte .ctrl.sound-preview {
+  position: absolute;
+  top: 4px;
+  left: 4px;
 }
 
-.mtte .sound-control.inactive {
-  color: #777;
+.mtte .ctrl.sound-favorite {
+  position: absolute;
+  top: 4px;
+  left: 22px;
+}
+
+.mtte .ctrl.sound-clipboard {
+  position: absolute;
+  top: 4px;
+  left: 37px;
+}
+
+.mtte .ctrl.sound-play {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+
+.mtte .ctrl.sound-repeat {
+  position: absolute;
+  top: 4px;
+  right: 20px;
+  color: var(--color-text-hyperlink);
+}
+
+.mtte .sound-repeat .inactive {
+  color: black;
 }
 
 .mtte button.selected {
