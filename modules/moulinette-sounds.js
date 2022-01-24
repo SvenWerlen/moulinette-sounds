@@ -59,7 +59,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
   /**
    * Generate a new asset (HTML) for the given result and idx
    */
-  generateAsset(playlist, r, idx) {
+  generateAsset(playlist, r, idx, selSound) {
     const URL = this.assetsPacks[r.pack].isRemote ? "" : game.moulinette.applications.MoulinetteFileUtil.getBaseURL()
     const pack   = this.assetsPacks[r.pack]
     
@@ -72,15 +72,16 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     const icon   = sound && sound.data.playing ? "fa-square" : "fa-play"
     const repeat = sound ? (sound.data.repeat ? "" : "inactive") : (repeatDefault ? "" : "inactive")
     const volume = sound ? sound.data.volume : 0.5
+    const selected = selSound && r.assetURL == selSound.sound.assetURL ? "selected" : ""
 
     const durHr = Math.floor(r.duration / (3600))
     const durMin = Math.floor((r.duration - 3600*durHr)/60)
     const durSec = r.duration % 60
     const duration = (durHr > 0 ? `${durHr}:${durMin.toString().padStart(2,'0')}` : durMin.toString()) + ":" + durSec.toString().padStart(2,'0')
 
-    const shortName = name.length <= 50 ? name : name.substring(0,50) + "..."
-    let html = `<div class="sound" data-path="${r.assetURL}" data-filename="${r.filename}" data-idx="${idx}">` +
-      `<div class="audio draggable">${name}</div>` +
+    const shortName = name.length <= 40 ? name : name.substring(0,40) + "..."
+    let html = `<div class="sound ${selected}" data-path="${r.assetURL}" data-filename="${r.filename}" data-idx="${idx}">` +
+      `<div class="audio draggable" title="${name.replaceAll("\"", "'")}">${shortName}</div>` +
       `<div class="background"><i class="fas fa-music"></i></div>` +
       `<div class="duration"><i class="far fa-hourglass"></i> ${duration}</div>` +
       `<div class="sound-controls">` +
@@ -113,7 +114,9 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       if(results.status != 200) {
         return ui.notifications.warn(game.i18n.localize("mtte.specialSearchFailed"));
       }
-      this.searchResults = results.data.results.map((r) => { return { pack: pack, assetURL: `https://sound-effects-media.bbcrewind.co.uk/mp3/${r.id}.mp3`, filename: r.description}})
+      this.searchResults = results.data.results.map((r) => {
+        return { pack: pack, assetURL: `https://sound-effects-media.bbcrewind.co.uk/mp3/${r.id}.mp3`, filename: r.description, duration: Math.round(r.duration/1000)}
+      })
     }
     // normal cases
     else {
@@ -134,9 +137,10 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
 
     const viewMode = game.settings.get("moulinette", "displayMode")
     const playlist = game.playlists.find( pl => pl.data.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
+    const selSound = game.moulinette.cache.getData("selSound")
 
     // header (hidden audio for preview)
-    assets.push("<audio id=\"previewSound\"></audio>")
+    assets.push("<audio id=\"prevSound\"></audio>")
 
     // view #1 (all mixed)
     if(viewMode == "tiles") {
@@ -144,7 +148,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       this.searchResults.sort((a,b) => a.filename.split("/").pop().localeCompare(b.filename.split("/").pop()))
       for(const r of this.searchResults) {
         idx++
-        assets.push(this.generateAsset(playlist, r, idx))
+        assets.push(this.generateAsset(playlist, r, idx, selSound))
       }
     }
     // view #2 (by folder)
@@ -158,7 +162,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
           assets.push(`<div class="folder" data-path="${k}"><h2>${k} (${folders[k].length})</div>`)
         }
         for(const a of folders[k]) {
-          assets.push(this.generateAsset(playlist, a, a.idx))
+          assets.push(this.generateAsset(playlist, a, a.idx, selSound))
         }
       }
     }
@@ -258,7 +262,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     const path = slider.closest(".sound").dataset.path;
     
     // Update preview volume, too
-    this.html.find("#previewSound").prop("volume", volume);
+    this.html.find("#prevSound").prop("volume", volume);
 
     // retrieve sound in play list
     const playlist = game.playlists.find( pl => pl.data.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
@@ -324,7 +328,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       }
       // CONTROL : preview sound
       if(source.dataset.action == "sound-preview") {
-        const previewSound = document.getElementById("previewSound")
+        const previewSound = document.getElementById("prevSound")
         if(previewSound.paused) {
           previewSound.src = sound.path
           previewSound.play();

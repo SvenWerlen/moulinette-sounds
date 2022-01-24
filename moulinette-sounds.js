@@ -86,15 +86,16 @@ Hooks.once("ready", async function () {
       instance: new moduleClass(),
       actions: [
         {id: "indexSounds", icon: "fas fa-sync" ,name: game.i18n.localize("mtte.indexSounds"), help: game.i18n.localize("mtte.indexSoundsToolTip") },
-        {id: "playChecked", icon: "fas fa-check-square" ,name: game.i18n.localize("mtte.playChecked"), help: game.i18n.localize("mtte.playCheckedToolTip") },
+        //{id: "playChecked", icon: "fas fa-check-square" ,name: game.i18n.localize("mtte.playChecked"), help: game.i18n.localize("mtte.playCheckedToolTip") },
         {id: "favoriteChecked", icon: "fas fa-bookmark" ,name: game.i18n.localize("mtte.favoriteChecked"), help: game.i18n.localize("mtte.favoriteCheckedToolTip") },
-        {id: "customReferences", icon: "fas fa-plus-square" ,name: game.i18n.localize("mtte.customReferences"), help: game.i18n.localize("mtte.customReferencesToolTip") }
+        {id: "customReferences", icon: "fas fa-plus-square" ,name: game.i18n.localize("mtte.customReferences"), help: game.i18n.localize("mtte.customReferencesToolTip") },
+        {id: "howto", icon: "fas fa-question-circle" ,name: game.i18n.localize("mtte.howto"), help: game.i18n.localize("mtte.howtoSoundsToolTip") }
       ],
       actionsExt: [
-        {id: "showSoundPads", icon: "fas fa-music" ,name: game.i18n.localize("mtte.showSoundPads"), help: game.i18n.localize("mtte.showSoundPadsToolTip") },
-        {id: "activatePlaylist", icon: "fas fa-music" ,name: game.i18n.localize("mtte.activatePlaylistTab"), help: game.i18n.localize("mtte.activatePlaylistTabToolTip") },
-        {id: "deletePlaylist", icon: "fas fa-trash" ,name: game.i18n.localize("mtte.deletePlaylist"), help: game.i18n.localize("mtte.deletePlaylistToolTip") },
-        {id: "howto", icon: "fas fa-question-circle" ,name: game.i18n.localize("mtte.howto"), help: game.i18n.localize("mtte.howtoSoundsToolTip") }
+        //{id: "showSoundPads", icon: "fas fa-music" ,name: game.i18n.localize("mtte.showSoundPads"), help: game.i18n.localize("mtte.showSoundPadsToolTip") },
+        //{id: "activatePlaylist", icon: "fas fa-music" ,name: game.i18n.localize("mtte.activatePlaylistTab"), help: game.i18n.localize("mtte.activatePlaylistTabToolTip") },
+        //{id: "deletePlaylist", icon: "fas fa-trash" ,name: game.i18n.localize("mtte.deletePlaylist"), help: game.i18n.localize("mtte.deletePlaylistToolTip") },
+        //{id: "howto", icon: "fas fa-question-circle" ,name: game.i18n.localize("mtte.howto"), help: game.i18n.localize("mtte.howtoSoundsToolTip") }
       ],
       shortcuts: [{
         id: "soundpads",
@@ -116,7 +117,7 @@ Hooks.once("ready", async function () {
  * Update playing status
  */
 Hooks.on("preUpdatePlaylist", (playlist, updateData) => {
-  if (game.user.isGM) {
+  if (game.user.isGM && updateData.sounds) {
     const soundStatus = []
     for(const s of updateData.sounds) {
       const sound = playlist.data.sounds.find(snd => snd.id == s._id)
@@ -205,7 +206,7 @@ Hooks.on("renderPlaylistDirectory", (app, html) => {
           sound.volume = AudioHelper.inputToVolume(data.volume)
           sound.repeat = data.repeat
           sound.path = data.path
-          const playlist = game.playlists.get($(pl).data("entity-id"))
+          const playlist = game.playlists.get($(pl).data("document-id"))
           if(playlist) {
             (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
           } else {
