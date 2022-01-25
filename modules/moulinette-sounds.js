@@ -60,13 +60,14 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
    * Generate a new asset (HTML) for the given result and idx
    */
   generateAsset(playlist, r, idx, selSound) {
-    const URL = this.assetsPacks[r.pack].isRemote ? "" : game.moulinette.applications.MoulinetteFileUtil.getBaseURL()
+    const FileUtil = game.moulinette.applications.MoulinetteFileUtil
+    const URL = this.assetsPacks[r.pack].isRemote ? "" : FileUtil.getBaseURL()
     const pack   = this.assetsPacks[r.pack]
     
     const repeatDefault = game.settings.get("moulinette-sounds", "defaultRepeatOn")
     
     r.sas = pack.sas ? "?" + pack.sas : ""
-    r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? r.filename : `${URL}${this.assetsPacks[r.pack].path}/${r.filename}`)
+    r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? FileUtil.encodeURL(r.filename) : `${URL}${this.assetsPacks[r.pack].path}/${FileUtil.encodeURL(r.filename)}`)
     const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
     const name   = game.moulinette.applications.Moulinette.prettyText(r.filename.split("/").pop().replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
     const icon   = sound && sound.data.playing ? "fa-square" : "fa-play"
@@ -216,13 +217,14 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
    * - data.path will be set with local path
    */
   static async downloadAsset(data) {
+    const FileUtil = game.moulinette.applications.MoulinetteFileUtil
     if(!data.pack.isRemote || data.pack.special) {
-      const baseURL = game.moulinette.applications.MoulinetteFileUtil.getBaseURL()
-      data.path =  data.sound.assetURL
+      const baseURL = FileUtil.getBaseURL()
+      data.path = data.sound.assetURL
     }
     else {
-      await game.moulinette.applications.MoulinetteFileUtil.downloadAssetDependencies(data.sound, data.pack, "sounds")
-      data.path = game.moulinette.applications.MoulinetteFileUtil.getBaseURL() + game.moulinette.applications.MoulinetteFileUtil.getMoulinetteBasePath("sounds", data.pack.publisher, data.pack.name) + data.sound.filename      
+      await FileUtil.downloadAssetDependencies(data.sound, data.pack, "sounds")
+      data.path = FileUtil.getBaseURL() + FileUtil.getMoulinetteBasePath("sounds", data.pack.publisher, data.pack.name) + FileUtil.encodeURL(data.sound.filename)
     }
 
     // Clear useless info
@@ -380,6 +382,8 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
    */
   async onAction(classList) {
     const FileUtil = game.moulinette.applications.MoulinetteFileUtil
+
+    // ACTION - INDEX
     if(classList.contains("indexSounds")) {
       ui.notifications.info(game.i18n.localize("mtte.indexingInProgress"));
       this.html.find(".indexSounds").prop("disabled", true);
@@ -421,15 +425,15 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       this.clearCache()
       return true
     }
+    // ACTION - REFERENCES
     else if(classList.contains("customReferences")) {
       new Dialog({title: game.i18n.localize("mtte.customReferencesPacks"), buttons: {}}, { id: "moulinette-info", classes: ["info"], template: "modules/moulinette-sounds/templates/custom-references.hbs", width: 650, height: "auto" }).render(true)
     }
+    // ACTION - HELP / HOWTO
     else if(classList.contains("howto")) {
       new Dialog({title: game.i18n.localize("mtte.howto"), buttons: {}}, { id: "moulinette-help", classes: ["howto"], template: `modules/moulinette-sounds/templates/help.hbs`, width: 650, height: 700, resizable: true }).render(true)
     }
-    else if (classList.contains("showSoundPads")) {
-      (new game.moulinette.applications.MoulinetteSoundPads()).render(true)
-    }
+    // ACTION - ACTIVATE PLAYLIST (not in use any more)
     else if (classList.contains("activatePlaylist")) {
       ui.playlists.activate()
       // collapse all playlists but Moulinette
@@ -445,6 +449,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         }
       })
     }
+    // ACTION - DELETE PLAYLIST (not in use any more)
     else if (classList.contains("deletePlaylist")) {
       Dialog.confirm({
         title: game.i18n.localize("mtte.deletePlayListAction"),
