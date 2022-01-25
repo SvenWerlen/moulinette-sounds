@@ -7,6 +7,8 @@ export class MoulinetteSoundPads extends FormApplication {
   
   constructor(data) {
     super()
+
+    this.showAll = false
   }
   
   static get defaultOptions() {
@@ -108,11 +110,12 @@ export class MoulinetteSoundPads extends FormApplication {
     // enable expand listeners
     html.find(".expand").click(this._onToggleExpand.bind(this));
 
-    // close on right click
-    html.find(".sidebar").mousedown(this._onMouseDown.bind(this))
-
     // play sound on click
     html.find(".sound").click(this._onPlaySound.bind(this));
+
+    // toggle on right click
+    html.find(".expand").mousedown(this._onMouseDown.bind(this))
+    html.find(".sound").mousedown(this._onMouseDown.bind(this))
 
     // put focus on search
     html.find("#search").focus();
@@ -123,11 +126,55 @@ export class MoulinetteSoundPads extends FormApplication {
     // keep in settings
     html.find('.sound-volume').change(event => this._onSoundVolume(event));
 
+    // toggle visibility
+    const parent = this
+    html.find('.toggleVisibility').click(event => {
+      parent.showAll = !parent.showAll
+      parent.toggleVisibility()
+      $(event.currentTarget).find("i").attr("class", parent.showAll ? "fas fa-eye" : "fas fa-eye-slash")
+      parent._onSearch(event)
+    })
+
     // put focus on search
     if(Object.keys(this.folders).length === 0) {
       html.find(".error").show()
     } else {
       html.find("#search").on('input', this._onSearch.bind(this));
+    }
+
+    this.toggleVisibility()
+  }
+
+  /**
+   * Show or hide entries based on settings
+   */
+  toggleVisibility() {
+    const showAll = this.showAll
+    // make all visible
+    this.html.find(".folder").show().removeClass("hide")
+    this.html.find(".sound").show().removeClass("hide")
+    // show/hide
+    const hidden = game.settings.get("moulinette", "soundpadHidden")
+    const packId = this.pack.packId.toString()
+    if(packId in hidden) {
+      const filtered = hidden[packId]
+      const sounds = this.sounds
+      this.html.find(".folder").each(function(idx, f) {
+        if(filtered.includes($(f).data('path'))) {
+          $(f).addClass("hide")
+          if(!showAll) {
+            $(f).hide()
+          }
+        }
+      })
+      this.html.find(".sound").each(function(idx, s) {
+        if(filtered.includes(sounds[$(s).data('idx')-1].filename)) {
+          $(s).addClass("hide")
+          if(!showAll) {
+            $(s).hide()
+          }
+        }
+      })
     }
   }
 
@@ -142,9 +189,43 @@ export class MoulinetteSoundPads extends FormApplication {
     }
   }
 
-  _onMouseDown(event) {
+  async _onMouseDown(event) {
     if(event.which == 3) {
-      this.close()
+      const source = event.currentTarget
+      let key = null
+      if(source.classList.contains("expand")) {
+        const folder = $(source).closest('.folder')
+        key = folder.data('path')
+        if(key) {
+          if(!this.showAll) {
+            $(folder).toggle()
+          }
+          $(folder).toggleClass("hide")
+        }
+      } else {
+        const idx = $(source).data('idx')
+        if(idx && idx > 0 && idx <= this.sounds.length) {
+          key = this.sounds[idx-1].filename
+          if(!this.showAll) {
+            $(source).toggle()
+          }
+          $(source).toggleClass("hide")
+        }
+      }
+
+      if(!key) return;
+      const hidden = game.settings.get("moulinette", "soundpadHidden")
+      const packId = this.pack.packId.toString()
+      if(!(packId in hidden)) {
+        hidden[packId] = []
+      }
+      if(hidden[packId].includes(key)) {
+        const idx = hidden[packId].indexOf(key)
+        hidden[packId].splice(idx, 1)
+      } else {
+        hidden[packId].push(key)
+      }
+      await game.settings.set("moulinette", "soundpadHidden", hidden)
     }
   }
 
@@ -221,8 +302,17 @@ export class MoulinetteSoundPads extends FormApplication {
     const searchTerms = text.split(" ")
     const parent = this
 
+    const showAll = this.showAll
+    const hidden = game.settings.get("moulinette", "soundpadHidden")
+    const packId = this.pack.packId.toString()
+    const filtered = packId in hidden ? hidden[packId] : []
+
     // get list of all matching sounds
     const matches = this.sounds.filter(s => {
+      // by default, hide all "hidden" entries
+      if(!showAll && filtered.includes(this.sounds[s.idx-1].filename)) {
+        return false;
+      }
       for( const f of searchTerms ) {
         if( s.name.toLowerCase().indexOf(f) < 0 ) {
           return false;
@@ -235,7 +325,8 @@ export class MoulinetteSoundPads extends FormApplication {
 
     // show/hide sounds
     this.html.find(".sound").each(function(idx, sound) {
-      if(matchesIdx.includes($(sound).data('idx'))) {
+      const match = matchesIdx.includes($(sound).data('idx'))
+      if(match) {
         $(sound).show()
       } else {
         $(sound).hide()
@@ -248,7 +339,8 @@ export class MoulinetteSoundPads extends FormApplication {
     for(const k of keys) {
       const sounds = this.folders[k].filter(s => matchesIdx.includes(s.idx))
       const folder = this.html.find(`[data-path='${k}']`)
-      if(sounds.length == 0) {
+      const folderHidden = filtered.includes(k)
+      if(sounds.length == 0 || (!showAll && folderHidden)) {
         folder.hide()
       } else {
         // replace the cound inside the ()

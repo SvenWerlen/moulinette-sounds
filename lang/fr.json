@@ -3,7 +3,7 @@
   "mtte.activatePlaylistTabToolTip": "Activer l'onglet playlist",
   "mtte.browse": "Consultez vos répertoires et sélectionnez une image/icône",
   "mtte.cancel": "Annuler",
-  "mtte.clickToClose": "Clic droit n'importe où pour fermer",
+  "mtte.clickToToggle": "Clic droit pour afficher/masquer une entrée",
   "mtte.clipboardImageToolTip": "Copier le chemin vers le presse-papier. Vous pouvez ainsi le réutiliser ailleurs.",
   "mtte.clipboardSoundSuccess": "Le chemin (path) du son a été copié dans le presse-papier avec succès!",
   "mtte.clipboardUnsupported": "Votre navigateur ne supporte/active pas 'navigator.clipboard'!",

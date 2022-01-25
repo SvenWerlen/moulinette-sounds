@@ -3,7 +3,7 @@
   "mtte.activatePlaylistTabToolTip": "Activates the playlist tab",
   "mtte.browse": "Browse folders and select an icon",
   "mtte.cancel": "Cancel",
-  "mtte.clickToClose": "Right-click anywhere to close",
+  "mtte.clickToToggle": "Right-click to toggle visibiliy",
   "mtte.clipboardImageToolTip": "Copy path into clipboard. You can then reuse elsewhere.",
   "mtte.clipboardSoundSuccess": "Sound path successfully copied into clipboard!",
   "mtte.clipboardUnsupported": "Your browser doesn't support/enable 'navigator.clipboard'!",

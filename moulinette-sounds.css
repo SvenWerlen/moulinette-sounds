@@ -35,7 +35,7 @@
   visibility: hidden;
 }
 
-.mtte .audio {
+.mtte .list .audio {
   position: absolute;
   display: flex;
   justify-content: center;
@@ -71,7 +71,7 @@
   visibility: visible;
 }
 
-.mtte .sound-volume {
+.mtte .list .sound-volume {
   position: absolute;
   width: 90px;
   bottom: 2px;
@@ -204,6 +204,18 @@
 #moulinette-soundpads input {
   color: #ccc;
   vertical-align: middle;
+  width: calc(100% - 30px);
+}
+
+#moulinette-soundpads .hide {
+  color: red;
+}
+
+#moulinette-soundpads .toggleVisibility {
+  font-size: 16px;
+  color: white;
+  padding: 2px;
+  vertical-align: middle;
 }
 
 #moulinette-soundpads .volume {
@@ -217,7 +229,7 @@
 #moulinette-soundpads .sounds {
   color: #ccc;
   top: 110px;
-  bottom: 30px;
+  bottom: 45px;
   width: 100%;
   overflow: scroll;
 }
@@ -245,7 +257,7 @@
 #moulinette-soundpads footer {
   font-size: 20px;
   color: white;
-  height: 30px;
+  height: 45px;
   bottom: 0px;
   width: 100%;
   border-top: 1px solid white;
