@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2022-02-
+### Fixed
+- Special Char Can Make Music Don't work #6
+- Drag & drop to playlist doesn't work on V9 (anymore)
+### Changed
+- UI harmonization (refactoring)
+- Preview sound
+- Index and show sound duration
+
 ## [3.2.0] - 2022-01-15
 ### Changed
 - Keybind from FoundryVTT (doesn't require extra module anymore)
