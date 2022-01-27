@@ -261,7 +261,10 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     event.preventDefault();
     const slider = event.currentTarget;
     const volume = AudioHelper.inputToVolume(slider.value);
-    const path = slider.closest(".sound").dataset.path;
+    let path = slider.closest(".sound").dataset.path;
+    if(path.startsWith("https")) {
+      path = path.split("/").pop()
+    }
     
     // Update preview volume, too
     this.html.find("#prevSound").prop("volume", volume);
@@ -269,7 +272,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     // retrieve sound in play list
     const playlist = game.playlists.find( pl => pl.data.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
     if(!playlist) return;
-    const sound = playlist.sounds.find( s => s.path == path )
+    const sound = playlist.sounds.find( s => s.path.endsWith(path) )
     if(!sound) return
 
     // Only push the update if the user is a GM
@@ -324,7 +327,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       let sound = playlist.sounds.find( s => s.path == soundData.path )
       if(!sound) {
         sound = soundData
-        sound.name = game.moulinette.applications.Moulinette.prettyText(result.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
+        sound.name = game.moulinette.applications.Moulinette.prettyText(result.filename.replace("/"," | ").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
         sound.volume = AudioHelper.inputToVolume($(source.closest(".sound")).find(".sound-volume input").val())
         sound.repeat = !$(source.closest(".sound")).find("a[data-action='sound-repeat']").hasClass('inactive')
       }
