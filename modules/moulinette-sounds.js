@@ -69,9 +69,9 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     r.sas = pack.sas ? "?" + pack.sas : ""
     r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? FileUtil.encodeURL(r.filename) : `${URL}${this.assetsPacks[r.pack].path}/${FileUtil.encodeURL(r.filename)}`)
     const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
-    const name   = game.moulinette.applications.Moulinette.prettyText(r.filename.split("/").pop().replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
+    const name   = r.title && r.title.length > 0 ? r.title : game.moulinette.applications.Moulinette.prettyText(r.filename.split("/").pop().replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
     const icon   = sound && sound.data.playing ? "fa-square" : "fa-play"
-    const repeat = sound ? (sound.data.repeat ? "" : "inactive") : (repeatDefault ? "" : "inactive")
+    const repeat = r.loop || (sound ? (sound.data.repeat ? "" : "inactive") : (repeatDefault ? "" : "inactive"))
     const volume = sound ? sound.data.volume : 0.5
     const selected = selSound && r.assetURL == selSound.sound.assetURL ? "selected" : ""
 
@@ -82,7 +82,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
 
     const shortName = name.length <= 40 ? name : name.substring(0,40) + "..."
     let html = `<div class="sound ${selected}" data-path="${r.assetURL}" data-filename="${r.filename}" data-idx="${idx}">` +
-      `<div class="audio draggable" title="${name.replaceAll("\"", "'")}">${shortName}</div>` +
+      `<div class="audio draggable" title="${r.filename.split("/").pop().replaceAll("\"", "'")}">${shortName}</div>` +
       `<div class="background"><i class="fas fa-music"></i></div>` +
       `<div class="duration"><i class="far fa-hourglass"></i> ${duration}</div>` +
       `<div class="sound-controls">` +
