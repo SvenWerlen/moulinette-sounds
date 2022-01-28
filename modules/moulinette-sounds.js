@@ -69,7 +69,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     r.sas = pack.sas ? "?" + pack.sas : ""
     r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? FileUtil.encodeURL(r.filename) : `${URL}${this.assetsPacks[r.pack].path}/${FileUtil.encodeURL(r.filename)}`)
     const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
-    const name   = r.title && r.title.length > 0 ? r.title : game.moulinette.applications.Moulinette.prettyText(r.filename.split("/").pop().replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
+    const name   = game.moulinette.applications.Moulinette.prettyText(r.title && r.title.length > 0 ? r.title : r.filename.split("/").pop().replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
     const icon   = sound && sound.data.playing ? "fa-square" : "fa-play"
     const repeat = r.loop || (sound ? (sound.data.repeat ? "" : "inactive") : (repeatDefault ? "" : "inactive"))
     const volume = sound ? sound.data.volume : 0.5
@@ -81,6 +81,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     const duration = (durHr > 0 ? `${durHr}:${durMin.toString().padStart(2,'0')}` : durMin.toString()) + ":" + durSec.toString().padStart(2,'0')
 
     const shortName = name.length <= 40 ? name : name.substring(0,40) + "..."
+
     let html = `<div class="sound ${selected}" data-path="${r.assetURL}" data-filename="${r.filename}" data-idx="${idx}">` +
       `<div class="audio draggable" title="${r.filename.split("/").pop().replaceAll("\"", "'")}">${shortName}</div>` +
       `<div class="background"><i class="fas fa-music"></i></div>` +
