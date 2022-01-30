@@ -43,7 +43,7 @@
   "mtte.favoriteSound": "Add sound to tableboard",
   "mtte.filter": "Keyword filter",
   "mtte.howto": "Help",
-  "mtte.howtoSoundsToolTip": "Howto: how does it work? How to install new sounds.",
+  "mtte.howtoToolTip": "See the available documentation (dynamic).",
   "mtte.iconPlaceHolder": "FA icon. Use picker =>",
   "mtte.indexSounds": "Index sounds",
   "mtte.indexSoundsToolTip": "Moulinette will scan the custom folder and index all found sounds. You must re-index everytime the folder changes.",

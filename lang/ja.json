@@ -40,7 +40,7 @@
   "mtte.favoriteSound": "音声をお気に入りに追加",
   "mtte.filter": "キーワードフィルター",
   "mtte.howto": "ヘルプ",
-  "mtte.howtoSoundsToolTip": "使い方：新たな音声ファイルのインストール方法",
+  "mtte.howtoToolTip": "使い方：新たな画像・タイルのインストール方法",
   "mtte.iconPlaceHolder": "FAアイコンまたは選択 =>",
   "mtte.indexSounds": "音声インデックス",
   "mtte.indexSoundsToolTip": "Moulinetteは指定されたカスタムフォルダを走査しすべての音声をインデックスします。フォルダが変わる度にインデックスし直す必要があります。",

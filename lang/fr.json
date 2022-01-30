@@ -43,7 +43,7 @@
   "mtte.favoriteSound": "Ajouter son à la table de mixage",
   "mtte.filter": "Filtre (mots-clés)",
   "mtte.howto": "Aide",
-  "mtte.howtoSoundsToolTip": "Aide: comment ça fonctionne? Comment installer de nouveaux sons/musiques.",
+  "mtte.howtoToolTip": "Accéder aux rubriques d'aide",
   "mtte.iconPlaceHolder": "Icône FA. Rechercher =>",
   "mtte.indexSounds": "Indexer sons",
   "mtte.indexSoundsToolTip": "Moulinette va balayer le répertoire \"custom\" et indexer tous les sons/musiques trouvées. Vous devez ré-indexer à chaque changement dans le répertoire.",

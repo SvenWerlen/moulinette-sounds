@@ -27,11 +27,22 @@
   bottom: 2px;
 }
 
+.mtte .checkbox {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  visibility: hidden;
+}
+
+.mtte .sound.checked .checkbox {
+  visibility: visible;
+}
+
 .mtte .duration i {
   font-size: 12px;
 }
 
-.mtte .list .sound:hover .duration {
+.mtte .list .sound:hover .duration, .mtte .list .sound:hover .checkbox {
   visibility: hidden;
 }
 

@@ -121,6 +121,7 @@ export class MoulinetteSoundBoard extends FormApplication {
       event.preventDefault();
     })
 
+    this.bringToTop()
   }
 
   async _editFavorite(event, html) {

@@ -86,6 +86,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       `<div class="audio draggable" title="${r.filename.split("/").pop().replaceAll("\"", "'")}">${shortName}</div>` +
       `<div class="background"><i class="fas fa-music"></i></div>` +
       `<div class="duration"><i class="far fa-hourglass"></i> ${duration}</div>` +
+      `<div class="checkbox"><i class="far fa-check-square"></i></a></div>` +
       `<div class="sound-controls">` +
         `<div class="ctrl sound-volume"><input type="range" title="${game.i18n.localize("PLAYLIST.SoundVolume")}" value="${volume}" min="0" max="1" step="0.05"></div>` +
         `<div class="ctrl sound-repeat"><a class="${repeat}" data-action="sound-repeat" title="${game.i18n.localize("PLAYLIST.SoundLoop")}"><i class="fas fa-sync"></i></a></div>` +
@@ -180,11 +181,17 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     // keep html for later usage
     this.html = html
     
-    this.html.find('.check.all').change(event => html.find('.check:not(".all")').prop('checked', event.currentTarget.checked) );
     this.html.find('.sound-volume input').change(event => this._onSoundVolume(event));
     this.html.find(".sound-controls a").click(this._onSoundControl.bind(this))
     this.html.find(".draggable").click(this._onToggleSelect.bind(this))
+    this.html.find(".sound").mousedown(this._onMouseDown.bind(this))
+  }
 
+  _onMouseDown(event) {
+    if(event.which == 3) {
+      const source = event.currentTarget;
+      $(source).toggleClass("checked")
+    }
   }
 
   onDragStart(event) {
@@ -435,7 +442,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     }
     // ACTION - HELP / HOWTO
     else if(classList.contains("howto")) {
-      new Dialog({title: game.i18n.localize("mtte.howto"), buttons: {}}, { id: "moulinette-help", classes: ["howto"], template: `modules/moulinette-sounds/templates/help.hbs`, width: 650, height: 700, resizable: true }).render(true)
+      new game.moulinette.applications.MoulinetteHelp("sounds").render(true)
     }
     // ACTION - ACTIVATE PLAYLIST (not in use any more)
     else if (classList.contains("activatePlaylist")) {
@@ -477,15 +484,16 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         no: () => {}
       });
     }
-    else if (classList.contains("playChecked") || classList.contains("favoriteChecked")) {
+    // ACTION - ADD ALL CHECKED TO SOUND BOARD
+    else if (classList.contains("favoriteChecked")) {
       // prepare selected sounds
       let selected = []
       let isFirst = true
       const instance = this
-      this.html.find(".check:checkbox:checked").each(function(index) { 
+      this.html.find(".checked").each(function(index) {
         const idx = this.closest(".sound").dataset.idx;
         const name = $(this).closest(".sound").find('.audio').text()
-        const volume = $(this).closest(".sound").find('.sound-volume').val()
+        const volume = $(this).closest(".sound").find('.sound-volume input').val()
         
         if(instance.searchResults && idx > 0 && idx <= instance.searchResults.length) {
           const result = instance.searchResults[idx-1]
@@ -494,7 +502,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
           isFirst = false
         }
       })
-      
+
       // download all sounds (if from cloud)
       SceneNavigation._onLoadProgress(game.i18n.localize("mtte.downloadingSounds"),0);  
       let idx = 0
@@ -509,16 +517,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       
       if(selected.length == 0) return;
       
-      if (classList.contains("playChecked")) {
-        // delete any existing playlist
-        let playlist = game.playlists.find( pl => pl.data.name == MoulinetteSounds.MOULINETTE_PLAYLIST )
-        if(playlist) { await playlist.delete() }
-        playlist = await Playlist.create({name: MoulinetteSounds.MOULINETTE_PLAYLIST})
-        
-        await playlist.createEmbeddedDocuments("PlaylistSound", selected)
-        await playlist.playAll()
-      }
-      else if (classList.contains("favoriteChecked")) { 
+      if (classList.contains("favoriteChecked")) {
         const paths = selected.length == 1 ? selected[0].path : selected.map( (sound, idx) => sound.path )
         const name = selected.length == 1 ? selected[0].name : game.i18n.localize("mtte.favoriteMultiple")
         const volume = selected[0].volume
