@@ -12,6 +12,8 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
   static MOULINETTE_SOUNDBOARD  = "Moulinette Soundboard"
   static MOULINETTE_PLAYLIST    = "Moulinette Playlist"
 
+  static AUDIO_EXT = ["mp3", "ogg", "wav", "webm", "m4a", "flac"]
+
   constructor() {
     super()
   }
@@ -69,7 +71,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     r.sas = pack.sas ? "?" + pack.sas : ""
     r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? FileUtil.encodeURL(r.filename) : `${URL}${this.assetsPacks[r.pack].path}/${FileUtil.encodeURL(r.filename)}`)
     const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
-    const name   = game.moulinette.applications.Moulinette.prettyText(r.title && r.title.length > 0 ? r.title : r.filename.split("/").pop().replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
+    const name   = game.moulinette.applications.Moulinette.prettyText(r.title && r.title.length > 0 ? r.title : r.filename.split("/").pop())
     const icon   = sound && sound.data.playing ? "fa-square" : "fa-play"
     const repeat = r.loop || (sound ? (sound.data.repeat ? "" : "inactive") : (repeatDefault ? "" : "inactive"))
     const volume = sound ? sound.data.volume : 0.5
@@ -335,7 +337,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       let sound = playlist.sounds.find( s => s.path == soundData.path )
       if(!sound) {
         sound = soundData
-        sound.name = game.moulinette.applications.Moulinette.prettyText(result.filename.replace("/"," | ").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
+        sound.name = game.moulinette.applications.Moulinette.prettyText(result.filename.replace("/"," | "))
         sound.volume = AudioHelper.inputToVolume($(source.closest(".sound")).find(".sound-volume input").val())
         sound.repeat = !$(source.closest(".sound")).find("a[data-action='sound-repeat']").hasClass('inactive')
       }
@@ -398,13 +400,12 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     if(classList.contains("indexSounds")) {
       ui.notifications.info(game.i18n.localize("mtte.indexingInProgress"));
       this.html.find(".indexSounds").prop("disabled", true);
-      const EXT = ["mp3", "ogg", "wav", "webm", "m4a"]
-      let publishers = await FileUtil.scanAssets(MoulinetteSounds.FOLDER_CUSTOM_SOUNDS, EXT)
+      let publishers = await FileUtil.scanAssets(MoulinetteSounds.FOLDER_CUSTOM_SOUNDS, MoulinetteSounds.AUDIO_EXT)
       const customPath = game.settings.get("moulinette-core", "customPath")
       if(customPath) {
-        publishers.push(...await FileUtil.scanAssetsInCustomFolders(customPath, EXT))
+        publishers.push(...await FileUtil.scanAssetsInCustomFolders(customPath, MoulinetteSounds.AUDIO_EXT))
       }
-      publishers.push(...await FileUtil.scanSourceAssets("sounds", EXT))
+      publishers.push(...await FileUtil.scanSourceAssets("sounds", MoulinetteSounds.AUDIO_EXT))
       // append durations from all sounds
       const audio = new Audio()
       audio.preload = "metadata"
