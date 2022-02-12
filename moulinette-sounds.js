@@ -1,4 +1,5 @@
 import { MoulinetteSoundPads } from "./modules/moulinette-soundpads.js"
+import { MoulinetteSoundsUtil } from "./modules/moulinette-sounds-util.js"
 
 Hooks.once("init", async function () {
   console.log("Moulinette Sounds | Init")
@@ -191,8 +192,7 @@ Hooks.on('dropCanvasData', (canvas, data) => {
 Hooks.on('renderAmbientSoundConfig', async function(cl, html, sound) { 
   const selSound = game.moulinette.cache.getData("selSound")
   if( !sound.data.path && selSound ) { 
-    const clSound = await import("./modules/moulinette-sounds.js")
-    await clSound.MoulinetteSounds.downloadAsset(selSound)
+    await MoulinetteSoundsUtil.downloadAsset(selSound)
     html.find("input[name='path']").val(selSound.path)
   }
 });
@@ -210,7 +210,7 @@ Hooks.on("renderPlaylistDirectory", (app, html) => {
         if(data && data.source == "mtte" && data.sound && data.pack) {
           const sound = data.sound
           const clSound = await import("./modules/moulinette-sounds.js")
-          await clSound.MoulinetteSounds.downloadAsset(data)
+          await MoulinetteSoundsUtil.downloadAsset(data)
           sound.name = game.moulinette.applications.Moulinette.prettyText(sound.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
           sound.volume = AudioHelper.inputToVolume(data.volume)
           sound.repeat = data.repeat
