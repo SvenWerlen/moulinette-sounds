@@ -19,6 +19,8 @@
   "mtte.configSoundboardHideUIHint": "Cache les contrôles, la navigation et le logo lorsque la table de mixage est ouverte. Améliore le rendu de l'interface mais peut déranger si vous voulez utiliser les deux.",
   "mtte.configSoundboardRows": "Table de mixage: nombre de lignes",
   "mtte.configSoundboardRowsHint": "Nombre de lignes sur la table de mixage",
+  "mtte.configSoundpadHideTTAWarning": "Masquer l'avertissement TTA",
+  "mtte.configSoundpadHideTTAWarningHint": "Un avertissement est affiché à chaque fois qu'un son de Tabletop Audio est joué et que votre abonnement à TTA est de 3$/mo. Vous pouvez désactiver cet avertissement avec cette configuration. L'avertissement demeure dans les journaux (logs).",
   "mtte.customReferences": "Packs additionnels?",
   "mtte.customReferencesPacks": "Packs disponibles sur Internet (que vous pouvez télécharger)",
   "mtte.customReferencesToolTip": "Moulinette fournit une liste de références (ex: jetons gratuits au téléchargement).",
@@ -77,6 +79,7 @@
   "mtte.sounds": "Sons",
   "mtte.soundsDescription": "Recherche offerte par Moulinette. Sons et musiques fournies par MJ/admin.",
   "mtte.specialSearchFailed": "Quelquechose s'est mal déroulé pendant la requête / recherche",
+  "mtte.ttaWarning": "En supportant Tabletop Audio (TTA) avec l'abonnement \"3$ per month\", les sons ne sont PAS téléchargés et les URLs expirent après 24h. Veuillez toujours les jouer à partir de cette interface ou supportez TTA avec un abonnement plus élevé. Vous pouvez désactiver cet avertissement dans la configuration.",
   "mtte.type": "Type",
   "mtte.typeFree": "Gratuit"
 }

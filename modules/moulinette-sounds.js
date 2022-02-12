@@ -1,6 +1,7 @@
 import { MoulinetteBBCClient } from "./moulinette-bbc-client.js"
 import { MoulinetteFavorite } from "./moulinette-favorite.js"
 import { MoulinetteSoundBoard } from "./moulinette-soundboard.js"
+import { MoulinetteSoundsUtil } from "./moulinette-sounds-util.js"
 
 /**
  * Forge Module for sounds
@@ -36,12 +37,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       game.moulinette.applications.MoulinetteClient.SERVER_URL + "/byoa/assets/" + game.moulinette.user.id,
       game.moulinette.applications.MoulinetteFileUtil.getBaseURL() + "moulinette/sounds/custom/index.json"], bbc)
     
-    // 5$, 10$, 20$, 50$ can download sounds
-    const TTA = ["362213", "362214", "362215", "362216"]
-    const three = game.moulinette.user.pledges ? game.moulinette.user.pledges.find(p => p.id == "362212") : null
-    const fiveOrMore = game.moulinette.user.pledges ? game.moulinette.user.pledges.find(p => TTA.includes(p.id)) : null
-    // 3$ but not 5$+? => filter assets out
-    const TTAPack = three && !fiveOrMore ? index.packs.find(p => p.publisher == "Tabletop Audio" && p.isRemote) : null
+    const TTAPack = MoulinetteSoundsUtil.noTTADownload() ? index.packs.find(p => p.publisher == "Tabletop Audio" && p.isRemote) : null
     const TTAFilter = TTAPack ? TTAPack.idx : -1
 
     // remove thumbnails and non-sounds from assets
@@ -222,25 +218,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
   }
   
-  /**
-   * Download the asset received from event
-   * - data.path will be set with local path
-   */
-  static async downloadAsset(data) {
-    const FileUtil = game.moulinette.applications.MoulinetteFileUtil
-    if(!data.pack.isRemote || data.pack.special) {
-      const baseURL = FileUtil.getBaseURL()
-      data.path = data.sound.assetURL
-    }
-    else {
-      await FileUtil.downloadAssetDependencies(data.sound, data.pack, "sounds")
-      data.path = FileUtil.getBaseURL() + FileUtil.getMoulinetteBasePath("sounds", data.pack.publisher, data.pack.name) + FileUtil.encodeURL(data.sound.filename)
-    }
 
-    // Clear useless info
-    delete data.pack
-    delete data.sound
-  }
   
   
   /**
@@ -248,7 +226,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
    */
   static async createSound(data) {
     if ( !data.sound || !data.pack ) return;
-    await MoulinetteSounds.downloadAsset(data)
+    await MoulinetteSoundsUtil.downloadAsset(data)
     
     // Validate that the drop position is in-bounds and snap to grid
     if ( !canvas.grid.hitArea.contains(data.x, data.y) ) return false;
@@ -332,7 +310,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       }
       // download sound
       let soundData = { sound: result, pack:  this.assetsPacks[result.pack] }
-      await MoulinetteSounds.downloadAsset(soundData)
+      await MoulinetteSoundsUtil.downloadAsset(soundData)
       // get sound
       let sound = playlist.sounds.find( s => s.path == soundData.path )
       if(!sound) {
@@ -509,7 +487,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       let idx = 0
       for(const sel of selected) {
         idx++;
-        await MoulinetteSounds.downloadAsset(sel.soundData)
+        await MoulinetteSoundsUtil.downloadAsset(sel.soundData)
         sel.path = sel.soundData.path // retrieve new path
         delete sel.soundData          // delete soundData that is not used by FVTT
         SceneNavigation._onLoadProgress(game.i18n.localize("mtte.downloadingSounds"), Math.round((idx / selected.length)*100));

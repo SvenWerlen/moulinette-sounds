@@ -1,5 +1,7 @@
+import { MoulinetteSoundsUtil } from "./moulinette-sounds-util.js"
+
 /*************************
- * Moulinette Favorite
+ * Moulinette SoundPads
  *************************/
 export class MoulinetteSoundPads extends FormApplication {
 
@@ -21,6 +23,7 @@ export class MoulinetteSoundPads extends FormApplication {
       left: 0,
       width: 250,
       height: 30000, // force 100%
+      dragDrop: [{dragSelector: ".draggable"}],
       resizable: true,
       minimizable: false,
       closeOnSubmit: true,
@@ -84,7 +87,7 @@ export class MoulinetteSoundPads extends FormApplication {
     for(const k of keys) {
       assets.push(`<div class="folder" data-path="${k}"><h2 class="expand"><i class="fas fa-folder"></i> ${k.slice(0, -1).split('/').pop() } (${this.folders[k].length})</h2><div class="assets">`)
       for(const a of this.folders[k]) {
-        assets.push(`<div class="sound" data-idx="${a.idx}"><i class="fas fa-music"></i> <span class="audio">${a.name}${a.filename.includes("loop") ? ' <i class="fas fa-sync"></i>' : "" }</label></span></div>`)
+        assets.push(`<div class="sound draggable" data-idx="${a.idx}"><i class="fas fa-music"></i> <span class="audio">${a.name}${a.filename.includes("loop") ? ' <i class="fas fa-sync"></i>' : "" }</label></span></div>`)
       }
       assets.push("</div></div>")
     }
@@ -262,6 +265,45 @@ export class MoulinetteSoundPads extends FormApplication {
     }
   }
 
+
+  _onDragStart(event) {
+    console.log(event)
+    const soundIdx = $(event.currentTarget).data('idx')
+
+    if(MoulinetteSoundsUtil.noTTADownload()) {
+      return console.warn("MoulinetteSounds | " + game.i18n.localize("mtte.ttaWarning"))
+    }
+
+    // sounds
+    if(soundIdx && soundIdx > 0 && soundIdx <= this.sounds.length) {
+      const soundData = this.sounds[soundIdx-1]
+      const pack = duplicate(this.pack)
+      const sound = duplicate(soundData)
+      sound.sas = "?" + pack.sas
+
+      // ambience sound from Tabletop Audio
+      if(!soundData.pack) {
+        pack.name = "Ambience & Music"
+        pack.special = true
+        sound.assetURL = soundData.filename
+      }
+
+      const dragData = {
+        source: "mtte",
+        type: "Sound",
+        sound: sound,
+        pack: pack,
+        volume: game.settings.get("moulinette", "soundpadVolume"),
+        repeat: soundData.pack ? soundData.filename.includes("loop") : true
+      };
+
+      dragData.source = "mtte"
+      event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+    }
+  }
+
+
+
   async _onPlaySound(event) {
     event.preventDefault();
     const soundIdx = $(event.currentTarget).data('idx')
@@ -269,12 +311,29 @@ export class MoulinetteSoundPads extends FormApplication {
     // sounds
     if(soundIdx && soundIdx > 0 && soundIdx <= this.sounds.length) {
       const soundData = this.sounds[soundIdx-1]
-      const url = soundData.pack ? `${this.pack.path}/${soundData.filename}` : soundData.filename
+      let url = soundData.pack ? `${this.pack.path}/${soundData.filename}` : soundData.filename
 
       // add to playlist
       let playlist = game.playlists.find( pl => pl.data.name == MoulinetteSoundPads.MOULINETTE_PLAYLIST )
       if(!playlist) {
         playlist = await Playlist.create({name: MoulinetteSoundPads.MOULINETTE_PLAYLIST, mode: -1})
+      }
+
+      // download sound (unless user doesn't support TTA with appropriate tier)
+      if(!MoulinetteSoundsUtil.noTTADownload()) {
+        const data = {
+          pack: duplicate(this.pack),
+          sound: { filename: soundData.filename, sas: "?" + this.pack.sas }
+        }
+        // ambience sound from Tabletop Audio
+        if(!soundData.pack) {
+          data.pack.name = "Ambience & Music"
+          data.sound.assetURL = soundData.filename
+          data.pack.special = true
+        }
+
+        await MoulinetteSoundsUtil.downloadAsset(data)
+        url = data.path
       }
 
       let sound = playlist.sounds.find( s => s.path.startsWith(url) )
@@ -284,7 +343,7 @@ export class MoulinetteSoundPads extends FormApplication {
         sound.name = soundData.pack ? MoulinetteSoundPads.cleanSoundName(soundData.filename.replaceAll("/", " | ")) : "Tabletopaudio | Music | " + soundData.name
         sound.volume = 1
         sound.repeat = soundData.pack ? soundData.filename.includes("loop") : true
-        sound.path = url + "?" + this.pack.sas
+        sound.path = url + (MoulinetteSoundsUtil.noTTADownload() ? "?" + this.pack.sas : "")
         sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
       }
 
@@ -292,7 +351,15 @@ export class MoulinetteSoundPads extends FormApplication {
       const volume = game.settings.get("moulinette", "soundpadVolume");
 
       // play sound (reset URL)
-      playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, path: url + "?" + this.pack.sas, playing: !sound.data.playing, volume: volume}]);
+      playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, path: sound.path, playing: !sound.data.playing, volume: volume}]);
+
+      // show warning
+      if(MoulinetteSoundsUtil.noTTADownload()) {
+        if(!game.settings.get("moulinette-sounds", "soundpadHideTTAWarning")) {
+          ui.notifications.warn(game.i18n.localize("mtte.ttaWarning"))
+        }
+        console.warn("MoulinetteSounds | " + game.i18n.localize("mtte.ttaWarning"))
+      }
     }
   }
 

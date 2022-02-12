@@ -19,6 +19,8 @@
   "mtte.configSoundboardHideUIHint": "Hides the controls, navigation and logo when SoundBoard UI is opened. Improves the look-and-feel but could be annoying if you need both.",
   "mtte.configSoundboardRows": "Soundboard: number of rows",
   "mtte.configSoundboardRowsHint": "Number of rows on the soundboard",
+  "mtte.configSoundpadHideTTAWarning": "Hide TTA warning",
+  "mtte.configSoundpadHideTTAWarningHint": "A warning is displayed everytime a sound is played from Tabletop Audio but you are supporting TTA with 3$/mo tier. You can disable this warning with this configuration. The warning remains visible inside the console logs.",
   "mtte.customReferences": "Additional packs?",
   "mtte.customReferencesPacks": "Packs available on Internet (you can download)",
   "mtte.customReferencesToolTip": "Moulinette provides a list of references (ex: free tokens available to download).",
@@ -77,6 +79,7 @@
   "mtte.sounds": "Sounds",
   "mtte.soundsDescription": "Search provided by Moulinette. Soundtracks provided by GM/admin.",
   "mtte.specialSearchFailed": "Something went wrong during the request/search",
+  "mtte.ttaWarning": "By supporting Tabletop Audio (TTA) with tier \"3$ per month\", sounds are NOT downloaded and the URL will expire after 24 hours. Make sure to always play them from this UI. If you want to build playlists or use sounds in scenes, you need to support TTA with a higher tier. You can disable this warning in the configuration.",
   "mtte.type": "Type",
   "mtte.typeFree": "Free"
 }
