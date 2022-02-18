@@ -19,6 +19,8 @@
   "mtte.configSoundboardHideUIHint": "Hides the controls, navigation and logo when SoundBoard UI is opened. Improves the look-and-feel but could be annoying if you need both.",
   "mtte.configSoundboardRows": "Soundboard: number of rows",
   "mtte.configSoundboardRowsHint": "Number of rows on the soundboard",
+  "mtte.configSoundpadDownloadSounds": "SoundPad : download sounds",
+  "mtte.configSoundpadDownloadSoundsHint": "Download sounds before playing them from the SoundPad. This require supporting Tabletop Audio (TTA) with tier '5$ / month' or more. When disabled, sounds are played directly from Moulinette Cloud and expire after 24 hours. You always need to play them from the SoundPad then.",
   "mtte.configSoundpadHideTTAWarning": "Hide TTA warning",
   "mtte.configSoundpadHideTTAWarningHint": "A warning is displayed everytime a sound is played from Tabletop Audio but you are supporting TTA with 3$/mo tier. You can disable this warning with this configuration. The warning remains visible inside the console logs.",
   "mtte.customReferences": "Additional packs?",

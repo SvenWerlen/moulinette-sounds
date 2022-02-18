@@ -54,7 +54,14 @@ Hooks.once("init", async function () {
     default: false,
     type: Boolean
   });
-  game.settings.register("moulinette", "soundboardPin", { scope: "world", config: false, type: Boolean, default: false })
+  game.settings.register("moulinette-sounds", "soundpadDownloadSounds", {
+    name: game.i18n.localize("mtte.configSoundpadDownloadSounds"),
+    hint: game.i18n.localize("mtte.configSoundpadDownloadSoundsHint"),
+    scope: "world",
+    config: true,
+    default: true,
+    type: Boolean
+  });
   game.settings.register("moulinette", "soundpadVolume", { scope: "world", config: false, default: 1, type: Number });
   game.settings.register("moulinette", "soundpadHidden", { scope: "world", config: false, type: Object, default: {} })
 

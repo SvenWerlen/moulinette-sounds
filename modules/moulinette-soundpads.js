@@ -152,6 +152,7 @@ export class MoulinetteSoundPads extends FormApplication {
    * Show or hide entries based on settings
    */
   toggleVisibility() {
+    if(!this.pack || !this.sounds) return;
     const showAll = this.showAll
     // make all visible
     this.html.find(".folder").show().removeClass("hide")
@@ -320,7 +321,8 @@ export class MoulinetteSoundPads extends FormApplication {
       }
 
       // download sound (unless user doesn't support TTA with appropriate tier)
-      if(!MoulinetteSoundsUtil.noTTADownload()) {
+      const downloadSounds = game.settings.get("moulinette-sounds", "soundpadDownloadSounds")
+      if(downloadSounds && !MoulinetteSoundsUtil.noTTADownload()) {
         const data = {
           pack: duplicate(this.pack),
           sound: { filename: soundData.filename, sas: "?" + this.pack.sas }
@@ -343,7 +345,7 @@ export class MoulinetteSoundPads extends FormApplication {
         sound.name = soundData.pack ? MoulinetteSoundPads.cleanSoundName(soundData.filename.replaceAll("/", " | ")) : "Tabletopaudio | Music | " + soundData.name
         sound.volume = 1
         sound.repeat = soundData.pack ? soundData.filename.includes("loop") : true
-        sound.path = url + (MoulinetteSoundsUtil.noTTADownload() ? "?" + this.pack.sas : "")
+        sound.path = url + (!downloadSounds || MoulinetteSoundsUtil.noTTADownload() ? "?" + this.pack.sas : "")
         sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
       }
 
