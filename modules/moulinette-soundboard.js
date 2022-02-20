@@ -145,9 +145,6 @@ export class MoulinetteSoundBoard extends FormApplication {
   }
 
   async _playFavorite(event, html) {
-    if(game.settings.get("moulinette", "soundboardPin")) {
-      event.stopPropagation();
-    }
     const slot = event.currentTarget.dataset.slot
     if(slot) {
       let favorites = game.settings.get("moulinette", "soundboard")
@@ -176,7 +173,6 @@ export class MoulinetteSoundBoard extends FormApplication {
         ui.notifications.warn(game.i18n.localize("mtte.slotNotAssigned"));
         const forgeClass = game.moulinette.modules.find(m => m.id == "forge").class
         new forgeClass("sounds").render(true)
-        event.stopPropagation();
       }
     }
   }
