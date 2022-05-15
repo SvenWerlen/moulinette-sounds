@@ -23,6 +23,8 @@
   "mtte.configSoundpadDownloadSoundsHint": "Download sounds before playing them from the SoundPad. This require supporting Tabletop Audio (TTA) with tier '5$ / month' or more. When disabled, sounds are played directly from Moulinette Cloud and expire after 24 hours. You always need to play them from the SoundPad then.",
   "mtte.configSoundpadHideTTAWarning": "Hide TTA warning",
   "mtte.configSoundpadHideTTAWarningHint": "A warning is displayed everytime a sound is played from Tabletop Audio but you are supporting TTA with 3$/mo tier. You can disable this warning with this configuration. The warning remains visible inside the console logs.",
+  "mtte.configureSources": "Configure sources",
+  "mtte.configureSourcesToolTip": "Configure the sources that Moulinette uses during the indexing process.",
   "mtte.customReferences": "Additional packs?",
   "mtte.customReferencesPacks": "Packs available on Internet (you can download)",
   "mtte.customReferencesToolTip": "Moulinette provides a list of references (ex: free tokens available to download).",

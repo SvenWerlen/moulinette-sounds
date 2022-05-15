@@ -23,6 +23,8 @@
   "mtte.configSoundpadDownloadSoundsHint": "Télécharge les sons avant de les jouer depuis la table de mixage. Requiert de supporter Tabletop Audio (TTA) avec l'abonnement '5$ / month' ou plus. Lorsque désactivé, les sons sont joués directement depuis Moulinette Cloud et expirent après 24 heures. Vous devez alors toujours les jouer à partir de la table de mixage TTA.",
   "mtte.configSoundpadHideTTAWarning": "Masquer l'avertissement TTA",
   "mtte.configSoundpadHideTTAWarningHint": "Un avertissement est affiché à chaque fois qu'un son de Tabletop Audio est joué et que votre abonnement à TTA est de 3$/mo. Vous pouvez désactiver cet avertissement avec cette configuration. L'avertissement demeure dans les journaux (logs).",
+  "mtte.configureSources": "Configurer sources",
+  "mtte.configureSourcesToolTip": "Configurer les sources que Moulinette utilise pendant le processus d'indexation.",
   "mtte.customReferences": "Packs additionnels?",
   "mtte.customReferencesPacks": "Packs disponibles sur Internet (que vous pouvez télécharger)",
   "mtte.customReferencesToolTip": "Moulinette fournit une liste de références (ex: jetons gratuits au téléchargement).",

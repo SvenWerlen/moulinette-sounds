@@ -415,6 +415,10 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       this.clearCache()
       return true
     }
+    // ACTION - CONFIGURE SOURCES
+    else if(classList.contains("configureSources")) {
+      (new game.moulinette.applications.MoulinetteSources()).render(true)
+    }
     // ACTION - REFERENCES
     else if(classList.contains("customReferences")) {
       new Dialog({title: game.i18n.localize("mtte.customReferencesPacks"), buttons: {}}, { id: "moulinette-info", classes: ["info"], template: "modules/moulinette-sounds/templates/custom-references.hbs", width: 650, height: "auto" }).render(true)
