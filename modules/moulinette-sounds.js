@@ -32,10 +32,11 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
   async getPackList() {
     const bbc = [{ special: "bbc", publisher: "BBC", name: "Sounds Effects (bbc.co.uk – © copyright 2021 BBC)", pubWebsite: "https://www.bbc.co.uk", url: "https://sound-effects.bbcrewind.co.uk", "license": "check website", isRemote: true }]
     const user = await game.moulinette.applications.Moulinette.getUser()
+    const baseURL = await game.moulinette.applications.MoulinetteFileUtil.getBaseURL()
     const index = await game.moulinette.applications.MoulinetteFileUtil.buildAssetIndex([
       game.moulinette.applications.MoulinetteClient.SERVER_URL + "/assets/" + game.moulinette.user.id,
       game.moulinette.applications.MoulinetteClient.SERVER_URL + "/byoa/assets/" + game.moulinette.user.id,
-      game.moulinette.applications.MoulinetteFileUtil.getBaseURL() + "moulinette/sounds/custom/index.json"], bbc)
+      baseURL + "moulinette/sounds/custom/index.json"], bbc)
     
     const TTAPack = MoulinetteSoundsUtil.noTTADownload() ? index.packs.find(p => p.publisher == "Tabletop Audio" && p.isRemote) : null
     const TTAFilter = TTAPack ? TTAPack.idx : -1
@@ -57,9 +58,9 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
   /**
    * Generate a new asset (HTML) for the given result and idx
    */
-  generateAsset(playlist, r, idx, selSound) {
+  async generateAsset(playlist, r, idx, selSound) {
     const FileUtil = game.moulinette.applications.MoulinetteFileUtil
-    const URL = this.assetsPacks[r.pack].isRemote ? "" : FileUtil.getBaseURL()
+    const URL = this.assetsPacks[r.pack].isRemote ? "" : await FileUtil.getBaseURL()
     const pack   = this.assetsPacks[r.pack]
     
     const repeatDefault = game.settings.get("moulinette-sounds", "defaultRepeatOn")
@@ -149,7 +150,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       this.searchResults.sort((a,b) => a.filename.split("/").pop().localeCompare(b.filename.split("/").pop()))
       for(const r of this.searchResults) {
         idx++
-        assets.push(this.generateAsset(playlist, r, idx, selSound))
+        assets.push(await this.generateAsset(playlist, r, idx, selSound))
       }
     }
     // view #2 (by folder)
@@ -163,7 +164,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
           assets.push(`<div class="folder" data-path="${k}"><h2>${k} (${folders[k].length})</div>`)
         }
         for(const a of folders[k]) {
-          assets.push(this.generateAsset(playlist, a, a.idx, selSound))
+          assets.push(await this.generateAsset(playlist, a, a.idx, selSound))
         }
       }
     }

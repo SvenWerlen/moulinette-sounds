@@ -9,13 +9,13 @@ export class MoulinetteSoundsUtil {
    */
   static async downloadAsset(data) {
     const FileUtil = game.moulinette.applications.MoulinetteFileUtil
+    const baseURL = await FileUtil.getBaseURL()
     if(!data.pack.isRemote || data.pack.special) {
-      const baseURL = FileUtil.getBaseURL()
       data.path = data.sound.assetURL
     }
     else {
       await FileUtil.downloadAssetDependencies(data.sound, data.pack, "sounds")
-      data.path = FileUtil.getBaseURL() + FileUtil.getMoulinetteBasePath("sounds", data.pack.publisher, data.pack.name) + FileUtil.encodeURL(data.sound.filename)
+      data.path = baseURL + FileUtil.getMoulinetteBasePath("sounds", data.pack.publisher, data.pack.name) + FileUtil.encodeURL(data.sound.filename)
     }
 
     // Clear useless info
