@@ -151,7 +151,7 @@ export class MoulinetteSoundBoard extends FormApplication {
       if(Object.keys(favorites).includes("fav" + slot)) {
         const fav = favorites["fav" + slot]
         // get playlist
-        let playlist = game.playlists.find( pl => pl.data.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
+        let playlist = game.playlists.find( pl => pl.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
         if(!playlist) {
           playlist = await Playlist.create({name: MoulinetteSounds.MOULINETTE_SOUNDBOARD, mode: -1})
         }
@@ -168,7 +168,7 @@ export class MoulinetteSoundBoard extends FormApplication {
           const repeat = false
           sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [{name: name, path: path, volume: Number(fav.volume)}], {}))[0]
         }
-        playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: !sound.data.playing, volume: Number(fav.volume) }]);
+        playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: !sound.playing, volume: Number(fav.volume) }]);
       } else {
         ui.notifications.warn(game.i18n.localize("mtte.slotNotAssigned"));
         const forgeClass = game.moulinette.modules.find(m => m.id == "forge").class

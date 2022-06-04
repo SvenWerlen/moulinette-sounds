@@ -69,9 +69,9 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? FileUtil.encodeURL(r.filename) : `${URL}${this.assetsPacks[r.pack].path}/${FileUtil.encodeURL(r.filename)}`)
     const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
     const name   = game.moulinette.applications.Moulinette.prettyText(r.title && r.title.length > 0 ? r.title : r.filename.split("/").pop())
-    const icon   = sound && sound.data.playing ? "fa-square" : "fa-play"
-    const repeat = r.loop || (sound ? (sound.data.repeat ? "" : "inactive") : (repeatDefault ? "" : "inactive"))
-    const volume = sound ? sound.data.volume : 0.5
+    const icon   = sound && sound.playing ? "fa-square" : "fa-play"
+    const repeat = r.loop || (sound ? (sound.repeat ? "" : "inactive") : (repeatDefault ? "" : "inactive"))
+    const volume = sound ? sound.volume : 0.5
     const selected = selSound && r.assetURL == selSound.sound.assetURL ? "selected" : ""
 
     const durHr = Math.floor(r.duration / (3600))
@@ -138,7 +138,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     }
 
     const viewMode = game.settings.get("moulinette", "displayMode")
-    const playlist = game.playlists.find( pl => pl.data.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
+    const playlist = game.playlists.find( pl => pl.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
     const selSound = game.moulinette.cache.getData("selSound")
 
     // header (hidden audio for preview)
@@ -230,7 +230,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     await MoulinetteSoundsUtil.downloadAsset(data)
     
     // Validate that the drop position is in-bounds and snap to grid
-    if ( !canvas.grid.hitArea.contains(data.x, data.y) ) return false;
+    if ( !canvas.dimensions.rect.contains(data.x, data.y) ) return false;
     
     const soundData = {
       t: "l",
@@ -305,7 +305,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     if(this.searchResults && idx > 0 && idx <= this.searchResults.length) {
       const result = this.searchResults[idx-1]
       // get playlist
-      let playlist = game.playlists.find( pl => pl.data.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
+      let playlist = game.playlists.find( pl => pl.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
       if(!playlist) {
         playlist = await Playlist.create({name: MoulinetteSounds.MOULINETTE_SOUNDBOARD, mode: -1})
       }
@@ -336,12 +336,12 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       else if(source.dataset.action == "sound-play") {
         // add sound to playlist before playing it (unless already exists)
         if(!sound.id) sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
-        playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: !sound.data.playing}]);
+        playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: !sound.playing}]);
       }
       // CONTROL : toggle loop mode
       else if(source.dataset.action == "sound-repeat") {
         if(sound.id) {
-          playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, repeat: !sound.data.repeat}]);
+          playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, repeat: !sound.repeat}]);
         } else {
           $(source).attr("class", !sound.repeat ? "sound-control" : "sound-control inactive")
         }

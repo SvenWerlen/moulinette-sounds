@@ -138,10 +138,10 @@ Hooks.on("preUpdatePlaylist", (playlist, updateData) => {
   if (game.user.isGM && updateData.sounds) {
     const soundStatus = []
     for(const s of updateData.sounds) {
-      const sound = playlist.data.sounds.find(snd => snd.id == s._id)
+      const sound = playlist.sounds.find(snd => snd.id == s._id)
       let soundIdx = -1
       // find matching sound
-      const filename = decodeURIComponent(sound.data.path.split("/").pop())
+      const filename = decodeURIComponent(sound.path.split("/").pop())
       $(`.list .sound`).each(function( idx, snd ) {
         const fn = $(snd).attr("data-filename")
         if(fn && fn.endsWith(filename)) {

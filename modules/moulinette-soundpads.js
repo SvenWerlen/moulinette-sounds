@@ -315,7 +315,7 @@ export class MoulinetteSoundPads extends FormApplication {
       let url = soundData.pack ? `${this.pack.path}/${soundData.filename}` : soundData.filename
 
       // add to playlist
-      let playlist = game.playlists.find( pl => pl.data.name == MoulinetteSoundPads.MOULINETTE_PLAYLIST )
+      let playlist = game.playlists.find( pl => pl.name == MoulinetteSoundPads.MOULINETTE_PLAYLIST )
       if(!playlist) {
         playlist = await Playlist.create({name: MoulinetteSoundPads.MOULINETTE_PLAYLIST, mode: -1})
       }
@@ -353,7 +353,7 @@ export class MoulinetteSoundPads extends FormApplication {
       const volume = game.settings.get("moulinette", "soundpadVolume");
 
       // play sound (reset URL)
-      playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, path: sound.path, playing: !sound.data.playing, volume: volume}]);
+      playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, path: sound.path, playing: !sound.playing, volume: volume}]);
 
       // show warning
       if(MoulinetteSoundsUtil.noTTADownload()) {
