@@ -218,7 +218,7 @@
   width: calc(100% - 30px);
 }
 
-#moulinette-soundpads .hide {
+#moulinette-soundpads .mtteHide {
   color: red;
 }
 

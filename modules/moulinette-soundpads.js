@@ -155,8 +155,8 @@ export class MoulinetteSoundPads extends FormApplication {
     if(!this.pack || !this.sounds) return;
     const showAll = this.showAll
     // make all visible
-    this.html.find(".folder").show().removeClass("hide")
-    this.html.find(".sound").show().removeClass("hide")
+    this.html.find(".folder").show().removeClass("mtteHide")
+    this.html.find(".sound").show().removeClass("mtteHide")
     // show/hide
     const hidden = game.settings.get("moulinette", "soundpadHidden")
     const packId = this.pack.packId.toString()
@@ -165,7 +165,7 @@ export class MoulinetteSoundPads extends FormApplication {
       const sounds = this.sounds
       this.html.find(".folder").each(function(idx, f) {
         if(filtered.includes($(f).data('path'))) {
-          $(f).addClass("hide")
+          $(f).addClass("mtteHide")
           if(!showAll) {
             $(f).hide()
           }
@@ -173,7 +173,7 @@ export class MoulinetteSoundPads extends FormApplication {
       })
       this.html.find(".sound").each(function(idx, s) {
         if(filtered.includes(sounds[$(s).data('idx')-1].filename)) {
-          $(s).addClass("hide")
+          $(s).addClass("mtteHide")
           if(!showAll) {
             $(s).hide()
           }
@@ -204,7 +204,7 @@ export class MoulinetteSoundPads extends FormApplication {
           if(!this.showAll) {
             $(folder).toggle()
           }
-          $(folder).toggleClass("hide")
+          $(folder).toggleClass("mtteHide")
         }
       } else {
         const idx = $(source).data('idx')
@@ -213,7 +213,7 @@ export class MoulinetteSoundPads extends FormApplication {
           if(!this.showAll) {
             $(source).toggle()
           }
-          $(source).toggleClass("hide")
+          $(source).toggleClass("mtteHide")
         }
       }
 
