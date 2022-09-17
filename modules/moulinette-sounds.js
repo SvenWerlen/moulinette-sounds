@@ -202,7 +202,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     
     const sound = this.searchResults[idx-1]
     const pack = this.assetsPacks[sound.pack]
-    const volume = $(div).find('.sound-volume').val()
+    const volume = $(div).find('.sound-volume input').val()
     const repeat = !$(div).find("a[data-action='sound-repeat']").hasClass('inactive')
 
     let dragData = {}
@@ -214,6 +214,8 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       volume: volume,
       repeat: repeat
     };
+
+    console.log(dragData)
     
     dragData.source = "mtte"
     event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
