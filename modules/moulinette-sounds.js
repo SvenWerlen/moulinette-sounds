@@ -420,7 +420,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     }
     // ACTION - CONFIGURE SOURCES
     else if(classList.contains("configureSources")) {
-      (new game.moulinette.applications.MoulinetteSources()).render(true)
+      (new game.moulinette.applications.MoulinetteSources(["sounds"])).render(true)
     }
     // ACTION - REFERENCES
     else if(classList.contains("customReferences")) {
