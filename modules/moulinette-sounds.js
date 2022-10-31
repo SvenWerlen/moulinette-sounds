@@ -66,7 +66,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     const repeatDefault = game.settings.get("moulinette-sounds", "defaultRepeatOn")
     
     r.sas = pack.sas ? "?" + pack.sas : ""
-    r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? FileUtil.encodeURL(r.filename) : `${URL}${this.assetsPacks[r.pack].path}/${FileUtil.encodeURL(r.filename)}`)
+    r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? r.filename : `${URL}${this.assetsPacks[r.pack].path}/${FileUtil.encodeURL(r.filename)}`)
     const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
     const name   = game.moulinette.applications.Moulinette.prettyText(r.title && r.title.length > 0 ? r.title : r.filename.split("/").pop())
     const icon   = sound && sound.playing ? "fa-square" : "fa-play"
@@ -395,7 +395,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         for(const p of c.packs) {
           const durations = []
           for(const a of p.assets) {
-            audio.src = `${p.path}/${FileUtil.encodeURL(a)}`
+            audio.src = a.match(/^https?:\/\//) ? a : `${p.path}/${FileUtil.encodeURL(a)}`
             const promise = new Promise( (resolve,reject)=>{
               audio.onloadedmetadata = function() {
                 resolve(audio.duration);
