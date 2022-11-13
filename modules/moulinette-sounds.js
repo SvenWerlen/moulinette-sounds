@@ -380,7 +380,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     // ACTION - INDEX
     if(classList.contains("indexSounds")) {
       ui.notifications.info(game.i18n.localize("mtte.indexingInProgress"));
-      this.html.find(".indexSounds").prop("disabled", true);
+      game.moulinette.applications.Moulinette.inprogress(this.html.find(".indexSounds"))
       let publishers = await FileUtil.scanAssets(MoulinetteSounds.FOLDER_CUSTOM_SOUNDS, MoulinetteSounds.AUDIO_EXT)
       const customPath = game.settings.get("moulinette-core", "customPath")
       if(customPath) {
