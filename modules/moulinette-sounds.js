@@ -18,7 +18,9 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
   constructor() {
     super()
   }
-  
+
+  supportsWholeWordSearch() { return true }
+
   clearCache() {
     this.assets = null
     this.assetsPacks = null
