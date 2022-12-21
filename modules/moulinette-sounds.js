@@ -111,14 +111,15 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     }
     
     // special case: BBC Search
-    if(searchTerms.length >= 3 && pack >= 0 && this.assetsPacks[pack].special == "bbc") {
+    if(searchTerms.length >= 3 && publisher == "BBC") {
       const client = new MoulinetteBBCClient()
       const results = await client.search(searchTerms)
       if(results.status != 200) {
         return ui.notifications.warn(game.i18n.localize("mtte.specialSearchFailed"));
       }
       this.searchResults = results.data.results.map((r) => {
-        return { pack: pack, assetURL: `https://sound-effects-media.bbcrewind.co.uk/mp3/${r.id}.mp3`, filename: r.description, duration: Math.round(r.duration/1000)}
+        const pack = this.assetsPacks.find(p => p.publisher == "BBC")
+        return { pack: pack.idx, assetURL: `https://sound-effects-media.bbcrewind.co.uk/mp3/${r.id}.mp3`, filename: r.description, duration: Math.round(r.duration/1000)}
       })
     }
     // normal cases
