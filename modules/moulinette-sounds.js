@@ -101,11 +101,12 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
   /**
    * Implements getAssetList
    */
-  async getAssetList(searchTerms, pack, publisher) {
+  async getAssetList(searchTerms, packs, publisher) {
     let assets = []
-    
+    const packList = packs == "-1" ? null : ('' + packs).split(",").map(Number);
+
     // pack must be selected or terms provided
-    if((!pack || pack < 0) && (!publisher || publisher.length == 0) && (!searchTerms || searchTerms.length == 0)) {
+    if(!packList && (!publisher || publisher.length == 0) && (!searchTerms || searchTerms.length == 0)) {
       return []
     }
     
@@ -122,16 +123,21 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     }
     // normal cases
     else {
-      searchTerms = searchTerms ? searchTerms.split(" ") : []
+      const wholeWord = game.settings.get("moulinette", "wholeWordSearch")
+      const searchTermsList = searchTerms ? searchTerms.split(" ") : []
       // filter list according to search terms and selected pack
       this.searchResults = this.assets.filter( t => {
-        // pack doesn't match selection
-        if( pack >= 0 && t.pack != pack ) return false
+         // pack doesn't match selection
+        if( packList && !packList.includes(t.pack) ) return false
         // publisher doesn't match selection
         if( publisher && publisher != this.assetsPacks[t.pack].publisher ) return false
         // check if text match
-        for( const f of searchTerms ) {
-          if( t.filename.toLowerCase().indexOf(f) < 0 ) return false
+        for( const f of searchTermsList ) {
+          const textToSearch = game.moulinette.applications.Moulinette.cleanForSearch(t.filename)
+          const regex = wholeWord ? new RegExp("\\b"+ f.toLowerCase() +"\\b") : new RegExp(f.toLowerCase())
+          if(!regex.test(textToSearch)) {
+            return false;
+          }
         }
         return true;
       })
@@ -158,10 +164,11 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       const folders = game.moulinette.applications.MoulinetteFileUtil.foldersFromIndex(this.searchResults, this.assetsPacks);
       const keys = Object.keys(folders).sort()
       for(const k of keys) {
+        const breadcrumb = game.moulinette.applications.Moulinette.prettyBreadcrumb(k)
         if(viewMode == "browse") {
-          assets.push(`<div class="folder" data-path="${k}"><h2 class="expand">${k} (${folders[k].length}) <i class="fas fa-angle-double-down"></i></h2></div>`)
+          assets.push(`<div class="folder" data-path="${k}"><h2 class="expand">${breadcrumb} (${folders[k].length}) <i class="fas fa-angle-double-down"></i></h2></div>`)
         } else {
-          assets.push(`<div class="folder" data-path="${k}"><h2>${k} (${folders[k].length})</div>`)
+          assets.push(`<div class="folder" data-path="${breadcrumb}"><h2>${k} (${folders[k].length})</div>`)
         }
         for(const a of folders[k]) {
           assets.push(await this.generateAsset(playlist, a, a.idx, selSound))
