@@ -60,7 +60,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
   /**
    * Generate a new asset (HTML) for the given result and idx
    */
-  async generateAsset(playlist, r, idx, selSound) {
+  async generateAsset(playlist, r, idx, selSound, folderIdx = null) {
     const FileUtil = game.moulinette.applications.MoulinetteFileUtil
     const URL = this.assetsPacks[r.pack].isRemote ? "" : await FileUtil.getBaseURL()
     const pack   = this.assetsPacks[r.pack]
@@ -83,7 +83,10 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
 
     const shortName = name.length <= 40 ? name : name.substring(0,40) + "..."
 
-    let html = `<div class="sound ${selected}" data-path="${r.assetURL}" data-filename="${r.filename}" data-idx="${idx}">` +
+    // add folder index if browsing by folder
+    const folderHTML = folderIdx ? `data-folder="${folderIdx}"` : ""
+
+    let html = `<div class="sound ${selected}" data-path="${r.assetURL}" data-filename="${r.filename}" data-idx="${idx}" ${folderHTML}>` +
       `<div class="audio draggable" title="${r.filename.split("/").pop().replaceAll("\"", "'")}">${shortName}</div>` +
       `<div class="background"><i class="fas fa-music"></i></div>` +
       `<div class="duration"><i class="far fa-hourglass"></i> ${duration}</div>` +
@@ -100,6 +103,13 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     return html
   }
   
+  /**
+   * Footer: audio control for previewing sounds
+   */
+  async getFooter() {
+    return `<audio id=\"prevSound\"></audio>`
+  }
+
   /**
    * Implements getAssetList
    */
@@ -150,9 +160,6 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     const playlist = game.playlists.find( pl => pl.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
     const selSound = game.moulinette.cache.getData("selSound")
 
-    // header (hidden audio for preview)
-    assets.push("<audio id=\"prevSound\"></audio>")
-
     // view #1 (all mixed)
     if(viewMode == "tiles") {
       let idx = 0
@@ -166,15 +173,18 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     else if(viewMode == "list" || viewMode == "browse") {
       const folders = game.moulinette.applications.MoulinetteFileUtil.foldersFromIndex(this.searchResults, this.assetsPacks);
       const keys = Object.keys(folders).sort()
+      let folderIdx = 0
       for(const k of keys) {
+        folderIdx++;
         const breadcrumb = game.moulinette.applications.Moulinette.prettyBreadcrumb(k)
         if(viewMode == "browse") {
-          assets.push(`<div class="folder" data-path="${k}"><h2 class="expand">${breadcrumb} (${folders[k].length}) <i class="fas fa-angle-double-down"></i></h2></div>`)
+          assets.push(`<div class="folder" data-idx="${folderIdx}"><h2 class="expand">${breadcrumb} (${folders[k].length}) <i class="fas fa-angle-double-down"></i></h2></div>`)
         } else {
-          assets.push(`<div class="folder" data-path="${breadcrumb}"><h2>${k} (${folders[k].length})</div>`)
+          assets.push(`<div class="folder" data-idx="${folderIdx}"><h2>${breadcrumb} (${folders[k].length})</div>`)
         }
         for(const a of folders[k]) {
-          assets.push(await this.generateAsset(playlist, a, a.idx, selSound))
+          a.fIdx = folderIdx
+          assets.push(await this.generateAsset(playlist, a, a.idx, selSound, folderIdx))
         }
       }
     }
@@ -321,6 +331,21 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       if(!playlist) {
         playlist = await Playlist.create({name: MoulinetteSounds.MOULINETTE_SOUNDBOARD, mode: -1})
       }
+
+      // CONTROL : preview sound (directly from cloud)
+      if(source.dataset.action == "sound-preview") {
+        const previewSound = document.getElementById("prevSound")
+        if(previewSound.paused) {
+          previewSound.src = `${result.assetURL}${result.sas}`
+          previewSound.play();
+        }
+        else {
+          previewSound.pause();
+          previewSound.currentTime = 0;
+        }
+        return;
+      }
+
       // download sound
       let soundData = { sound: result, pack:  this.assetsPacks[result.pack] }
       await MoulinetteSoundsUtil.downloadAsset(soundData)
@@ -332,20 +357,8 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         sound.volume = AudioHelper.inputToVolume($(source.closest(".sound")).find(".sound-volume input").val())
         sound.repeat = !$(source.closest(".sound")).find("a[data-action='sound-repeat']").hasClass('inactive')
       }
-      // CONTROL : preview sound
-      if(source.dataset.action == "sound-preview") {
-        const previewSound = document.getElementById("prevSound")
-        if(previewSound.paused) {
-          previewSound.src = sound.path
-          previewSound.play();
-        }
-        else {
-          previewSound.pause();
-          previewSound.currentTime = 0;
-        }
-      }
       // CONTROL : toggle play
-      else if(source.dataset.action == "sound-play") {
+      if(source.dataset.action == "sound-play") {
         // add sound to playlist before playing it (unless already exists)
         if(!sound.id) sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
         playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: !sound.playing}]);
