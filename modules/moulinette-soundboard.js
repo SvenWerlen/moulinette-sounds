@@ -65,7 +65,10 @@ export class MoulinetteSoundBoard extends FormApplication {
 
     // two actions (help/refresh)
     html.find("a.help").click(ev => parent.html.find(".helpMsg").toggle())
-    html.find("a.refresh").click(ev => parent.render())
+    html.find("a.refresh").click(ev => {
+      parent.render()
+      ui.notifications.info(game.i18n.localize("mtte.soundpadRefreshed"));
+    })
     html.find("a.sounds").click(ev => {
       const forgeClass = game.moulinette.modules.find(m => m.id == "forge").class
       new forgeClass("sounds").render(true)
@@ -75,6 +78,53 @@ export class MoulinetteSoundBoard extends FormApplication {
       const forgeClass = game.moulinette.modules.find(m => m.id == "forge").class
       new forgeClass("sounds").render(true)
     })
+
+    html.find(".export").click(ev => {
+      const filename = `moulinette-${game.world.title.slugify()}-soundboard.json`
+      const data = game.settings.get("moulinette", "soundboard")
+      saveDataToFile(JSON.stringify(data, null, 2), "text/json", filename);
+    })
+
+    html.find(".import").click(async function(ev) {
+      new Dialog({
+        title: `Import Data: Moulinette Soundboard`,
+        content: await renderTemplate("templates/apps/import-data.html", {
+          hint1: game.i18n.format("DOCUMENT.ImportDataHint1", {document: "soundboard"}),
+          hint2: game.i18n.format("DOCUMENT.ImportDataHint2", {name: "this soundboard"})
+        }),
+        buttons: {
+          import: {
+            icon: '<i class="fas fa-file-import"></i>',
+            label: "Import",
+            callback: html => {
+              const form = html.find("form")[0];
+              if ( !form.data.files.length ) return ui.notifications.error("You did not upload a data file!");
+              readTextFromFile(form.data.files[0]).then(json => {
+                game.settings.set("moulinette", "soundboard", JSON.parse(json)).then(ev => parent.render(true))
+              });
+            }
+          },
+          no: {
+            icon: '<i class="fas fa-times"></i>',
+            label: "Cancel"
+          }
+        },
+        default: "import"
+      }, {
+        width: 400
+      }).render(true);
+    })
+
+    html.find(".delete").click(ev => {
+      return Dialog.confirm({
+        title: `${game.i18n.localize("mtte.soundboardDeleteTooltip")}`,
+        content: `${game.i18n.localize("mtte.soundboardDeleteWarning")}`,
+        yes: html => {
+          game.settings.set("moulinette", "soundboard", {}).then(ev => parent.render(true))
+        }
+      });
+    })
+
 
     html.find('.snd.used').click(ev => this._playFavorite(ev, html))
     html.find('.snd.used').mousedown(ev => this._editFavorite(ev, html))

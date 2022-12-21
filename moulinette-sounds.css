@@ -323,6 +323,29 @@
   text-decoration: underline;
 }
 
+#moulinette-soundboard p {
+  position: relative;
+}
+
+#moulinette-soundboard .delete {
+  position: absolute;
+  top: 0px;
+  right: 10px;
+  color: darkred;
+}
+
+#moulinette-soundboard .export {
+  position: absolute;
+  top: 0px;
+  right: 50px;
+}
+
+#moulinette-soundboard .import {
+  position: absolute;
+  top: 0px;
+  right: 30px;
+}
+
 #moulinette-soundboard .helpMsg {
   display: none;
 }

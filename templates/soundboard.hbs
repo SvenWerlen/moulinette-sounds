@@ -1,9 +1,11 @@
 <form autocomplete="off" onsubmit="event.preventDefault();">
   <p>
-    <i>{{localize "mtte.soundboardHint"}}</i>
-    <a class="sounds"><i class="fas fa-music"></i></a>
-    <a class="refresh"><i class="fas fa-sync"></i></a>
-    <a class="help"><i class="fas fa-question-circle"></i></a>
+    <a class="sounds" title="{{localize "mtte.soundboardSoundsTooltip"}}"><i class="fas fa-music"></i></a>
+    <a class="refresh" title="{{localize "mtte.soundboardRefreshTooltip"}}"><i class="fas fa-sync"></i></a>
+    <a class="help" title="{{localize "mtte.soundboardSoundsHelp"}}"><i class="fas fa-question-circle"></i></a>
+    <a class="export" title="{{localize "mtte.soundboardExportTooltip"}}"><i class="fas fa-file-export"></i></a>
+    <a class="import" title="{{localize "mtte.soundboardImportTooltip"}}"><i class="fas fa-file-import"></i></a>
+    <a class="delete" title="{{localize "mtte.soundboardDeleteTooltip"}}"><i class="fas fa-trash"></i></a>
     <i class="helpMsg">{{{localize "mtte.soundboardDesc"}}}</i>
   </p>
 
