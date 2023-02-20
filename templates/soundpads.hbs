@@ -12,7 +12,7 @@
     </div>
 
     <div class="sounds">
-        {{#if noAsset}}<div class="warning error">{{localize "mtte.noSoundPads"}}</div>{{/if}}
+        {{#if noAsset}}<div class="warning error">{{{localize "mtte.noSoundPads"}}}</div>{{/if}}
 
         {{#each assets as |a|}}{{{a}}}{{/each}}
         <div class="warning">{{localize "mtte.noMatch"}}</div>

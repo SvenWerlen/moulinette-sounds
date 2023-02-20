@@ -62,6 +62,7 @@
   "mtte.searchIcon": "検索アイコン",
   "mtte.shortText": "簡単なテキスト",
   "mtte.showAll": "すべてを表示",
+  "mtte.showCaseAssets": "{count}個の一致する素材が見つかりました。クリックでプレビューできます。",
   "mtte.showSoundPads": "サウンドパッド表示",
   "mtte.showSoundPadsToolTip": "Moulinette Cloudにあるサウンドパッドを表示します。",
   "mtte.slot": "番号",

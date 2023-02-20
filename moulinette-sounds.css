@@ -278,8 +278,9 @@
 
 #moulinette-soundpads .warning {
   display: none;
-  color: red;
+  color: #eee;
   text-align: center;
+  font-style: italic;
 }
 
 #moulinette-soundboard .boardrow {

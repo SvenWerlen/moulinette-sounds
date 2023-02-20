@@ -109,6 +109,7 @@ export class MoulinetteSoundPads extends FormApplication {
 
     // keep html for later usage
     this.html = html
+    const parent = this
 
     // enable expand listeners
     html.find(".expand").click(this._onToggleExpand.bind(this));
@@ -126,11 +127,17 @@ export class MoulinetteSoundPads extends FormApplication {
     // actions
     html.find('.action').click(this._onAction.bind(this))
 
+    // patreon authentication
+    html.find(".mouAuthenticate").click(ev => { 
+      ev.preventDefault();
+      new game.moulinette.applications.MoulinettePatreon(parent).render(true); 
+      return false; 
+    })
+
     // keep in settings
     html.find('.sound-volume').change(event => this._onSoundVolume(event));
 
     // toggle visibility
-    const parent = this
     html.find('.toggleVisibility').click(event => {
       parent.showAll = !parent.showAll
       parent.toggleVisibility()

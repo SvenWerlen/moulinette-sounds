@@ -67,7 +67,11 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     
     const repeatDefault = game.settings.get("moulinette-sounds", "defaultRepeatOn")
     
-    r.sas = pack.sas ? "?" + pack.sas : ""
+    // individually-purchased assets already have a sas (otherwise, use pack one)
+    if(!r.sas) {
+      r.sas = pack.sas ? "?" + pack.sas : ""
+    }
+
     r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? r.filename : `${URL}${this.assetsPacks[r.pack].path}/${FileUtil.encodeURL(r.filename)}`)
     const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
     const name   = game.moulinette.applications.Moulinette.prettyText(r.title && r.title.length > 0 ? r.title : r.filename.split("/").pop())
@@ -188,8 +192,12 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         }
       }
     }
+
+    // retrieve available assets that the user doesn't have access to
+    this.matchesCloudTerms = searchTerms
+    this.matchesCloudCount = await game.moulinette.applications.MoulinetteFileUtil.getAvailableMatchesMoulinetteCloud(searchTerms, "sounds", true)
     
-    return assets.length == 1 ? [] : assets
+    return assets
   }
   
   
@@ -204,6 +212,21 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     this.html.find(".sound-controls a").click(this._onSoundControl.bind(this))
     this.html.find(".draggable").click(this._onToggleSelect.bind(this))
     this.html.find(".sound").mousedown(this._onMouseDown.bind(this))
+
+    // display/hide showCase
+    const showCase = this.html.find(".showcase")
+    if(this.matchesCloudCount && this.matchesCloudCount["count"] > 0) {
+      // display/hide additional content
+      showCase.html('<i class="fas fa-exclamation-circle"></i> ' + game.i18n.format("mtte.showCaseAssets", {count: this.matchesCloudCount["count"]}))
+      showCase.addClass("clickable")
+      showCase.click(ev => new game.moulinette.applications.MoulinetteAvailableAssets(this.matchesCloudTerms, "sounds", 100).render(true))
+      showCase.show()
+    }
+    else {
+      showCase.html("")
+      showCase.removeClass("clickable")
+      showCase.hide()
+    }
   }
 
   _onMouseDown(event) {
@@ -234,9 +257,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       volume: volume,
       repeat: repeat
     };
-
-    console.log(dragData)
-    
+        
     dragData.source = "mtte"
     event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
   }
