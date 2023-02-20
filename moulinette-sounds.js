@@ -239,7 +239,9 @@ Hooks.on("renderPlaylistDirectory", (app, html) => {
 
 /**
  * Support for Blitz SoundBoards
+ * WIP
  */
+/**
 Hooks.once('SBPackageManagerReady', () => {
   SoundBoard.packageManager.addSoundPack(game.i18n.localize("SBFREEPACK.title"), 'modules/SoundBoard-BlitzFreePack/bundledAudio/', 'SoundBoard-BlitzFreePack', {
       licenses: [{
@@ -262,3 +264,4 @@ Hooks.once('SBPackageManagerReady', () => {
       description: game.i18n.localize("SBFREEPACK.desc")
   });
 });
+ */
