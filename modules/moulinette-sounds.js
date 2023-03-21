@@ -32,6 +32,11 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
    * Returns the list of available packs
    */
   async getPackList() {
+    // already in cache
+    if(this.assetsPacks) {
+      return duplicate(this.assetsPacks)
+    }
+
     const bbc = [{ special: "bbc", publisher: "BBC", name: "Sounds Effects (bbc.co.uk – © copyright 2021 BBC)", pubWebsite: "https://www.bbc.co.uk", url: "https://sound-effects.bbcrewind.co.uk", "license": "check website", isRemote: true }]
     const user = await game.moulinette.applications.Moulinette.getUser()
     const baseURL = await game.moulinette.applications.MoulinetteFileUtil.getBaseURL()
@@ -55,6 +60,29 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     this.assetsPacks = index.packs
 
     return duplicate(this.assetsPacks)
+  }
+
+  /**
+   * Returns the URL of the specified asset
+   * 
+   * @param {*} packIdx pack Index
+   * @param {*} path relative path
+   */
+  async getAssetURL(packIdx, path) {
+    // make sure that data is loaded in cache
+    await this.getPackList()
+    // search pack
+    const pack = this.assetsPacks.find(p => p.idx == packIdx)
+    if(pack) {
+      // search asset in path
+      const asset = this.assets.find(a => a.pack == pack.idx && a.filename == path)
+      if(asset) {
+        const data = {pack: pack, sound: asset}
+        await MoulinetteSoundsUtil.downloadAsset(data)
+        return data.path
+      }
+    }
+    return null
   }
   
   /**
