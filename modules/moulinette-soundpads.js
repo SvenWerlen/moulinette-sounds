@@ -43,7 +43,7 @@ export class MoulinetteSoundPads extends FormApplication {
   }
   
   async getData() {
-    const user = await game.moulinette.applications.Moulinette.getUser()
+    const user = await game.moulinette.applications.Moulinette.getUser() // don't remove (forces patreon integration)
     const index = await game.moulinette.applications.MoulinetteFileUtil.buildAssetIndex([
       game.moulinette.applications.MoulinetteClient.SERVER_URL + "/assets/" + game.moulinette.user.id])
 
@@ -73,13 +73,21 @@ export class MoulinetteSoundPads extends FormApplication {
     }
 
     if(musicList.length > 0) {
-      const list = []
       let idx = this.sounds.length+1
       for(const m of musicList) {
-        list.push({ idx: idx, name: m.track_title, filename: m.link })
-        this.sounds.push({ idx: idx++, name: m.track_title, filename: m.link })
+        for(const genre of m['track_genre']) {
+          // ugly fix for genre that are "xxx, yyy"
+          for(const genreFix of genre.split(",")) {
+            // upper case first letter
+            const folder = "/Music: " + genreFix.trim().charAt(0).toUpperCase() + genreFix.trim().slice(1) + "/"
+            if(!(folder in this.folders)) {
+              this.folders[folder] = []
+            }
+            this.folders[folder].push({ idx: idx, name: m.track_title, filename: m.link, tags: m["tags"].toString() })
+            this.sounds.push({ idx: idx++, name: m.track_title, filename: m.link, tags: m["tags"].toString() })
+          }
+        }
       }
-      this.folders["/Ambience & Music/"] = list
     }
 
     const keys = Object.keys(this.folders).sort()
@@ -87,7 +95,7 @@ export class MoulinetteSoundPads extends FormApplication {
     for(const k of keys) {
       assets.push(`<div class="folder" data-path="${k}"><h2 class="expand"><i class="fas fa-folder"></i> ${k.slice(0, -1).split('/').pop() } (${this.folders[k].length})</h2><div class="assets">`)
       for(const a of this.folders[k]) {
-        assets.push(`<div class="sound draggable" data-idx="${a.idx}"><i class="fas fa-music"></i> <span class="audio">${a.name}${a.filename.includes("loop") ? ' <i class="fas fa-sync"></i>' : "" }</label></span></div>`)
+        assets.push(`<div class="sound draggable" data-idx="${a.idx}"><i class="fas fa-music"></i> <span class="audio" title="${a.tags}">${a.name}${a.filename.includes("loop") ? ' <i class="fas fa-sync"></i>' : "" }</label></span></div>`)
       }
       assets.push("</div></div>")
     }
@@ -390,7 +398,7 @@ export class MoulinetteSoundPads extends FormApplication {
         return false;
       }
       for( const f of searchTerms ) {
-        if( s.name.toLowerCase().indexOf(f) < 0 ) {
+        if( s.name.toLowerCase().indexOf(f) < 0 && (!s.tags || s.tags.toLowerCase().indexOf(f) < 0)) {
           return false;
         }
       }
