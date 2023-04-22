@@ -39,11 +39,12 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
 
     const bbc = [{ special: "bbc", publisher: "BBC", name: "Sounds Effects (bbc.co.uk – © copyright 2021 BBC)", pubWebsite: "https://www.bbc.co.uk", url: "https://sound-effects.bbcrewind.co.uk", "license": "check website", isRemote: true }]
     const user = await game.moulinette.applications.Moulinette.getUser()
+    const worldId = game.world.id
     const baseURL = await game.moulinette.applications.MoulinetteFileUtil.getBaseURL()
     const index = await game.moulinette.applications.MoulinetteFileUtil.buildAssetIndex([
       game.moulinette.applications.MoulinetteClient.SERVER_URL + "/assets/" + game.moulinette.user.id,
       game.moulinette.applications.MoulinetteClient.SERVER_URL + "/byoa/assets/" + game.moulinette.user.id,
-      baseURL + "moulinette/sounds/custom/index.json"], bbc)
+      baseURL + `moulinette/sounds/custom/index-${worldId}.json`], bbc)
     
     const TTAPack = MoulinetteSoundsUtil.noTTADownload() ? index.packs.find(p => p.publisher == "Tabletop Audio" && p.isRemote) : null
     const TTAFilter = TTAPack ? TTAPack.idx : -1
@@ -448,6 +449,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
    */
   async onAction(classList) {
     const FileUtil = game.moulinette.applications.MoulinetteFileUtil
+    const indexFileJSON = `index-${game.world.id}.json`
 
     // ACTION - INDEX
     if(classList.contains("indexSounds")) {
@@ -483,7 +485,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
           p.durations = durations
         }
       }
-      await FileUtil.upload(new File([JSON.stringify(publishers)], "index.json", { type: "application/json", lastModified: new Date() }), "index.json", "/moulinette/sounds", MoulinetteSounds.FOLDER_CUSTOM_SOUNDS, true)
+      await FileUtil.upload(new File([JSON.stringify(publishers)], indexFileJSON, { type: "application/json", lastModified: new Date() }), indexFileJSON, "/moulinette/sounds", MoulinetteSounds.FOLDER_CUSTOM_SOUNDS, true)
       ui.notifications.info(game.i18n.localize("mtte.indexingDone"));
       // clear cache
       game.moulinette.cache.clear()
