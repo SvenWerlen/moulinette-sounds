@@ -44,7 +44,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     const index = await game.moulinette.applications.MoulinetteFileUtil.buildAssetIndex([
       game.moulinette.applications.MoulinetteClient.SERVER_URL + "/assets/" + game.moulinette.user.id,
       game.moulinette.applications.MoulinetteClient.SERVER_URL + "/byoa/assets/" + game.moulinette.user.id,
-      baseURL + `moulinette/sounds/custom/index-${worldId}.json`], bbc)
+      baseURL + `moulinette/sounds/custom/index-mtte.json`], bbc)
     
     const TTAPack = MoulinetteSoundsUtil.noTTADownload() ? index.packs.find(p => p.publisher == "Tabletop Audio" && p.isRemote) : null
     const TTAFilter = TTAPack ? TTAPack.idx : -1
@@ -451,50 +451,9 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     const FileUtil = game.moulinette.applications.MoulinetteFileUtil
     const indexFileJSON = `index-${game.world.id}.json`
 
-    // ACTION - INDEX
-    if(classList.contains("indexSounds")) {
-      ui.notifications.info(game.i18n.localize("mtte.indexingInProgress"));
-      game.moulinette.applications.Moulinette.inprogress(this.html.find(".indexSounds"))
-      let publishers = await FileUtil.scanAssets(MoulinetteSounds.FOLDER_CUSTOM_SOUNDS, MoulinetteSounds.AUDIO_EXT)
-      const customPath = game.settings.get("moulinette-core", "customPath")
-      if(customPath) {
-        publishers.push(...await FileUtil.scanAssetsInCustomFolders(customPath, MoulinetteSounds.AUDIO_EXT))
-      }
-      publishers.push(...await FileUtil.scanSourceAssets("sounds", MoulinetteSounds.AUDIO_EXT))
-      // append durations from all sounds
-      const audio = new Audio()
-      audio.preload = "metadata"
-      const promises = []
-      for(const c of publishers) {
-        for(const p of c.packs) {
-          const durations = []
-          for(const a of p.assets) {
-            audio.src = a.match(/^https?:\/\//) ? a : `${p.path}/${FileUtil.encodeURL(a)}`
-            const promise = new Promise( (resolve,reject)=>{
-              audio.onloadedmetadata = function() {
-                resolve(audio.duration);
-              }
-              audio.onerror = function() {
-                console.warn(`Moulinette Sounds | Audio file '${decodeURIComponent(audio.src)}' seems corrupted`)
-                resolve(0.0)
-              }
-            });
-            const duration = await promise
-            durations.push(Math.round(duration))
-          }
-          p.durations = durations
-        }
-      }
-      await FileUtil.upload(new File([JSON.stringify(publishers)], indexFileJSON, { type: "application/json", lastModified: new Date() }), indexFileJSON, "/moulinette/sounds", MoulinetteSounds.FOLDER_CUSTOM_SOUNDS, true)
-      ui.notifications.info(game.i18n.localize("mtte.indexingDone"));
-      // clear cache
-      game.moulinette.cache.clear()
-      this.clearCache()
-      return true
-    }
     // ACTION - CONFIGURE SOURCES
-    else if(classList.contains("configureSources")) {
-      (new game.moulinette.applications.MoulinetteSources(["sounds"])).render(true)
+    if(classList.contains("configureSources")) {
+      (new game.moulinette.applications.MoulinetteSources(this, ["sounds"], MoulinetteSounds.AUDIO_EXT)).render(true)
     }
     // ACTION - REFERENCES
     else if(classList.contains("customReferences")) {

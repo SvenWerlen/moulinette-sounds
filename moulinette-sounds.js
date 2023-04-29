@@ -102,7 +102,6 @@ Hooks.once("ready", async function () {
       description: game.i18n.localize("mtte.soundsDescription"),
       instance: new moduleClass(),
       actions: [
-        {id: "indexSounds", icon: "fas fa-sync" ,name: game.i18n.localize("mtte.indexSounds"), help: game.i18n.localize("mtte.indexSoundsToolTip") },
         //{id: "playChecked", icon: "fas fa-check-square" ,name: game.i18n.localize("mtte.playChecked"), help: game.i18n.localize("mtte.playCheckedToolTip") },
         {id: "configureSources", icon: "fas fa-cogs" ,name: game.i18n.localize("mtte.configureSources"), help: game.i18n.localize("mtte.configureSourcesToolTip") },
         {id: "favoriteChecked", icon: "fas fa-bookmark" ,name: game.i18n.localize("mtte.favoriteChecked"), help: game.i18n.localize("mtte.favoriteCheckedToolTip") },
