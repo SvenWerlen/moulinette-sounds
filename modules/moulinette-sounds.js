@@ -91,7 +91,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
    */
   async generateAsset(playlist, r, idx, selSound, folderIdx = null) {
     const FileUtil = game.moulinette.applications.MoulinetteFileUtil
-    const URL = this.assetsPacks[r.pack].isRemote ? "" : await FileUtil.getBaseURL()
+    const URL = this.assetsPacks[r.pack].isRemote || this.assetsPacks[r.pack].isLocal ? "" : await FileUtil.getBaseURL()
     const pack   = this.assetsPacks[r.pack]
     
     const repeatDefault = game.settings.get("moulinette-sounds", "defaultRepeatOn")
