@@ -224,7 +224,24 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
 
     // retrieve available assets that the user doesn't have access to
     this.matchesCloudTerms = searchTerms
-    this.matchesCloudCount = await game.moulinette.applications.MoulinetteFileUtil.getAvailableMatchesMoulinetteCloud(searchTerms, "sounds", true)
+    const parent = this
+    await game.moulinette.applications.MoulinetteFileUtil.getAvailableMatchesMoulinetteCloud(searchTerms, "sounds", true).then(results => {
+      // not yet ready?
+      if(!parent.html) return;
+      // display/hide showCase
+      const showCase = parent.html.find(".showcase")
+      if(results && results.count > 0) {
+        // display/hide additional content
+        showCase.html('<i class="fas fa-exclamation-circle"></i> ' + game.i18n.format("mtte.showCaseAssets", {count: results.count}))
+        showCase.addClass("clickable")
+        showCase.show()
+      }
+      else {
+        showCase.html("")
+        showCase.removeClass("clickable")
+        showCase.hide()
+      }
+    })
     
     return assets
   }
@@ -242,20 +259,8 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     this.html.find(".draggable").click(this._onToggleSelect.bind(this))
     this.html.find(".sound").mousedown(this._onMouseDown.bind(this))
 
-    // display/hide showCase
-    const showCase = this.html.find(".showcase")
-    if(this.matchesCloudCount && this.matchesCloudCount["count"] > 0) {
-      // display/hide additional content
-      showCase.html('<i class="fas fa-exclamation-circle"></i> ' + game.i18n.format("mtte.showCaseAssets", {count: this.matchesCloudCount["count"]}))
-      showCase.addClass("clickable")
-      showCase.click(ev => new game.moulinette.applications.MoulinetteAvailableAssets(this.matchesCloudTerms, "sounds", 100).render(true))
-      showCase.show()
-    }
-    else {
-      showCase.html("")
-      showCase.removeClass("clickable")
-      showCase.hide()
-    }
+    // click on showcase
+    this.html.find(".showcase").click(ev => new game.moulinette.applications.MoulinetteAvailableAssets(this.matchesCloudTerms, "sounds", 100).render(true))
   }
 
   _onMouseDown(event) {
