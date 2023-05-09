@@ -93,6 +93,8 @@ Hooks.once("ready", async function () {
     await game.moulinette.applications.MoulinetteFileUtil.createFolderRecursive("moulinette/sounds/custom");
     
     game.moulinette.applications["MoulinetteSoundPads"] = MoulinetteSoundPads
+    game.moulinette.applications["MoulinetteSoundBoard"] = (await import("./modules/moulinette-soundboard.js")).MoulinetteSoundBoard
+
     const moduleClass = (await import("./modules/moulinette-sounds.js")).MoulinetteSounds
     game.moulinette.forge.push({
       id: "sounds",
