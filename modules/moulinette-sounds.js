@@ -13,7 +13,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
   static MOULINETTE_SOUNDBOARD  = "Moulinette Soundboard"
   static MOULINETTE_PLAYLIST    = "Moulinette Playlist"
 
-  static AUDIO_EXT = ["mp3", "ogg", "wav", "webm", "m4a", "flac"]
+  static AUDIO_EXT = ["mp3", "ogg", "wav", "webm", "m4a", "flac", "opus"]
 
   constructor() {
     super()
