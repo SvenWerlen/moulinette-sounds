@@ -101,7 +101,18 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       r.sas = pack.sas ? "?" + pack.sas : ""
     }
 
-    r.assetURL = pack.special ? r.assetURL : (r.filename.match(/^https?:\/\//) ? r.filename : `${URL}${this.assetsPacks[r.pack].path}/${FileUtil.encodeURL(r.filename)}`)
+    // full URLs
+    if(r.filename.match(/^https?:\/\//)) {
+      r.assetURL = r.filename
+    } 
+    else if(pack.special) {
+      r.assetURL = r.assetURL
+    }
+    // pack has full URL
+    else {
+      r.assetURL = (pack.path.match(/^https?:\/\//) ? "" : URL) + `${pack.path}/${FileUtil.encodeURL(r.filename)}`
+    }
+
     const sound  = playlist ? playlist.sounds.find(s => s.path == r.assetURL) : null
     const name   = game.moulinette.applications.Moulinette.prettyText(r.title && r.title.length > 0 ? r.title : r.filename.split("/").pop())
     const icon   = sound && sound.playing ? "fa-square" : "fa-play"
