@@ -84,6 +84,7 @@ Hooks.once("init", async function () {
     reservedModifiers: [],
     precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL
   })
+
 });
 
 
@@ -131,6 +132,12 @@ Hooks.once("ready", async function () {
         name: game.i18n.localize("mtte.soundboard"),
         icon: "fas fa-keyboard"
       }]
+    })
+
+    game.socket.on("module.moulinette-sounds", async function(data) {
+      if(!data.user || !data.audio) return;
+      const moduleClass = (await import("./modules/moulinette-sounds.js")).MoulinetteSounds
+      moduleClass.playSoundAsGM(data.user, data.audio)
     })
 
     console.log("Moulinette Sounds | Module loaded")

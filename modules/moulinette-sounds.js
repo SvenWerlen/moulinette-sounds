@@ -10,8 +10,8 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
 
   static FOLDER_CUSTOM_SOUNDS   = "moulinette/sounds/custom"
 
-  static MOULINETTE_SOUNDBOARD  = "Moulinette Soundboard"
-  static MOULINETTE_PLAYLIST    = "Moulinette Playlist"
+  static MOULINETTE_SOUNDBOARD  = "⚙ Soundboard"
+  static MOULINETTE_PLAYLIST    = "⚙ Playlist"
 
   static AUDIO_EXT = ["mp3", "ogg", "wav", "webm", "m4a", "flac", "opus"]
 
@@ -569,5 +569,34 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     else if(type == "soundboard") {
       (new MoulinetteSoundBoard()).render(true)
     }
+  }
+
+  /**
+   * Play a given sound
+   */
+  static async playSoundAsGM(fromUser, audio) {
+    if (!game.user.isGM) return;
+    const playlistName = `${MoulinetteSounds.MOULINETTE_SOUNDBOARD}: ${fromUser}`
+    const volume = audio.volume ? Number(audio.volume) : 1.0
+    // get playlist
+    let playlist = game.playlists.find( pl => pl.name == playlistName)
+    if(!playlist) {
+      playlist = await Playlist.create({name: playlistName, mode: -1})
+    }
+    let path = audio.path
+    if(path.length > 1) {
+      const rand = Math.floor((Math.random() * path.length));
+      path = path[rand]
+    } else {
+      path = path[0]
+    }
+    // get sound
+    let sound = playlist.sounds.find( s => s.path == path )
+    if(Array.isArray(sound)) sound = sound[0] // just in case multiple sounds have the same path
+    if(!sound) {
+      const name = decodeURIComponent(path.split("/").pop())
+      sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [{name: name, path: path, volume: volume}], {}))[0]
+    }
+    playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: !sound.playing, volume: volume }]);
   }
 }

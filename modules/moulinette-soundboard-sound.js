@@ -10,6 +10,10 @@ export class MoulinetteSoundBoardSound extends FormApplication {
     this.data = data
     this.slot = slot
     this.parent = parent
+
+    if(!this.data.volume) {
+      this.data.volume = 1.0
+    }
   }
   
   static get defaultOptions() {
@@ -203,7 +207,7 @@ export class MoulinetteSoundBoardSound extends FormApplication {
         parent.render(true)
       }  
     })
-    //html.find("audio").prop("volume", AudioHelper.volumeToInput(this.data.volume))
+    html.find("audio").prop("volume", AudioHelper.volumeToInput(this.data.volume))
 
     html.find("input.shortText").on('input',function(e){
       const txt = $(e.currentTarget).val()

@@ -34,14 +34,12 @@ export class MoulinetteSoundBoardAdvanced extends FormApplication {
   
   getData() {
     const settings = game.settings.get("moulinette", "soundboard-advanced")
-    console.log(settings)
     const sounds = []
     for(let r=0; r<this.rows; r++) {
       const row = []
       for(let c=0; c<this.cols; c++) {
         const i = 1 + (r*this.cols) + c
         if(Object.keys(settings).includes(`audio-${r}#${c}`)) {
-          console.log("HERE")
           const audio = duplicate(settings[`audio-${r}#${c}`])
           audio.id = `${r}#${c}`
           audio.idx = i
@@ -95,7 +93,7 @@ export class MoulinetteSoundBoardAdvanced extends FormApplication {
 
     html.find(".export").click(ev => {
       const filename = `moulinette-${game.world.title.slugify()}-soundboard.json`
-      const data = game.settings.get("moulinette", "soundboard")
+      const data = game.settings.get("moulinette", "soundboard-advanced")
       saveDataToFile(JSON.stringify(data, null, 2), "text/json", filename);
     })
 
@@ -114,7 +112,7 @@ export class MoulinetteSoundBoardAdvanced extends FormApplication {
               const form = html.find("form")[0];
               if ( !form.data.files.length ) return ui.notifications.error("You did not upload a data file!");
               readTextFromFile(form.data.files[0]).then(json => {
-                game.settings.set("moulinette", "soundboard", JSON.parse(json)).then(ev => parent.render(true))
+                game.settings.set("moulinette", "soundboard-advanced", JSON.parse(json)).then(ev => parent.render(true))
               });
             }
           },
@@ -213,35 +211,22 @@ export class MoulinetteSoundBoardAdvanced extends FormApplication {
 
   async _playSound(event, html) {
     const slot = event.currentTarget.dataset.slot
-    console.log(slot)
     if(slot) {
       let settings = game.settings.get("moulinette", "soundboard-advanced")
       if(Object.keys(settings).includes("audio-" + slot)) {
-        const audio = settings["audio-" + slot]
-        const volume = audio.volume ? Number(audio.volume) : 1.0
-        // get playlist
-        let playlist = game.playlists.find( pl => pl.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
-        if(!playlist) {
-          playlist = await Playlist.create({name: MoulinetteSounds.MOULINETTE_SOUNDBOARD, mode: -1})
+        if (game.user.isGM) {
+          MoulinetteSounds.playSoundAsGM(game.user.name, settings["audio-" + slot])
         }
-        let path = audio.path
-        if(Array.isArray(path)) {
-          const rand = Math.floor((Math.random() * path.length));
-          path = path[rand]
+        else {
+          game.socket.emit("module.moulinette-sounds", {
+            user: game.user.name,
+            audio: settings["audio-" + slot]
+          });
         }
-        // get sound
-        let sound = playlist.sounds.find( s => s.path == path )
-        if(Array.isArray(sound)) sound = sound[0] // just in case multiple sounds have the same path
-        if(!sound) {
-          const name = path.split("/").pop()
-          sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [{name: name, path: path, volume: volume}], {}))[0]
-        }
-        playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: !sound.playing, volume: volume }]);
       } else {
         ui.notifications.warn(game.i18n.localize("mtte.slotNotAssigned"));
       }
     }
   }
-
 
 }
