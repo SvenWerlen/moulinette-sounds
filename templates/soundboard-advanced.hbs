@@ -1,0 +1,40 @@
+<form autocomplete="off" onsubmit="event.preventDefault();">
+  <div class="options">
+    
+    <i class="fas fa-ellipsis-h" title="{{localize "mtte.soundboardColumnsTooltip"}}"></i>
+    <a class="remCol" title="{{localize "mtte.soundboardRemoveColTooltip"}}"><i class="fas fa-minus-circle"></i></a>
+    <a class="addCol" title="{{localize "mtte.soundboardAddColTooltip"}}"><i class="fas fa-plus-circle"></i></a>
+    
+    <i class="fas fa-ellipsis-v" title="{{localize "mtte.soundboardRowsTooltip"}}"></i>
+    <a class="remRow" title="{{localize "mtte.soundboardRemoveRowTooltip"}}"><i class="fas fa-minus-circle"></i></a>
+    <a class="addRow" title="{{localize "mtte.soundboardAddRowTooltip"}}"><i class="fas fa-plus-circle"></i></a>
+    
+    <i class="spacer"></i>
+    <a class="export" title="{{localize "mtte.soundboardExportTooltip"}}"><i class="fas fa-file-export"></i></a>
+    <a class="import" title="{{localize "mtte.soundboardImportTooltip"}}"><i class="fas fa-file-import"></i></a>
+    <a class="delete" title="{{localize "mtte.soundboardDeleteTooltip"}}"><i class="fas fa-trash"></i></a>
+  </div>
+
+  <div class="sounds">
+    {{#each sounds as |rows|}}
+      <div class="boardrow">
+      {{#each rows as |snd|}}
+        {{#if snd.path.length}}
+          <div class="snd used" data-slot="{{snd.id}}" draggable="true">
+          {{#if snd.icon}}
+            {{#if snd.faIcon}}<i class="{{snd.icon}}" title="{{snd.name}}"></i>{{/if}}
+            {{#unless snd.faIcon}}<img class="icon" title="{{snd.name}}" src="{{snd.icon}}"/>{{/unless}}
+          {{/if}}
+          {{#unless snd.faIcon}}
+            {{#if snd.name}}{{snd.name}}{{/if}}
+            {{#unless snd.name}}{{snd.idx}}{{/unless}}
+          {{/unless}}
+          </div>
+        {{/if}}
+        {{#unless snd.path.length}}<div class="snd unused" data-slot="{{snd.id}}" draggable="false">{{snd.idx}}</div>{{/unless}}
+      {{/each}}
+      </div>
+    {{/each}}
+  </div>
+
+</form>

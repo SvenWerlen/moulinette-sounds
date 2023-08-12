@@ -54,6 +54,8 @@
   "mtte.localIcon": "Or browse icon",
   "mtte.moveFavorite": "Move favorite: do you want to overwrite?",
   "mtte.moveFavoriteContent": "You are moving '{from}' to an occupied slot ({to}). Do you want to overwrite (<b>yes</b>) the destination or swap (<b>no</b>) positions?",
+  "mtte.moveSoundboardAudio": "Move audio: do you want to overwrite?",
+  "mtte.moveSoundboardAudioContent": "You are moving an audio to an occupied slot. Do you want to overwrite (<b>yes</b>) the destination or swap (<b>no</b>) positions?",
   "mtte.noMatch": "No sound matching!",
   "mtte.noResultsFound": "No result found",
   "mtte.noSoundPads": "No soundpad is available to you. Check that <a class=\"mouAuthenticate\" href>your Patreon account is linked</a> and that you support TableTop Audio!",

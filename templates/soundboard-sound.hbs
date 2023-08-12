@@ -1,0 +1,93 @@
+<form autocomplete="off" onsubmit="event.preventDefault();">
+  <p>  
+    <i>Select audio to be played when clicking on this slot. If you select multiple files, Moulinette will randomly play one.</i>
+  </p>
+  
+  <h2>Permissions</h2>
+  <div class="form-group">
+    <ul>
+      {{#if canBrowse}}<li class="success">You can browse and select sounds from the FVTT server.</li>{{/if}}
+      {{#unless canBrowse}}<li class="error">You cannot use the FilePicker. Ask your GM for permission!</li>{{/unless}}
+      {{#if canUpload}}<li class="success">You can upload files from your computer to the FVTT server.</li>{{/if}}
+      {{#unless canUpload}}<li class="error">You cannot upload your own sounds. Ask your GM for permission!</li>{{/unless}}
+    </ul>
+  </div>
+
+  <h2>Sound(s)</h2>
+  <div class="form-group">
+    <label>Sounds</label>
+    <div class="form-fields">
+      <button type="submit" class="browseSound"><i class="fas fa-folder-open" title="{{localize "mtte.browse"}}"></i> </button>
+    </div>
+  </div>
+  <p>  
+  {{#each audio as |snd i|}}
+    <audio id="previewSound{{i}}" src="{{snd.path}}"></audio>
+    <span class="audioname"><i class="fas fa-music"></i> {{snd.name}} <a class="audiofile" data-idx="{{i}}"><i class="fas fa-trash" title="{{localize "Delete"}}"></i></a></span>
+  {{/each}}
+  </p>
+
+  <div class="form-group">
+    <label>{{localize "PLAYLIST.SoundVolume" }}</label>
+    <div class="form-fields">              
+      <input class="sound-volume" type="range" title="{{localize "PLAYLIST.SoundVolume" }}" value="{{volume}}" min="0" max="1" step="0.05">
+    </div>
+  </div>
+
+  <h2>Display</h2>
+  <div class="form-group">
+    <label>{{localize "mtte.shortText"}}</label>
+    <div class="form-fields">              
+      <input class="shortText" type="text" name="shortText" placeholder="ex: door" value="{{data.name}}">
+    </div>
+  </div>
+  <p>  
+    <i>{{localize "mtte.favoriteIconDescr"}}</i>
+  </p>
+  <div class="form-group">
+    <label>{{localize "mtte.faIcon"}} <a href="https://fontawesome.com/icons?d=gallery&m=free" target="_blank">Font Awesome</a></label>
+    <div class="form-fields">
+      <input type="hidden" id="IconSourceIdEdit" name="icon" />
+      <input class="icon" type="text" id="IconInputEdit" placeHolder="{{localize "mtte.iconPlaceHolder"}}" value="{{data.icon}}"/>
+      <button type="button" id="GetIconPickerEdit" data-iconpicker-input="input#IconInputEdit" data-iconpicker-preview="i#PreviewIconEdit" class="search"><i class="fas fa-search" id="PreviewIconEdit"></i></button>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>{{localize "mtte.localIcon"}}</label>
+    <div class="form-fields">
+      <input class="icon2" type="text" name="icon2" placeholder="ex: moulinette/images/gameicons/swordman.svg" value="{{data.icon2}}">
+      <button type="submit" class="browse"><i class="fas fa-folder-open" title="{{localize "mtte.browse"}}"></i> </button>
+    </div>
+  </div>
+
+  <h2>Preview</h2>
+  <div class="sounds">
+    <div class="boardrow">
+      {{#if data.path.length}}
+        <div class="snd used">
+        {{#if data.icon}}
+          {{#if data.faIcon}}<i class="{{data.icon}}" title="{{data.name}}"></i>{{/if}}
+          {{#unless data.faIcon}}<img class="icon" title="{{data.name}}" src="{{data.icon}}"/>{{/unless}}
+        {{/if}}
+        {{#unless data.faIcon}}
+          {{#if data.name}}{{data.name}}{{/if}}
+          {{#unless data.name}}{{data.idx}}{{/unless}}
+        {{/unless}}
+        </div>
+      {{/if}}
+      {{#unless data.path.length}}<div class="snd unused">{{data.idx}}</div>{{/unless}}
+      <div><i class="fas fa-arrow-left"></i> Click to play/stop sound</div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="actions">
+      <button class="cancel"> {{localize "Cancel"}}</button>
+      {{#if exists}}
+        <button class="delete"><i class="fas fa-trash"></i> {{localize "Delete"}}</button>
+      {{/if}}
+      <button class="save" title="{{localize "mtte.saveFavoriteToolTip"}}"><i class="fas fa-save"></i> {{localize "Save"}}</button>
+    </div>
+  </footer>
+</form>

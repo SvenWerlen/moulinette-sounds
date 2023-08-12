@@ -4,6 +4,8 @@ import { MoulinetteSoundsUtil } from "./modules/moulinette-sounds-util.js"
 Hooks.once("init", async function () {
   console.log("Moulinette Sounds | Init")
   game.settings.register("moulinette", "soundboard", { scope: "world", config: false, type: Object, default: {} })
+  game.settings.register("moulinette", "soundboard-advanced", { scope: "client", config: false, type: Object, default: {} })
+
   game.settings.register("moulinette-sounds", "soundboardCols", {
     name: game.i18n.localize("mtte.configSoundboardColumns"), 
     hint: game.i18n.localize("mtte.configSoundboardColumnsHint"), 
@@ -22,6 +24,7 @@ Hooks.once("init", async function () {
     type: Number,
     choices: { 1: "1", 2: "2", 3: "3", 4: "4", 5: "5" }
   });
+  
   game.settings.register("moulinette-sounds", "defaultEffectRadius", {
     name: game.i18n.localize("mtte.configDefaultEffectRadius"), 
     hint: game.i18n.localize("mtte.configDefaultEffectRadiusHint"), 
@@ -88,6 +91,9 @@ Hooks.once("init", async function () {
  * Ready: define new moulinette forge module
  */
 Hooks.once("ready", async function () {
+
+  game.moulinette.applications["MoulinetteSoundBoardAdvanced"] = (await import("./modules/moulinette-soundboard-advanced.js")).MoulinetteSoundBoardAdvanced
+
   if (game.user.isGM) {
     // create default home folder for sounds
     await game.moulinette.applications.MoulinetteFileUtil.createFolderRecursive("moulinette/sounds/custom");

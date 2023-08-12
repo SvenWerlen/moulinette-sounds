@@ -54,6 +54,8 @@
   "mtte.localIcon": "Ou chercher icône",
   "mtte.moveFavorite": "Déplacer favori : voulez vous écraser ?",
   "mtte.moveFavoriteContent": "Vous déplacez '{from}' sur un emplacement occupé ({to}). Voulez vous écraser (<b>Oui</b>) l'emplacement or interchanger (<b>Non</b>) les positions ?",
+  "mtte.moveSoundboardAudio": "Déplacer audio : voulez vous écraser ?",
+  "mtte.moveSoundboardAudioContent": "Vous déplacez un audio sur un emplacement occupé. Voulez vous écraser (<b>Oui</b>) l'emplacement or interchanger (<b>Non</b>) les positions ?",
   "mtte.noMatch": "Aucune correspondance !",
   "mtte.noResultsFound": "Aucun résultat trouvé",
   "mtte.noSoundPads": "Aucun son disponible. Vérifiez que <a class=\"mouAuthenticate\" href>votre Patreon est lié à Moulinette</a> et que vous supportez TableTop Audio !",

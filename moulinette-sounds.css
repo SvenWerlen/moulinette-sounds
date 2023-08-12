@@ -283,14 +283,23 @@
   font-style: italic;
 }
 
-#moulinette-soundboard .boardrow {
-  display: flex;
+#moulinette-soundboard {
+  min-width: 60px !important;
 }
 
-#moulinette-soundboard .snd {
+#moulinette-soundboard .boardrow, #moulinette-soundboard-sound .boardrow {
+  display: flex;
+  align-items: center;
+}
+
+#moulinette-soundboard .snd, #moulinette-soundboard-sound .snd {
   overflow: hidden;
   width: 36px;
   height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  max-width: 36px;
+  max-height: 36px;
   box-sizing: content-box;
   font-size: 24px;
   line-height: 36px;
@@ -306,7 +315,15 @@
   margin: 5px;
 }
 
-#moulinette-soundboard .snd.used:hover {
+#moulinette-soundboard-sound .audioname {
+  color: #666;
+  margin-right: 3px;
+  border: 1px solid var(--color-border-light-tertiary);
+  border-radius: 5px;
+  padding: 3px;
+}
+
+#moulinette-soundboard .snd.used:hover, #moulinette-soundboard-sound .snd.used:hover {
   font-weight: bold;
   font-size: large;
   border: 1px solid red;
@@ -314,7 +331,7 @@
   box-shadow: 0 0 4px #ff6400;
 }
 
-#moulinette-soundboard .snd.unused {
+#moulinette-soundboard .snd.unused, #moulinette-soundboard-sound .snd.unused {
   background: rgba(0, 0, 0, 0.1);
   cursor: auto;
 }
@@ -328,20 +345,24 @@
   position: relative;
 }
 
-#moulinette-soundboard .delete {
+#moulinette-soundboard .options {
+  display: flex;
+}
+
+#moulinette-soundboard p .delete {
   position: absolute;
   top: 0px;
   right: 10px;
   color: darkred;
 }
 
-#moulinette-soundboard .export {
+#moulinette-soundboard p .export {
   position: absolute;
   top: 0px;
   right: 50px;
 }
 
-#moulinette-soundboard .import {
+#moulinette-soundboard p .import {
   position: absolute;
   top: 0px;
   right: 30px;
@@ -351,6 +372,10 @@
   display: none;
 }
 
-#moulinette-soundboard a i {
+#moulinette-soundboard i {
   margin-left: 5px;
+}
+
+#moulinette-soundboard i.spacer {
+  margin-left: auto;
 }
