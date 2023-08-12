@@ -349,6 +349,10 @@
   display: flex;
 }
 
+#moulinette-soundboard .options .delete {
+  color: darkred;
+}
+
 #moulinette-soundboard p .delete {
   position: absolute;
   top: 0px;

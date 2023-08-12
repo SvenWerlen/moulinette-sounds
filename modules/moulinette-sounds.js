@@ -594,7 +594,8 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     let sound = playlist.sounds.find( s => s.path == path )
     if(Array.isArray(sound)) sound = sound[0] // just in case multiple sounds have the same path
     if(!sound) {
-      const name = decodeURIComponent(path.split("/").pop())
+      // 1. get filename from path, 2. trim extension
+      const name = decodeURIComponent(path.split("/").pop()).replace(/\.[^/.]+$/, "")
       sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [{name: name, path: path, volume: volume}], {}))[0]
     }
     playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: !sound.playing, volume: volume }]);

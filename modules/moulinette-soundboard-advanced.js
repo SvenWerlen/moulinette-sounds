@@ -139,6 +139,7 @@ export class MoulinetteSoundBoardAdvanced extends FormApplication {
 
 
     html.find('.snd.used').click(ev => this._playSound(ev, html))
+    html.find('.snd.unused').click(ev => this._editSound(ev, html, true))
     html.find('.snd').mousedown(ev => this._editSound(ev, html))
 
     html.find('.snd.used').on('dragstart',function (event) {
@@ -186,9 +187,9 @@ export class MoulinetteSoundBoardAdvanced extends FormApplication {
     this.bringToTop()
   }
 
-  async _editSound(event, html) {
+  async _editSound(event, html, force = false) {
     // right click only
-    if(event.which == 3) {
+    if(force || event.which == 3) {
       const slot = event.currentTarget.dataset.slot;
       
       let settings = game.settings.get("moulinette", "soundboard-advanced")

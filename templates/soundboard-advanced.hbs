@@ -1,11 +1,11 @@
 <form autocomplete="off" onsubmit="event.preventDefault();">
   <div class="options">
     
-    <i class="fas fa-ellipsis-h" title="{{localize "mtte.soundboardColumnsTooltip"}}"></i>
+    <i class="fas fa-ellipsis-h"></i>
     <a class="remCol" title="{{localize "mtte.soundboardRemoveColTooltip"}}"><i class="fas fa-minus-circle"></i></a>
     <a class="addCol" title="{{localize "mtte.soundboardAddColTooltip"}}"><i class="fas fa-plus-circle"></i></a>
     
-    <i class="fas fa-ellipsis-v" title="{{localize "mtte.soundboardRowsTooltip"}}"></i>
+    <i class="fas fa-ellipsis-v"></i>
     <a class="remRow" title="{{localize "mtte.soundboardRemoveRowTooltip"}}"><i class="fas fa-minus-circle"></i></a>
     <a class="addRow" title="{{localize "mtte.soundboardAddRowTooltip"}}"><i class="fas fa-plus-circle"></i></a>
     
@@ -23,7 +23,7 @@
           <div class="snd used" data-slot="{{snd.id}}" draggable="true">
           {{#if snd.icon}}
             {{#if snd.faIcon}}<i class="{{snd.icon}}" title="{{snd.name}}"></i>{{/if}}
-            {{#unless snd.faIcon}}<img class="icon" title="{{snd.name}}" src="{{snd.icon}}"/>{{/unless}}
+            {{#unless snd.faIcon}}<img class="icon" title="{{snd.name}}" src="{{snd.icon}}" draggable="true"/>{{/unless}}
           {{/if}}
           {{#unless snd.faIcon}}
             {{#if snd.name}}{{snd.name}}{{/if}}

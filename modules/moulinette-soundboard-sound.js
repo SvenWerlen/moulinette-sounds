@@ -57,6 +57,16 @@ export class MoulinetteSoundBoardSound extends FormApplication {
     else if(button.classList.contains("browseSound")) {
       new FilePicker({callback: this._onAudioChosen.bind(this), type: "audio"}).render(true);
     }
+    else if(button.classList.contains("browseGameIcon")) {
+      //const icon = this.html.find("input.icon2").val()
+      const picker = game.moulinette.applications.MoulinetteGameIconsPicker
+      if(!picker) {
+        return ui.notifications.error(game.i18n.localize("mtte.errorGameIconModule"));
+      }
+      picker.browse("", (path) => {
+        this._onPathChosen(path)
+      })
+    }
     else if(button.classList.contains("delete")) {
       // prompt confirmation
       let settings = game.settings.get("moulinette", "soundboard-advanced")
@@ -126,7 +136,6 @@ export class MoulinetteSoundBoardSound extends FormApplication {
     if(this.data.path.length > 1) {
       idx = Math.floor((Math.random() * this.data.path.length));
     }
-    console.log(idx)
     sound = document.getElementById("previewSound" + idx)
     this.currentlyPlaying = sound
     
