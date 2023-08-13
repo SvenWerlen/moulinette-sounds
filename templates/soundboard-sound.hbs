@@ -48,7 +48,7 @@
     <label>{{localize "mtte.faIcon"}} <a href="https://fontawesome.com/icons?d=gallery&m=free" target="_blank">Font Awesome</a></label>
     <div class="form-fields">
       <input type="hidden" id="IconSourceIdEdit" name="icon" />
-      <input class="icon" type="text" id="IconInputEdit" placeHolder="{{localize "mtte.iconPlaceHolder"}}" value="{{data.icon}}"/>
+      <input class="icon" type="text" id="IconInputEdit" placeHolder="{{localize "mtte.iconPlaceHolder"}}" value="{{#if data.faIcon}}{{data.icon}}{{/if}}"/>
       <button type="button" id="GetIconPickerEdit" data-iconpicker-input="input#IconInputEdit" data-iconpicker-preview="i#PreviewIconEdit" class="search"><i class="fas fa-search" id="PreviewIconEdit"></i></button>
     </div>
   </div>
@@ -63,7 +63,7 @@
   <div class="form-group">
     <label>{{localize "mtte.localIcon"}}</label>
     <div class="form-fields">
-      <input class="icon2" type="text" name="icon2" placeholder="ex: moulinette/images/gameicons/swordman.svg" value="{{data.icon2}}">
+      <input class="icon2" type="text" name="icon2" placeholder="ex: moulinette/images/gameicons/swordman.svg" value="{{#unless data.faIcon}}{{data.icon}}{{/unless}}">
       <button type="submit" class="browse"><i class="fas fa-folder-open" title="{{localize "mtte.browse"}}"></i> </button>
     </div>
   </div>

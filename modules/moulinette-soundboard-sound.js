@@ -63,6 +63,10 @@ export class MoulinetteSoundBoardSound extends FormApplication {
       if(!picker) {
         return ui.notifications.error(game.i18n.localize("mtte.errorGameIconModule"));
       }
+      if(!game.permissions.FILES_UPLOAD.includes(game.user.role)) {
+        return ui.notifications.error(game.i18n.localize("mtte.filepickerCanNotUpload"));
+      }
+
       picker.browse("", (path) => {
         this._onPathChosen(path)
       })
@@ -107,7 +111,7 @@ export class MoulinetteSoundBoardSound extends FormApplication {
    */
   _onPathChosen(path) {
     this.html.find("input.icon2").val(path)
-    this.html.find(".icon").text("")
+    this.html.find(".icon").val("")
     this.data.icon = path
     this.data.faIcon = false
     this._updateAudioButtonLayout()
@@ -199,6 +203,7 @@ export class MoulinetteSoundBoardSound extends FormApplication {
       // v1.5.0 and the next versions borderRadius: '20px', // v1.5.0 and the next versions
     });
     IconPicker.Run('#GetIconPickerEdit', function() {
+      html.find(".icon2").val("")
       parent.data.icon = parent.html.find("input.icon").val()
       parent.data.faIcon = parent.data.icon.length > 0
       parent._updateAudioButtonLayout()
