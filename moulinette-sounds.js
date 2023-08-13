@@ -251,6 +251,23 @@ Hooks.on("renderPlaylistDirectory", (app, html) => {
   });
 });
 
+Hooks.on("renderSidebarTab", (app, html) => {
+  
+  if (app.id == 'playlists') {
+    const btn = $(
+        `<div class="header-actions action-buttons flexrow">
+            <button id="mtteSoundboardOpen">
+              <i class="fas fa-keyboard"></i> Moulinette Soundboard
+            </button>
+        </div>`
+    );
+    html.find(".directory-footer").append(btn);
+    btn.on("click",async event => {
+      (new game.moulinette.applications.MoulinetteSoundBoardAdvanced()).render(true)
+    });
+  }
+});
+
 /**
  * Support for Blitz SoundBoards
  * WIP
