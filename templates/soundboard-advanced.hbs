@@ -20,7 +20,7 @@
       <div class="boardrow">
       {{#each rows as |snd|}}
         {{#if snd.path.length}}
-          <div class="snd used" data-slot="{{snd.id}}" draggable="true">
+          <div class="snd used {{#if snd.size}}size{{snd.size}}{{/if}}" data-slot="{{snd.id}}" draggable="true">
           {{#if snd.icon}}
             {{#if snd.faIcon}}<i class="{{snd.icon}}" title="{{snd.name}}"></i>{{/if}}
             {{#unless snd.faIcon}}<img class="icon" title="{{snd.name}}" src="{{snd.icon}}" draggable="true"/>{{/unless}}

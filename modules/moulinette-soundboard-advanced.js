@@ -44,6 +44,11 @@ export class MoulinetteSoundBoardAdvanced extends FormApplication {
           audio.id = `${r}#${c}`
           audio.idx = i
           row.push(audio)
+
+          // button size is larger
+          if(audio.size && audio.size > 1) {
+            c += audio.size-1
+          }
         } else {
           row.push({ id: `${r}#${c}`, idx: i })
         }
@@ -152,6 +157,7 @@ export class MoulinetteSoundBoardAdvanced extends FormApplication {
 
       const fromSlot = event.originalEvent.dataTransfer.getData("text/plain");
       const toSlot = event.currentTarget.dataset.slot
+
       let settings = game.settings.get("moulinette", "soundboard-advanced")
       if(fromSlot && toSlot && fromSlot != toSlot && Object.keys(settings).includes("audio-" + fromSlot)) {
         const fromAudio = settings["audio-" + fromSlot]
@@ -175,6 +181,7 @@ export class MoulinetteSoundBoardAdvanced extends FormApplication {
         } else {
           settings["audio-" + fromSlot] = toAudio
         }
+
         await game.settings.set("moulinette", "soundboard-advanced", settings)
         parent.render()
       }

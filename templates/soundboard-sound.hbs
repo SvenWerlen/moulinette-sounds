@@ -41,6 +41,14 @@
       <input class="shortText" type="text" name="shortText" placeholder="ex: door" value="{{data.name}}">
     </div>
   </div>
+  <div class="form-group">
+    <label>{{localize "mtte.size"}}</label>
+    <div class="form-fields">
+      <button type="submit" class="buttonSize size1 {{#if size1}}selected{{/if}}">1</button>
+      <button type="submit" class="buttonSize size2 {{#if size2}}selected{{/if}}">2</button>
+      <button type="submit" class="buttonSize size3 {{#if size3}}selected{{/if}}">3</button>
+    </div>
+  </div>
   <p>  
     <i>{{localize "mtte.favoriteIconDescr"}}</i>
   </p>
@@ -72,7 +80,7 @@
   <div class="sounds">
     <div class="boardrow">
       {{#if data.path.length}}
-        <div class="snd used">
+        <div class="snd used {{#if data.size}}size{{data.size}}{{/if}}">
         {{#if data.icon}}
           {{#if data.faIcon}}<i class="{{data.icon}}" title="{{data.name}}"></i>{{/if}}
           {{#unless data.faIcon}}<img class="icon" title="{{data.name}}" src="{{data.icon}}"/>{{/unless}}

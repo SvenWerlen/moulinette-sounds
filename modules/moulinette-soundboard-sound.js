@@ -40,7 +40,10 @@ export class MoulinetteSoundBoardSound extends FormApplication {
       canUpload: game.permissions.FILES_UPLOAD.includes(game.user.role),
       multiple: Array.isArray(this.data.path), 
       volume: AudioHelper.volumeToInput(this.data.volume),
-      exists: Object.keys(settings).includes("audio-" + this.slot)
+      exists: Object.keys(settings).includes("audio-" + this.slot),
+      size1: !this.data.size || this.data.size == 1,
+      size2: this.data.size == 2,
+      size3: this.data.size == 3
     }
   }
   
@@ -92,6 +95,11 @@ export class MoulinetteSoundBoardSound extends FormApplication {
       const settings = game.settings.get("moulinette", "soundboard-advanced")
       if(this.data.path.length == 0) {
         return ui.notifications.error(game.i18n.localize("mtte.errorSoundboardNoAudio"));
+      }
+
+      // remove icon size for icon button
+      if(this.data.icon && this.data.size) {
+        delete this.data.size
       }
 
       let audio = duplicate(this.data)
@@ -165,6 +173,10 @@ export class MoulinetteSoundBoardSound extends FormApplication {
    */
   _updateAudioButtonLayout() {
     const button = this.html.find(".sounds .snd")
+    // reset size
+    button.removeClass("size1")
+    button.removeClass("size2")
+    button.removeClass("size3")
     // no sound selected
     if(this.data.path.length == 0) {
       button.removeClass("used")
@@ -180,11 +192,17 @@ export class MoulinetteSoundBoardSound extends FormApplication {
         } else {
           button.html(`<img class="icon" title="${this.data.name}" src="${this.data.icon}"/>`)
         }
-      } else if(this.data.name && this.data.name.length > 0) {
-        button.text(this.data.name)
       } else {
-        button.text(this.data.idx)
-      }
+        // size only for text button
+        if(this.data.size >= 2) {
+          button.addClass("size" + this.data.size)
+        }
+        if(this.data.name && this.data.name.length > 0) {
+          button.text(this.data.name)
+        } else {
+          button.text(this.data.idx)
+        }
+      } 
     }
   }
 
@@ -242,6 +260,34 @@ export class MoulinetteSoundBoardSound extends FormApplication {
       const txt = $(e.currentTarget).val()
       parent.data.icon = txt
       parent.data.faIcon = false
+      parent._updateAudioButtonLayout()
+    })
+
+    html.find(".size1").click(ev => {
+      parent.data.size = 1
+      parent._updateAudioButtonLayout()
+      html.find(".size1").addClass("selected")
+      html.find(".size2").removeClass("selected")
+      html.find(".size3").removeClass("selected")
+    })
+    html.find(".size2").click(ev => {
+      if(this.data.icon) {
+        return ui.notifications.warn(game.i18n.localize("mtte.errorSoundboardSizeForIcon"));
+      }
+      html.find(".size1").removeClass("selected")
+      html.find(".size2").addClass("selected")
+      html.find(".size3").removeClass("selected")
+      parent.data.size = 2
+      parent._updateAudioButtonLayout()
+    })
+    html.find(".size3").click(ev => {
+      if(this.data.icon) {
+        return ui.notifications.warn(game.i18n.localize("mtte.errorSoundboardSizeForIcon"));
+      }
+      html.find(".size1").removeClass("selected")
+      html.find(".size2").removeClass("selected")
+      html.find(".size3").addClass("selected")
+      parent.data.size = 3
       parent._updateAudioButtonLayout()
     })
   }

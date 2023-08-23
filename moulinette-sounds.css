@@ -315,6 +315,18 @@
   margin: 5px;
 }
 
+#moulinette-soundboard .snd.size2, #moulinette-soundboard-sound .snd.size2 {
+  min-width: 84px !important;
+  max-width: 84px !important;
+  width: 84px !important;
+}
+
+#moulinette-soundboard .snd.size3, #moulinette-soundboard-sound .snd.size3 {
+  min-width: 132px !important;
+  max-width: 132px !important;
+  width: 132px !important;
+}
+
 #moulinette-soundboard-sound .audioname {
   color: #666;
   margin-right: 3px;
@@ -376,10 +388,10 @@
   display: none;
 }
 
-#moulinette-soundboard i {
+#moulinette-soundboard .options i {
   margin-left: 5px;
 }
 
-#moulinette-soundboard i.spacer {
+#moulinette-soundboard .options i.spacer {
   margin-left: auto;
 }

@@ -61,6 +61,7 @@
   "mtte.showCaseAssets": "{count}個の一致する素材が見つかりました。クリックでプレビューできます。",
   "mtte.showSoundPads": "サウンドパッド表示",
   "mtte.showSoundPadsToolTip": "Moulinette Cloudにあるサウンドパッドを表示します。",
+  "mtte.size": "サイズ",
   "mtte.slot": "番号",
   "mtte.slotNotAssigned": "この番号は定義されていません、Moulinette Audioを起動します……",
   "mtte.soundboard": "サウンドボード",
