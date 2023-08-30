@@ -6,6 +6,15 @@ Hooks.once("init", async function () {
   game.settings.register("moulinette", "soundboard", { scope: "world", config: false, type: Object, default: {} })
   game.settings.register("moulinette", "soundboard-advanced", { scope: "client", config: false, type: Object, default: {} })
 
+  game.settings.register("moulinette-sounds", "soundboard4players", {
+    name: game.i18n.localize("mtte.configSoundboard4players"), 
+    hint: game.i18n.localize("mtte.configSoundboard4playersHint"), 
+    scope: "world",
+    config: true,
+    default: true,
+    type: Boolean
+  });
+
   game.settings.register("moulinette-sounds", "soundboardCols", {
     name: game.i18n.localize("mtte.configSoundboardColumns"), 
     hint: game.i18n.localize("mtte.configSoundboardColumnsHint"), 
@@ -252,6 +261,11 @@ Hooks.on("renderPlaylistDirectory", (app, html) => {
 });
 
 Hooks.on("renderSidebarTab", (app, html) => {
+  
+  // only available for GM and players if enabled
+  if(!game.user.isGM && !game.settings.get("moulinette-sounds", "soundboard4players")) {
+    return
+  }
   
   if (app.id == 'playlists') {
     const btn = $(

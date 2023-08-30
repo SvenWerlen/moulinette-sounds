@@ -14,6 +14,8 @@
   "mtte.configDefaultRepeatOnHint": "Moulinette configure les sons pour les jouer en boucle (repeat) par défaut",
   "mtte.configSoundPadHint": "Ouvre l'interface de Moulinette SoundPads",
   "mtte.configSoundPadKey": "Mixage Audio",
+  "mtte.configSoundboard4players": "Table de mixage pour joueurs",
+  "mtte.configSoundboard4playersHint": "Permets aux joueurs de créer et gérer leur propre table de mixage de sons (requiert certaines permissions additionnelles).",
   "mtte.configSoundboardColumns": "Table de mixage : raccourcis par ligne",
   "mtte.configSoundboardColumnsHint": "Nombre de raccourcis (boutons) sur une ligne de la tablie de mixage",
   "mtte.configSoundboardHideUI": "Masquer l'interface sous UI",

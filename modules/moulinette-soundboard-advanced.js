@@ -13,6 +13,10 @@ export class MoulinetteSoundBoardAdvanced extends FormApplication {
   constructor(data) {
     super()
 
+    if(!game.user.isGM && !game.settings.get("moulinette-sounds", "soundboard4players")) {
+      throw new Error("You're not authorized to use the Moulinette Soundboard.");
+    }
+
     const settings = game.settings.get("moulinette", "soundboard-advanced")
     this.cols = "cols" in settings ? settings["cols"] : 10
     this.rows = "rows" in settings ? settings["rows"] : 1

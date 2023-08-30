@@ -14,6 +14,8 @@
   "mtte.configDefaultRepeatOnHint": "Moulinette enables 'repeat' mode by default",
   "mtte.configSoundPadHint": "Opens SoundPads UI",
   "mtte.configSoundPadKey": "SoundPads",
+  "mtte.configSoundboard4players": "Enable Soundboard for players",
+  "mtte.configSoundboard4playersHint": "Allows users to create and manage their own soundboard (requires some additional permissions).",
   "mtte.configSoundboardColumns": "Soundboard: shortcuts per row",
   "mtte.configSoundboardColumnsHint": "Number of shortcuts rendered on one row on the soundboard",
   "mtte.configSoundboardHideUI": "Hide UI below soundboard",
