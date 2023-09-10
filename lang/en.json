@@ -89,7 +89,7 @@
   "mtte.showSoundPadsToolTip": "Opens the SoundPad UI (populated from Moulinette Cloud)",
   "mtte.size": "Size",
   "mtte.slot": "Slot",
-  "mtte.slotExists": "Slot already exists! Please drop to an empty slot.",
+  "mtte.slotExists": "Slot already exists! Please drop onto an empty slot.",
   "mtte.slotNotAssigned": "This slot has not been yet defined! Opening Moulinette Audio…",
   "mtte.soundboard": "Soundboard",
   "mtte.soundboardAddColTooltip": "Add a column",
