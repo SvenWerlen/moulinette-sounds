@@ -122,7 +122,33 @@ export class MoulinetteSoundBoardAdvanced extends FormApplication {
               const form = html.find("form")[0];
               if ( !form.data.files.length ) return ui.notifications.error("You did not upload a data file!");
               readTextFromFile(form.data.files[0]).then(json => {
-                game.settings.set("moulinette", "soundboard-advanced", JSON.parse(json)).then(ev => parent.render(true))
+                const data = JSON.parse(json)
+                // check if from v1
+                const keys = Object.keys(data)
+                if(keys.length > 0 && keys[0].startsWith("fav")) {
+                  const settings = game.settings.get("moulinette", "soundboard-advanced")
+                  const cols = settings.cols ? settings.cols : 10
+                  const dataV2 = {}
+                  for(const k of keys) {
+                    // generate new key (compatible with v2)
+                    const index = parseInt(k.substring(3))
+                    const row = Math.floor(index / cols)
+                    const col = index % cols
+                    const newKey = `audio-${row}#${col}`
+                    // convert paths to array
+                    const sound = data[k]
+                    if(!Array.isArray(sound.path)) {
+                      sound.path = [sound.path]
+                    }
+                    // build new settings
+                    dataV2[newKey] = sound
+                  }
+                  game.settings.set("moulinette", "soundboard-advanced", dataV2).then(ev => parent.render(true))
+                  
+                } else {
+                  game.settings.set("moulinette", "soundboard-advanced", JSON.parse(json)).then(ev => parent.render(true))
+                }
+                
               });
             }
           },
