@@ -3,6 +3,7 @@
  *************************/
 import { MoulinetteSounds } from "./moulinette-sounds.js"
 import { MoulinetteFavorite } from "./moulinette-favorite.js"
+import { MoulinetteSoundsUtil } from "./moulinette-sounds-util.js"
 
 export class MoulinetteSoundBoard extends FormApplication {
 
@@ -138,32 +139,60 @@ export class MoulinetteSoundBoard extends FormApplication {
       event.preventDefault();
 
       const fromSlot = event.originalEvent.dataTransfer.getData("text/plain");
-      const toSlot = event.currentTarget.dataset.slot
-      let favorites = game.settings.get("moulinette", "soundboard")
-      if(fromSlot && toSlot && fromSlot != toSlot && Object.keys(favorites).includes("fav" + fromSlot)) {
-        const fromFav = favorites["fav" + fromSlot]
-        const toFav = Object.keys(favorites).includes("fav" + toSlot) ? favorites["fav" + toSlot] : null
-        let overwrite = null
-        // target not defined => move
-        if(!toFav) {
-          overwrite = true
+      // drag & drop from slot to slot
+      if(parseInt(fromSlot)) {
+        const toSlot = event.currentTarget.dataset.slot
+        let favorites = game.settings.get("moulinette", "soundboard")
+        if(fromSlot && toSlot && fromSlot != toSlot && Object.keys(favorites).includes("fav" + fromSlot)) {
+          const fromFav = favorites["fav" + fromSlot]
+          const toFav = Object.keys(favorites).includes("fav" + toSlot) ? favorites["fav" + toSlot] : null
+          let overwrite = null
+          // target not defined => move
+          if(!toFav) {
+            overwrite = true
+          }
+          // target defined => prompt for desired behaviour
+          else {
+            overwrite = await Dialog.confirm({
+              title: game.i18n.localize("mtte.moveFavorite"),
+              content: game.i18n.format("mtte.moveFavoriteContent", { from: fromFav.name, to: toFav.name}),
+            })
+            if(overwrite == null) return;
+          }
+          favorites["fav" + toSlot] = fromFav
+          if(overwrite) {
+            delete favorites["fav" + fromSlot]
+          } else {
+            favorites["fav" + fromSlot] = toFav
+          }
+          await game.settings.set("moulinette", "soundboard", favorites)
+          parent.render()
         }
-        // target defined => prompt for desired behaviour
-        else {
-          overwrite = await Dialog.confirm({
-            title: game.i18n.localize("mtte.moveFavorite"),
-            content: game.i18n.format("mtte.moveFavoriteContent", { from: fromFav.name, to: toFav.name}),
-          })
-          if(overwrite == null) return;
+      }
+      // drag & drop to slot
+      else {
+        // try to read data as JSON
+        let data = {}
+        try {
+          data = JSON.parse(fromSlot);
+        } catch (e) {
+          return false;
         }
-        favorites["fav" + toSlot] = fromFav
-        if(overwrite) {
-          delete favorites["fav" + fromSlot]
-        } else {
-          favorites["fav" + fromSlot] = toFav
+        const toSlot = event.currentTarget.dataset.slot
+        if(data && data.source == "mtte" && data.sound && data.pack) {
+          const sound = data.sound
+          await MoulinetteSoundsUtil.downloadAsset(data)
+          let favorites = game.settings.get("moulinette", "soundboard")
+          const name = game.moulinette.applications.Moulinette.prettyText(sound.filename.split("/").pop()).replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a","")
+          favorites["fav" + toSlot] = { 
+            name: name, 
+            icon: "", 
+            faIcon: false, 
+            path: data.path, 
+            volume: AudioHelper.inputToVolume(data.volume) }
+          await game.settings.set("moulinette", "soundboard", favorites)
+          parent.render()
         }
-        await game.settings.set("moulinette", "soundboard", favorites)
-        parent.render()
       }
     })
 

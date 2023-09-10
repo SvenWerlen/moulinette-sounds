@@ -283,7 +283,6 @@ export class MoulinetteSoundPads extends FormApplication {
 
 
   _onDragStart(event) {
-    console.log(event)
     const soundIdx = $(event.currentTarget).data('idx')
 
     if(MoulinetteSoundsUtil.noTTADownload()) {
