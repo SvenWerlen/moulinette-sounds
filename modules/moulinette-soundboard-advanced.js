@@ -3,6 +3,7 @@
  *************************/
 import { MoulinetteSounds } from "./moulinette-sounds.js"
 import { MoulinetteSoundBoardSound } from "./moulinette-soundboard-sound.js"
+import { MoulinetteSoundsUtil } from "./moulinette-sounds-util.js"
 
 export class MoulinetteSoundBoardAdvanced extends FormApplication {
 
@@ -162,32 +163,61 @@ export class MoulinetteSoundBoardAdvanced extends FormApplication {
       const fromSlot = event.originalEvent.dataTransfer.getData("text/plain");
       const toSlot = event.currentTarget.dataset.slot
 
-      let settings = game.settings.get("moulinette", "soundboard-advanced")
-      if(fromSlot && toSlot && fromSlot != toSlot && Object.keys(settings).includes("audio-" + fromSlot)) {
-        const fromAudio = settings["audio-" + fromSlot]
-        const toAudio = Object.keys(settings).includes("audio-" + toSlot) ? settings["audio-" + toSlot] : null
-        let overwrite = null
-        // target not defined => move
-        if(!toAudio) {
-          overwrite = true
-        }
-        // target defined => prompt for desired behaviour
-        else {
-          overwrite = await Dialog.confirm({
-            title: game.i18n.localize("mtte.moveSoundboardAudio"),
-            content: game.i18n.localize("mtte.moveSoundboardAudioContent"),
-          })
-          if(overwrite == null) return;
-        }
-        settings["audio-" + toSlot] = fromAudio
-        if(overwrite) {
-          delete settings["audio-" + fromSlot]
-        } else {
-          settings["audio-" + fromSlot] = toAudio
-        }
+      // drag & drop from slot to slot
+      if(parseInt(fromSlot)) {
+        let settings = game.settings.get("moulinette", "soundboard-advanced")
+        if(fromSlot && toSlot && fromSlot != toSlot && Object.keys(settings).includes("audio-" + fromSlot)) {
+          const fromAudio = settings["audio-" + fromSlot]
+          const toAudio = Object.keys(settings).includes("audio-" + toSlot) ? settings["audio-" + toSlot] : null
+          let overwrite = null
+          // target not defined => move
+          if(!toAudio) {
+            overwrite = true
+          }
+          // target defined => prompt for desired behaviour
+          else {
+            overwrite = await Dialog.confirm({
+              title: game.i18n.localize("mtte.moveSoundboardAudio"),
+              content: game.i18n.localize("mtte.moveSoundboardAudioContent"),
+            })
+            if(overwrite == null) return;
+          }
+          settings["audio-" + toSlot] = fromAudio
+          if(overwrite) {
+            delete settings["audio-" + fromSlot]
+          } else {
+            settings["audio-" + fromSlot] = toAudio
+          }
 
-        await game.settings.set("moulinette", "soundboard-advanced", settings)
-        parent.render()
+          await game.settings.set("moulinette", "soundboard-advanced", settings)
+          parent.render()
+        }
+      }
+      // drag & drop to slot
+      else {
+        // try to read data as JSON
+        let data = {}
+        try {
+          data = JSON.parse(fromSlot);
+        } catch (e) {
+          return false;
+        }
+        if(data && data.source == "mtte" && data.sound && data.pack) {
+          const settings = game.settings.get("moulinette", "soundboard-advanced")
+          if(`audio-${toSlot}` in settings) {
+            return ui.notifications.error(game.i18n.localize("mtte.slotExists")); 
+          }
+          const sound = data.sound
+          await MoulinetteSoundsUtil.downloadAsset(data)
+          const name = game.moulinette.applications.Moulinette.prettyText(sound.filename.split("/").pop()).replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a","")
+          settings[`audio-${toSlot}`] = { 
+            name: name,
+            path: [data.path],
+            volume: AudioHelper.inputToVolume(data.volume) 
+          }
+          await game.settings.set("moulinette", "soundboard-advanced", settings)  
+          parent.render()
+        }
       }
     })
 

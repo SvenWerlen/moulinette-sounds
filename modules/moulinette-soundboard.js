@@ -180,9 +180,12 @@ export class MoulinetteSoundBoard extends FormApplication {
         }
         const toSlot = event.currentTarget.dataset.slot
         if(data && data.source == "mtte" && data.sound && data.pack) {
+          let favorites = game.settings.get("moulinette", "soundboard")
+          if(`fav-${toSlot}` in favorites) {
+            return ui.notifications.error(game.i18n.localize("mtte.slotExists")); 
+          }
           const sound = data.sound
           await MoulinetteSoundsUtil.downloadAsset(data)
-          let favorites = game.settings.get("moulinette", "soundboard")
           const name = game.moulinette.applications.Moulinette.prettyText(sound.filename.split("/").pop()).replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a","")
           favorites["fav" + toSlot] = { 
             name: name, 
