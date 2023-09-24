@@ -212,6 +212,21 @@
   width: 100%;
 }
 
+#moulinette-soundpads .categories {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0;
+  margin: 0;
+}
+
+#moulinette-soundpads .categories .cat {
+  padding: 0px 4px;
+}
+
+#moulinette-soundpads .categories .cat.selected {
+  color: var(--color-text-hyperlink);
+}
+
 #moulinette-soundpads input {
   color: #ccc;
   vertical-align: middle;
@@ -246,7 +261,16 @@
 }
 
 #moulinette-soundpads .sound {
+  display: flex;
+  align-items: center;
   padding: 2px 5px;
+}
+
+#moulinette-soundpads .sound .duration {
+  position: relative;
+  margin-left: auto;
+  font-size: smaller;
+  padding-right: 5px;
 }
 
 #moulinette-soundpads .sound:hover {
@@ -282,6 +306,14 @@
   text-align: center;
   font-style: italic;
 }
+
+#moulinette-soundpads .variations {
+  position: absolute;
+  left: 200px;
+  display: none;
+  background-color: red;
+}
+
 
 #moulinette-soundboard {
   min-width: 60px !important;

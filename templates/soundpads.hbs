@@ -1,6 +1,6 @@
 <form autocomplete="off" onsubmit="event.preventDefault();">
 
-  <div class="sidebar">
+    <div class="sidebar">
 
     <nav class="sheet-tabs tabs"></nav>
 
@@ -13,6 +13,10 @@
 
     <div class="sounds">
         {{#if noAsset}}<div class="warning error">{{{localize "mtte.noSoundPads"}}}</div>{{/if}}
+        
+        <div class="categories">
+          {{#each categories as |c|}}<a class="cat" data-id="{{c}}"><i class="fa-solid fa-filter fa-xs"></i> {{c}}</a></span>{{/each}}
+        </div>
 
         {{#each assets as |a|}}{{{a}}}{{/each}}
         <div class="warning">{{localize "mtte.noMatch"}}</div>
