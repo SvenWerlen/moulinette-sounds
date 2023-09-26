@@ -5,11 +5,21 @@ import { MoulinetteSoundsUtil } from "./moulinette-sounds-util.js"
  *************************/
 export class MoulinetteSoundPads extends FormApplication {
 
-  static MOULINETTE_PLAYLIST  = "Tabletop Audio (Moulinette)"
+  static MOULINETTE_PLAYLIST  = "#CREATOR# (Moulinette)"
+  static CREATORS = {
+    tabletopaudio : "Tabletop Audio",
+    michaelghelfi : "Michael Ghelfi"
+  }
   
   constructor(data) {
     super()
 
+    this.creator = "tabletopaudio" // default choice
+    const savedCreator = game.settings.get("moulinette-sounds", "soundpadCreator")
+    if(savedCreator && savedCreator in MoulinetteSoundPads.CREATORS) {
+      this.creator = savedCreator
+    }
+    
     this.showAll = false
   }
   
@@ -43,17 +53,6 @@ export class MoulinetteSoundPads extends FormApplication {
   }
 
   /**
-   * Search through the soundpad to match a sound with metadata
-   */
-  static findMatchingSound(soundpad, sound) {
-    const folder = sound.filename.split("/")[0]
-    if(folder in soundpad) {
-      return soundpad[folder].find(s => s.path == sound.filename.split("/").pop())
-    }
-    return null
-  }
-
-  /**
    * Formats the duration as string
    */
   static formatDuration(seconds) {
@@ -77,87 +76,73 @@ export class MoulinetteSoundPads extends FormApplication {
 
     const categories = []
     let sounds = []
-    const tabletopPack = index.packs.find(p => p.publisher == "Tabletop Audio" && p.name == "SoundPads")
-    if(tabletopPack) {
-      // download soundpad
-      //const url = "http://127.0.0.1:5000/static/tabletopaudio.json"
-      //const response = await fetch(url);
-      //const tta = await response.json();
-      
-      sounds = index.assets.filter(s => s.pack == tabletopPack.idx)
-      for(const s of sounds) {
-        //const match = MoulinetteSoundPads.findMatchingSound(tta, s)
-        s.name = s.title ? s.title : MoulinetteSoundPads.cleanSoundName(s.filename.split("/").pop())
-        //s.nameAlt = match ? match.nameAlt : null
-        //s.cat = match ? match.categ : null
-        //s.order = match ? match.order : 0
-        if(s.cat) {
-          for(const c of s.cat) {
-            if(!categories.includes(c)) {
-              categories.push(c)
-            }
+
+    const ttaPacks = index.packs.filter(p => p.publisher == MoulinetteSoundPads.CREATORS[this.creator])
+    const packIds = ttaPacks.map(p => p.idx)
+    sounds = index.assets.filter(s => packIds.includes(s.pack))
+    for(const s of sounds) {
+      s.name = s.title ? s.title : MoulinetteSoundPads.cleanSoundName(s.filename.split("/").pop())
+      if(s.cat) {
+        const categs = []
+        for(const c of s.cat) {
+          const categ = c.toLowerCase()
+          categs.push(categ)
+          if(!categories.includes(categ)) {
+            categories.push(categ)
           }
-        } 
-      }
+        }
+        s.cat = categs
+      } 
     }
 
     // keep references for later usage
     this.sounds = sounds
-    this.pack = tabletopPack
-    this.folders = game.moulinette.applications.MoulinetteFileUtil.foldersFromIndex(sounds, [tabletopPack]);
-
-    // add ambience & music
-    /*
-    let musicList
-    if(game.moulinette.cache.hasData("ttaMusic")) {
-      musicList = game.moulinette.cache.getData("ttaMusic")
-    } else {
-      const music = await fetch(game.moulinette.applications.MoulinetteClient.SERVER_URL + "/assets/" + game.moulinette.user.id + "/tta")
-      musicList = await music.json()
-      musicList.sort((a, b) => { return a.track_title.localeCompare(b.track_title) });
-      game.moulinette.cache.setData("ttaMusic", musicList)
-    }
-
-    if(musicList.length > 0) {
-      let idx = this.sounds.length+1
-      for(const m of musicList) {
-        for(const genre of m['track_genre']) {
-          // ugly fix for genre that are "xxx, yyy"
-          for(const genreFix of genre.split(",")) {
-            // upper case first letter
-            const folder = "/Music: " + genreFix.trim().charAt(0).toUpperCase() + genreFix.trim().slice(1) + "/"
-            if(!(folder in this.folders)) {
-              this.folders[folder] = []
+    this.packs = ttaPacks
+    this.folders = game.moulinette.applications.MoulinetteFileUtil.foldersFromIndex(sounds, ttaPacks, true);
+    
+    // music without folder should be alternates => try to match them
+    if("/" in this.folders) {
+      for(const snd of this.folders["/"]) {
+        // find match based on prefix
+        const idx = snd.filename.indexOf("_")
+        if(idx <= 0) continue
+        const prefix = snd.filename.substring(0, idx)
+        Object.keys(this.folders).forEach(key => {
+          const match = this.folders[key].find(s => s.filename.indexOf(`/${prefix}_`) >= 0)
+          if(match) {
+            if(!match.alt) {
+              match.alt = [snd]
+            } else {
+              match.alt.push(snd)
             }
-            this.folders[folder].push({ idx: idx, name: m.track_title, filename: m.link, tags: m["tags"].toString() })
-            this.sounds.push({ idx: idx++, name: m.track_title, filename: m.link, tags: m["tags"].toString() })
           }
-        }
+          return
+        });
       }
-    }*/
+    }
+    delete this.folders["/"]
 
     const keys = Object.keys(this.folders).sort()
     const assets = []
     for(const k of keys) {
-      assets.push(`<div class="folder" data-path="${k}"><h2 class="expand"><i class="fas fa-folder"></i> ${k.slice(0, -1).split('/').pop() } (${this.folders[k].length})</h2><div class="assets">`)
+      const folderName = k.slice(0, -1).split('/').pop().replace(/\([^\)]+\)/, "")
+      assets.push(`<div class="folder" data-path="${k}"><h2 class="expand"><i class="fas fa-folder"></i> ${folderName} (${this.folders[k].length})</h2><div class="assets">`)
       // sort by order, then name
       const sounds = this.folders[k].sort((a,b) => a.order != b.order ? a.order - b.order : a.name.localeCompare(b.name))
       for(const a of sounds) {
         let variants = 0
         let variantsHTML = ""
-        if(a.name == "Descent") {
-          variants = 3
-          variantsHTML = `<div class="sound draggable" data-idx="${a.idx}"><i class="fa-solid fa-compact-disc"></i> ` +
-          `<span class="audio" title="${a.tags}">${a.name}${a.filename.includes("loop") ? ' <i class="fas fa-sync"></i>' : "" }` +
-          "</span></div>"
+        if(a.alt) {
+          variantsHTML += MoulinetteSoundPads.generateSoundAltHTML(a, a)
+          for(const alt of a.alt) {
+            variants++
+            variantsHTML += MoulinetteSoundPads.generateSoundAltHTML(a, alt)
+          }
         }
 
         const tagsHTML = a.tags ? `title="${a.tags}"` : ""
         const categHTML = a.cat ? `data-cat="${a.cat}"` : ""
-        const soundHTML = `<div class="sound draggable" data-idx="${a.idx}"><i class="fas fa-music"></i>&nbsp;` +
-         `<span class="audio" ${tagsHTML} ${categHTML}>${a.name}${a.filename.includes("loop") ? ' <i class="fas fa-sync fa-xs"></i>' : "" }` +
-         (variants > 0 ? ` (${variants}) <i class="fa-solid fa-angles-down"></i>` : "") +
-         `</span><span class="duration">${MoulinetteSoundPads.formatDuration(a.duration)}</span> ${variantsHTML}</div>`
+        const soundHTML = MoulinetteSoundPads.generateSoundHTML(a, tagsHTML, categHTML, variants) + variantsHTML
         assets.push(soundHTML)
       }
       assets.push("</div></div>")
@@ -166,9 +151,32 @@ export class MoulinetteSoundPads extends FormApplication {
     return { 
       assets, 
       categories,
+      creator: this.creator,
       'noAsset': this.sounds.length == 0, 
       'volume':  AudioHelper.volumeToInput(game.settings.get("moulinette", "soundpadVolume")) 
     }
+  }
+
+  /**
+   * Generates HTML for 1 single sound
+   */
+  static generateSoundHTML(a, tagsHTML, categHTML, variants) {
+    return `<div class="sound ${ variants > 0 ? "expandable" : "draggable" }" data-idx="${a.idx}"><i class="fas fa-music"></i>&nbsp;` +
+      `<span class="audio" ${tagsHTML} ${categHTML}>${a.name}${a.filename.toLowerCase().includes("loop") ? ' <i class="fas fa-sync fa-xs"></i>' : "" }` +
+      (variants > 0 ? ` (${variants}) <i class="exp fa-solid fa-angles-down"></i>` : "") +
+      `</span><span class="duration">${MoulinetteSoundPads.formatDuration(a.duration)}</span> </div>`
+  }
+
+  /**
+   * Generates HTML for 1 single alternate sound
+   */
+  static generateSoundAltHTML(orig, alt) {
+    const regex = /\(([^\)]+)\)/g; // extract text in parenthesis
+    const result = regex.exec(alt.name);
+    const name = result ? result[1] : alt.name
+    return `<div class="sound draggable alt" data-parent="${orig.idx}" data-idx="${alt.idx}"><i class="fa-solid fa-compact-disc"></i>&nbsp;` +
+      `<span class="audio">${name}${alt.filename.toLowerCase().includes("loop") ? ' <i class="fas fa-sync"></i>' : "" }` +
+      `</span><span class="duration">${MoulinetteSoundPads.formatDuration(alt.duration)}</span> </div>`
   }
 
 
@@ -191,18 +199,46 @@ export class MoulinetteSoundPads extends FormApplication {
     html.find(".expand").click(this._onToggleExpand.bind(this));
 
     // play sound on click
-    html.find(".sound").click(this._onPlaySound.bind(this));
+    html.find(".sound.draggable").click(this._onPlaySound.bind(this));
+
+    // show alternates sounds
+    html.find(".sound.alt").hide()
+    html.find(".sound.expandable").click(ev => {
+      const icon = $(ev.currentTarget).find("i.exp")
+      const idx = $(ev.currentTarget).data("idx")
+      if(icon.hasClass("fa-angles-down")) {
+        html.find(`[data-parent='${idx}']`).show()
+        icon.removeClass("fa-angles-down")
+        icon.addClass("fa-angles-up")
+      } else {
+        html.find(`[data-parent='${idx}']`).hide()
+        icon.removeClass("fa-angles-up")
+        icon.addClass("fa-angles-down")
+      }      
+    });
 
     // toggle on right click
     html.find(".expand").mousedown(this._onMouseDown.bind(this))
-    html.find(".sound").mousedown(this._onMouseDown.bind(this))
-    html.find(".sound").hover(this._onMouseHover.bind(this))
+    html.find(".sound:not(.alt)").mousedown(this._onMouseDown.bind(this))
 
     // put focus on search
     html.find("#search").focus();
 
     // actions
     html.find('.action').click(this._onAction.bind(this))
+
+    // creators' tab
+    html.find('.othersoundpads a').click(ev => {
+      ev.preventDefault()
+      const link = ev.currentTarget
+      for(const creatorKey of Object.keys(MoulinetteSoundPads.CREATORS)) {
+        if(link.classList.contains(creatorKey)) {  
+          this.creator = creatorKey
+          game.settings.set("moulinette-sounds", "soundpadCreator", creatorKey)
+          this.render(true)
+        }
+      }
+    })
 
     // categories
     html.find(".categories a").click(ev => {
@@ -249,17 +285,39 @@ export class MoulinetteSoundPads extends FormApplication {
    * Show or hide entries based on settings
    */
   toggleVisibility() {
-    if(!this.pack || !this.sounds) return;
+    if(!this.packs || !this.sounds) return;
     const showAll = this.showAll
     // make all visible
     this.html.find(".folder").show().removeClass("mtteHide")
-    this.html.find(".sound").show().removeClass("mtteHide")
+    this.html.find(".sound:not(.alt)").show()
+    this.html.find(".sound").removeClass("mtteHide")
     // show/hide
     const hidden = game.settings.get("moulinette", "soundpadHidden")
-    const packId = this.pack.packId.toString()
-    if(packId in hidden) {
-      const filtered = hidden[packId]
-      const sounds = this.sounds
+    const packIds = this.packs.map(p => p.packId.toString())
+    
+    // toggle visibility (files)
+    for(const packId of packIds) {
+      if(packId in hidden) {
+        const filtered = hidden[packId]
+        const sounds = this.sounds
+        const parent = this
+        this.html.find(".sound:not(.alt)").each(function(idx, s) {
+          const sndIdx = $(s).data('idx')
+          if(filtered.includes(sounds[sndIdx-1].filename)) {
+            $(s).addClass("mtteHide")
+            parent.html.find(`.sound.alt[data-parent='${sndIdx}']`).addClass("mtteHide")
+            if(!showAll) {
+              $(s).hide()
+              parent.html.find(`.sound.alt[data-parent='${sndIdx}']`).hide()
+            }
+          }
+        })
+      }
+    }
+
+    // toggle visibility (folders)
+    if('folders' in hidden) {
+      const filtered = hidden['folders']
       this.html.find(".folder").each(function(idx, f) {
         if(filtered.includes($(f).data('path'))) {
           $(f).addClass("mtteHide")
@@ -268,15 +326,8 @@ export class MoulinetteSoundPads extends FormApplication {
           }
         }
       })
-      this.html.find(".sound").each(function(idx, s) {
-        if(filtered.includes(sounds[$(s).data('idx')-1].filename)) {
-          $(s).addClass("mtteHide")
-          if(!showAll) {
-            $(s).hide()
-          }
-        }
-      })
     }
+    
   }
 
   _onSoundVolume(event) {
@@ -294,6 +345,7 @@ export class MoulinetteSoundPads extends FormApplication {
     if(event.which == 3) {
       const source = event.currentTarget
       let key = null
+      let pack = null
       if(source.classList.contains("expand")) {
         const folder = $(source).closest('.folder')
         key = folder.data('path')
@@ -307,16 +359,21 @@ export class MoulinetteSoundPads extends FormApplication {
         const idx = $(source).data('idx')
         if(idx && idx > 0 && idx <= this.sounds.length) {
           key = this.sounds[idx-1].filename
+          pack = this.packs.find(p => p.idx == this.sounds[idx-1].pack)
+          $(source).toggleClass("mtteHide")
+          this.html.find(`.sound.alt[data-parent='${idx}']`).toggleClass("mtteHide")
           if(!this.showAll) {
             $(source).toggle()
+            this.html.find(`.sound.alt[data-parent='${idx}']`).hide()
           }
-          $(source).toggleClass("mtteHide")
         }
       }
 
       if(!key) return;
       const hidden = game.settings.get("moulinette", "soundpadHidden")
-      const packId = this.pack.packId.toString()
+
+      // hide 1 single element (pack not null) or entire folder (pack null)
+      const packId = pack ? pack.packId.toString() : "folders"
       if(!(packId in hidden)) {
         hidden[packId] = []
       }
@@ -326,6 +383,7 @@ export class MoulinetteSoundPads extends FormApplication {
       } else {
         hidden[packId].push(key)
       }
+      
       await game.settings.set("moulinette", "soundpadHidden", hidden)
     }
   }
@@ -374,16 +432,9 @@ export class MoulinetteSoundPads extends FormApplication {
     // sounds
     if(soundIdx && soundIdx > 0 && soundIdx <= this.sounds.length) {
       const soundData = this.sounds[soundIdx-1]
-      const pack = duplicate(this.pack)
+      const pack = duplicate(this.packs.find(p => p.idx == soundData.pack))
       const sound = duplicate(soundData)
       sound.sas = "?" + pack.sas
-
-      // ambience sound from Tabletop Audio
-      if(!soundData.pack) {
-        pack.name = "Ambience & Music"
-        pack.special = true
-        sound.assetURL = soundData.filename
-      }
 
       const dragData = {
         source: "mtte",
@@ -391,7 +442,7 @@ export class MoulinetteSoundPads extends FormApplication {
         sound: sound,
         pack: pack,
         volume: game.settings.get("moulinette", "soundpadVolume"),
-        repeat: soundData.pack ? soundData.filename.includes("loop") : true
+        repeat: soundData.pack ? soundData.filename.toLowerCase().includes("loop") : true
       };
 
       dragData.source = "mtte"
@@ -408,26 +459,22 @@ export class MoulinetteSoundPads extends FormApplication {
     // sounds
     if(soundIdx && soundIdx > 0 && soundIdx <= this.sounds.length) {
       const soundData = this.sounds[soundIdx-1]
-      let url = soundData.pack ? `${this.pack.path}/${soundData.filename}` : soundData.filename
+      const pack = this.packs.find(p =>  p.idx == soundData.pack)
+      let url = soundData.pack ? `${pack.path}/${soundData.filename}` : soundData.filename
 
       // add to playlist
-      let playlist = game.playlists.find( pl => pl.name == MoulinetteSoundPads.MOULINETTE_PLAYLIST )
+      const playlistName = MoulinetteSoundPads.MOULINETTE_PLAYLIST.replace("#CREATOR#", MoulinetteSoundPads.CREATORS[this.creator])
+      let playlist = game.playlists.find( pl => pl.name == playlistName )
       if(!playlist) {
-        playlist = await Playlist.create({name: MoulinetteSoundPads.MOULINETTE_PLAYLIST, mode: -1})
+        playlist = await Playlist.create({name: playlistName, mode: -1})
       }
 
       // download sound (unless user doesn't support TTA with appropriate tier)
       const downloadSounds = game.settings.get("moulinette-sounds", "soundpadDownloadSounds")
       if(downloadSounds && !MoulinetteSoundsUtil.noTTADownload()) {
         const data = {
-          pack: duplicate(this.pack),
-          sound: { filename: soundData.filename, sas: "?" + this.pack.sas }
-        }
-        // ambience sound from Tabletop Audio
-        if(!soundData.pack) {
-          data.pack.name = "Ambience & Music"
-          data.sound.assetURL = soundData.filename
-          data.pack.special = true
+          pack: duplicate(pack),
+          sound: { filename: soundData.filename, sas: "?" + pack.sas }
         }
 
         await MoulinetteSoundsUtil.downloadAsset(data)
@@ -438,10 +485,10 @@ export class MoulinetteSoundPads extends FormApplication {
       // create sound if doesn't exist
       if(!sound) {
         sound = {}
-        sound.name = soundData.pack ? MoulinetteSoundPads.cleanSoundName(soundData.filename.replaceAll("/", " | ")) : "Tabletopaudio | Music | " + soundData.name
+        sound.name = MoulinetteSoundPads.cleanSoundName(soundData.filename.replaceAll("/", " | "))
         sound.volume = 1
-        sound.repeat = soundData.pack ? soundData.filename.includes("loop") : true
-        sound.path = url + (!downloadSounds || MoulinetteSoundsUtil.noTTADownload() ? "?" + this.pack.sas : "")
+        sound.repeat = soundData.pack ? soundData.filename.toLowerCase().includes("loop") : true
+        sound.path = url + (!downloadSounds || MoulinetteSoundsUtil.noTTADownload() ? "?" + pack.sas : "")
         sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
       }
 
@@ -468,8 +515,15 @@ export class MoulinetteSoundPads extends FormApplication {
     
     const showAll = this.showAll
     const hidden = game.settings.get("moulinette", "soundpadHidden")
-    const packId = this.pack.packId.toString()
-    const filtered = packId in hidden ? hidden[packId] : []
+    
+    // build list of filtered entries
+    let filtered = []
+    const folderFilterd = "folders" in hidden ? hidden["folders"] : []
+    this.packs.forEach( p => { 
+      if (p.packId.toString() in hidden) { 
+        filtered = filtered.concat(hidden[p.packId.toString()]) 
+      } 
+    })
 
     // get list of all matching sounds
     const matches = this.sounds.filter(s => {
@@ -478,7 +532,7 @@ export class MoulinetteSoundPads extends FormApplication {
         return false;
       }
       // filter by category
-      if(this.category && s.cat != this.category) {
+      if(this.category && !(s.cat && s.cat.includes(this.category.toLowerCase()))) {
         return false;
       }
       for( const f of searchTerms ) {
@@ -492,7 +546,7 @@ export class MoulinetteSoundPads extends FormApplication {
     const matchesIdx = matches.map(m => m.idx)
 
     // show/hide sounds
-    this.html.find(".sound").each(function(idx, sound) {
+    this.html.find(".sound:not(.alt)").each(function(idx, sound) {
       const match = matchesIdx.includes($(sound).data('idx'))
       if(match) {
         $(sound).show()
@@ -507,7 +561,7 @@ export class MoulinetteSoundPads extends FormApplication {
     for(const k of keys) {
       const sounds = this.folders[k].filter(s => matchesIdx.includes(s.idx))
       const folder = this.html.find(`[data-path='${k}']`)
-      const folderHidden = filtered.includes(k)
+      const folderHidden = folderFilterd.includes(k)
       if(sounds.length == 0 || (!showAll && folderHidden)) {
         folder.hide()
       } else {
@@ -536,16 +590,5 @@ export class MoulinetteSoundPads extends FormApplication {
     } else {
       this.html.find('.warning').hide();
     }
-  }
-
-  _onMouseHover(event) {
-    let box = { left: 0, top: 0 };
-    try {
-      box = event.currentTarget.getBoundingClientRect();
-    } 
-    catch(e) {}
-    const variations = this.html.find(".variations")
-    variations.css({ top: box.top })
-    variations.show()
   }
 }

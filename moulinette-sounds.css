@@ -169,10 +169,17 @@
   color: white;
   border-bottom: 1px solid white;
   padding-bottom: 3px;
-  background-image: url("img/tabletop.png");
   background-size: 220px;
   background-repeat: no-repeat;
   background-position: center;
+}
+
+#moulinette-soundpads .tabs.tabletopaudio {
+  background-image: url("img/tabletopaudio.png");
+}
+
+#moulinette-soundpads .tabs.michaelghelfi {
+  background-image: url("img/michaelghelfi.png");
 }
 
 #moulinette-soundpads .tileres:hover {
@@ -220,6 +227,7 @@
 }
 
 #moulinette-soundpads .categories .cat {
+  text-transform: capitalize;
   padding: 0px 4px;
 }
 
@@ -255,15 +263,20 @@
 #moulinette-soundpads .sounds {
   color: #ccc;
   top: 110px;
-  bottom: 45px;
+  bottom: 95px;
   width: 100%;
-  overflow: scroll;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 #moulinette-soundpads .sound {
   display: flex;
   align-items: center;
   padding: 2px 5px;
+}
+
+#moulinette-soundpads .sound.alt {
+  margin-left: 8px;
 }
 
 #moulinette-soundpads .sound .duration {
@@ -287,6 +300,23 @@
 
 #moulinette-soundpads .sounds .assets {
   display: none;
+}
+
+#moulinette-soundpads .othersoundpads {
+  height: 45px;
+  bottom: 45px;
+  position: absolute;
+}
+
+#moulinette-soundpads .othersoundpads img {
+  border: 1px solid transparent;
+  height: 36px;
+  margin: 1px;
+}
+
+#moulinette-soundpads .othersoundpads img:hover {
+  border: 1px solid var(--color-border-highlight-alt);
+  box-shadow: 0 0 10px var(--color-shadow-highlight) inset;
 }
 
 #moulinette-soundpads footer {

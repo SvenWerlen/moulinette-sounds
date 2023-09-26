@@ -94,6 +94,8 @@ Hooks.once("init", async function () {
     precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL
   })
 
+  game.settings.register("moulinette-sounds", "soundpadCreator", { scope: "world", config: false, type: String, default: null })
+
 });
 
 
