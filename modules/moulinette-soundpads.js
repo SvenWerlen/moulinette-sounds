@@ -510,7 +510,7 @@ export class MoulinetteSoundPads extends FormApplication {
 
   _onSearch(event, expandCollapse = true) {
     //event.preventDefault();
-    const text = this.html.find("#search").val()
+    const text = this.html.find("#search").val().toLowerCase()
     const searchTerms = text.split(" ")
     
     const showAll = this.showAll
