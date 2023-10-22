@@ -19,6 +19,8 @@ export class MoulinetteSoundPads extends FormApplication {
     if(savedCreator && savedCreator in MoulinetteSoundPads.CREATORS) {
       this.creator = savedCreator
     }
+    this.previewTimeout
+    this.previewSound
     
     this.showAll = false
   }
@@ -220,6 +222,25 @@ export class MoulinetteSoundPads extends FormApplication {
     // toggle on right click
     html.find(".expand").mousedown(this._onMouseDown.bind(this))
     html.find(".sound:not(.alt)").mousedown(this._onMouseDown.bind(this))
+
+    // preview sound
+    html.find(".sound").hover((ev) => {
+      parent.previewTimeout = setTimeout(function() {
+        const soundIdx = $(ev.currentTarget).data('idx')
+        if(soundIdx && soundIdx > 0 && soundIdx <= parent.sounds.length) {
+          const soundData = parent.sounds[soundIdx-1]
+          const pack = parent.packs.find(p =>  p.idx == soundData.pack)
+          const start = soundData.duration && soundData.duration > 20 ? soundData.duration / 2 : 0
+          parent.previewSound = new Audio(`${pack.path}/${soundData.filename}?${pack.sas}` + (start > 0 ? `#t=${start}` : ""));
+          parent.previewSound.play();
+        }
+      }, 1000);
+    }, function() {
+      clearTimeout(parent.previewTimeout);
+      if(parent.previewSound) {
+        parent.previewSound.pause()
+      }
+    });
 
     // put focus on search
     html.find("#search").focus();
@@ -469,18 +490,11 @@ export class MoulinetteSoundPads extends FormApplication {
         playlist = await Playlist.create({name: playlistName, mode: -1})
       }
 
-      // download sound (unless user doesn't support TTA with appropriate tier)
       const downloadSounds = game.settings.get("moulinette-sounds", "soundpadDownloadSounds")
-      if(downloadSounds && !MoulinetteSoundsUtil.noTTADownload()) {
-        const data = {
-          pack: duplicate(pack),
-          sound: { filename: soundData.filename, sas: "?" + pack.sas }
-        }
 
-        await MoulinetteSoundsUtil.downloadAsset(data)
-        url = data.path
-      }
-
+      /**
+       * Play sound / music THEN download
+       */
       let sound = playlist.sounds.find( s => s.path.startsWith(url) )
       // create sound if doesn't exist
       if(!sound) {
@@ -488,7 +502,8 @@ export class MoulinetteSoundPads extends FormApplication {
         sound.name = MoulinetteSoundPads.cleanSoundName(soundData.filename.replaceAll("/", " | "))
         sound.volume = 1
         sound.repeat = soundData.pack ? soundData.filename.toLowerCase().includes("loop") : true
-        sound.path = url + (!downloadSounds || MoulinetteSoundsUtil.noTTADownload() ? "?" + pack.sas : "")
+        //sound.path = url + (!downloadSounds || MoulinetteSoundsUtil.noTTADownload() ? "?" + pack.sas : "")
+        sound.path = url + "?" + pack.sas
         sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
       }
 
@@ -505,6 +520,29 @@ export class MoulinetteSoundPads extends FormApplication {
         }
         console.warn("MoulinetteSounds | " + game.i18n.localize("mtte.ttaWarning"))
       }
+
+      // download sound (unless user doesn't support TTA with appropriate tier)
+      if(downloadSounds && !MoulinetteSoundsUtil.noTTADownload()) {
+        const data = {
+          pack: duplicate(pack),
+          sound: { filename: soundData.filename, sas: "?" + pack.sas }
+        }
+
+        MoulinetteSoundsUtil.downloadAsset(data).then(() => {
+          const sound2 = game.playlists.get(playlist._id).sounds.get(sound._id)
+          const currentTime = sound2.sound.currentTime
+          if(sound2.sound.playing) {
+            // pause sound to exact same time, then start playing from the new path
+            playlist.updateEmbeddedDocuments("PlaylistSound", [{ _id: sound.id, pausedTime: currentTime, path: data.path, playing: false }]).then(() => {
+              playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: true}]);
+            })
+          } else {
+            playlist.updateEmbeddedDocuments("PlaylistSound", [{ _id: sound.id, path: data.path }])
+          }
+        })
+      }
+      
+      console.log("END")
     }
   }
 
