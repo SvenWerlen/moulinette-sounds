@@ -20,7 +20,7 @@ export class MoulinetteSoundPads extends FormApplication {
       this.creator = savedCreator
     }
     this.previewTimeout
-    this.previewSound
+    this.previewSound = new Audio()
     
     this.showAll = false
   }
@@ -231,7 +231,7 @@ export class MoulinetteSoundPads extends FormApplication {
           const soundData = parent.sounds[soundIdx-1]
           const pack = parent.packs.find(p =>  p.idx == soundData.pack)
           const start = soundData.duration && soundData.duration > 20 ? soundData.duration / 2 : 0
-          parent.previewSound = new Audio(`${pack.path}/${soundData.filename}?${pack.sas}` + (start > 0 ? `#t=${start}` : ""));
+          parent.previewSound.src = `${pack.path}/${soundData.filename}?${pack.sas}` + (start > 0 ? `#t=${start}` : "")
           parent.previewSound.play();
         }
       }, 1000);
@@ -239,6 +239,7 @@ export class MoulinetteSoundPads extends FormApplication {
       clearTimeout(parent.previewTimeout);
       if(parent.previewSound) {
         parent.previewSound.pause()
+        parent.previewSound.src = ""
       }
     });
 
@@ -541,8 +542,6 @@ export class MoulinetteSoundPads extends FormApplication {
           }
         })
       }
-      
-      console.log("END")
     }
   }
 
