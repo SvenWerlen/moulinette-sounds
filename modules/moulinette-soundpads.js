@@ -472,8 +472,6 @@ export class MoulinetteSoundPads extends FormApplication {
     }
   }
 
-
-
   async _onPlaySound(event) {
     event.preventDefault();
     const soundIdx = $(event.currentTarget).data('idx')
@@ -491,11 +489,18 @@ export class MoulinetteSoundPads extends FormApplication {
         playlist = await Playlist.create({name: playlistName, mode: -1})
       }
 
+      // download sound (unless user doesn't support TTA with appropriate tier)
       const downloadSounds = game.settings.get("moulinette-sounds", "soundpadDownloadSounds")
+      if(downloadSounds && !MoulinetteSoundsUtil.noTTADownload()) {
+        const data = {
+          pack: duplicate(pack),
+          sound: { filename: soundData.filename, sas: "?" + pack.sas }
+        }
 
-      /**
-       * Play sound / music THEN download
-       */
+        await MoulinetteSoundsUtil.downloadAsset(data)
+        url = data.path
+      }
+
       let sound = playlist.sounds.find( s => s.path.startsWith(url) )
       // create sound if doesn't exist
       if(!sound) {
@@ -503,8 +508,7 @@ export class MoulinetteSoundPads extends FormApplication {
         sound.name = MoulinetteSoundPads.cleanSoundName(soundData.filename.replaceAll("/", " | "))
         sound.volume = 1
         sound.repeat = soundData.pack ? soundData.filename.toLowerCase().includes("loop") : true
-        //sound.path = url + (!downloadSounds || MoulinetteSoundsUtil.noTTADownload() ? "?" + pack.sas : "")
-        sound.path = url + "?" + pack.sas
+        sound.path = url + (!downloadSounds || MoulinetteSoundsUtil.noTTADownload() ? "?" + pack.sas : "")
         sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
       }
 
@@ -520,27 +524,6 @@ export class MoulinetteSoundPads extends FormApplication {
           ui.notifications.warn(game.i18n.localize("mtte.ttaWarning"))
         }
         console.warn("MoulinetteSounds | " + game.i18n.localize("mtte.ttaWarning"))
-      }
-
-      // download sound (unless user doesn't support TTA with appropriate tier)
-      if(downloadSounds && !MoulinetteSoundsUtil.noTTADownload()) {
-        const data = {
-          pack: duplicate(pack),
-          sound: { filename: soundData.filename, sas: "?" + pack.sas }
-        }
-
-        MoulinetteSoundsUtil.downloadAsset(data).then(() => {
-          const sound2 = game.playlists.get(playlist._id).sounds.get(sound._id)
-          const currentTime = sound2.sound.currentTime
-          if(sound2.sound.playing) {
-            // pause sound to exact same time, then start playing from the new path
-            playlist.updateEmbeddedDocuments("PlaylistSound", [{ _id: sound.id, pausedTime: currentTime, path: data.path, playing: false }]).then(() => {
-              playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: true}]);
-            })
-          } else {
-            playlist.updateEmbeddedDocuments("PlaylistSound", [{ _id: sound.id, path: data.path }])
-          }
-        })
       }
     }
   }
