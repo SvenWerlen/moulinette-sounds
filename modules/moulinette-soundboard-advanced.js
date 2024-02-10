@@ -189,8 +189,13 @@ export class MoulinetteSoundBoardAdvanced extends FormApplication {
       const fromSlot = event.originalEvent.dataTransfer.getData("text/plain");
       const toSlot = event.currentTarget.dataset.slot
 
+      let data = null
+      try {
+        data = JSON.parse(fromSlot);
+      } catch (e) {}
+
       // drag & drop from slot to slot
-      if(parseInt(fromSlot)) {
+      if(!data) {
         let settings = game.settings.get("moulinette", "soundboard-advanced")
         if(fromSlot && toSlot && fromSlot != toSlot && Object.keys(settings).includes("audio-" + fromSlot)) {
           const fromAudio = settings["audio-" + fromSlot]
@@ -221,13 +226,6 @@ export class MoulinetteSoundBoardAdvanced extends FormApplication {
       }
       // drag & drop to slot
       else {
-        // try to read data as JSON
-        let data = {}
-        try {
-          data = JSON.parse(fromSlot);
-        } catch (e) {
-          return false;
-        }
         if(data && data.source == "mtte" && data.sound && data.pack) {
           const settings = game.settings.get("moulinette", "soundboard-advanced")
           if(`audio-${toSlot}` in settings) {
