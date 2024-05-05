@@ -347,7 +347,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     this.html.find("#prevSound").prop("volume", volume);
 
     // retrieve sound in play list
-    const playlist = game.playlists.find( pl => pl.data.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
+    const playlist = game.playlists.find( pl => pl.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
     if(!playlist) return;
     const sound = playlist.sounds.find( s => s.path.endsWith(path) )
     if(!sound) return
@@ -420,7 +420,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       let sound = playlist.sounds.find( s => s.path == soundData.path )
       if(!sound) {
         sound = soundData
-        sound.name = game.moulinette.applications.Moulinette.prettyText(result.filename.replace("/"," | "))
+        sound.name = game.moulinette.applications.Moulinette.prettyText(result.filename.replace(/\//g, " | "))
         sound.name += pack.publisher ? ` (${pack.publisher})` : ""
         sound.volume = AudioHelper.inputToVolume($(source.closest(".sound")).find(".sound-volume input").val())
         sound.repeat = !$(source.closest(".sound")).find("a[data-action='sound-repeat']").hasClass('inactive')
@@ -619,27 +619,40 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
 
   async getBoardDataAssets(data) {
     if(data.type == "Sound" && data.pack) {
-      if(data.pack.isRemote) {
-        return [{
-          pack: data.pack.packId,
-          path: data.sound.filename,
-        }]
-      }
+      return [{
+        pack: data.pack.isRemote ? data.pack.packId : -1,
+        path: data.pack.isRemote ? data.sound.filename : `${data.pack.path}/${data.sound.filename}`,
+        volume: data.volume ? data.volume : 1.0,
+        repeat: data.repeat ? data.repeat : false
+      }]
     }
     return null
   }
 
   async getSoundAsset(asset) {
-    if(asset.pack && asset.path) {
+    // Local indexing
+    if(asset.pack && asset.pack < 0) {
+      return {
+        pack: { isRemote: false, name: game.world.id, path: ""},
+        sound: { filename: asset.path, type: "snd", assetURL: asset.path },
+        volume: asset.volume,
+        repeat: asset.repeat
+      }
+    }
+    // Moulinette Cloud
+    else if(asset.pack && asset.path) {
       await this.getPackList() // force loading
       const pack = this.assetsPacks.find(p => p.packId == asset.pack)
       if(pack) {
         const sound = this.assets.find(a => a.pack == pack.idx && a.filename == asset.path)
+        console.log(pack, sound)
         if(sound) {
           sound.sas = pack.sas ? "?" + pack.sas : ""
           return {
             pack: pack,
-            sound: sound
+            sound: sound,
+            volume: asset.volume,
+            repeat: asset.repeat
           }
         }
       }
@@ -649,11 +662,22 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
 
   async getBoardDataAssetName(asset) {
     const packAndSound = await this.getSoundAsset(asset)
-    return packAndSound ? packAndSound.sound.filename.split("/").pop() : null
+    return packAndSound ? packAndSound.sound.filename.split("/").pop() + ` (${Math.round(asset.volume*100)}%${asset.repeat ? ' <i class="fas fa-sync"></i>' : ""})` : null
   }
 
   getBoardDataDataTransfer(asset) {
-    if(asset.pack && asset.path) {
+    // Local indexing
+    if(asset.pack && asset.pack < 0) {
+      return {
+        source: "mtte",
+        type: "Sound",
+        sound: { filename: asset.path, type: "snd", assetURL: asset.path },
+        pack: { isRemote: false, name: game.world.id, path: ""},
+        volume: asset.volume,
+        repeat: asset.repeat
+      }
+    }
+    else if(asset.pack && asset.path) {
       if(!this.assetsPacks) {
         ui.notifications.warn(game.i18n.localize("mtte.errorBoardCloudLoading"));
         this.getPackList()
@@ -668,8 +692,8 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
             type: "Sound",
             sound: sound,
             pack: pack,
-            volume: 1.0,
-            repeat: false
+            volume: asset.volume,
+            repeat: asset.repeat
           }
         }
       }
@@ -678,7 +702,6 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
 
   async executeBoardDataAsset(asset) {
     const packAndSound = await this.getSoundAsset(asset)
-    console.log(packAndSound)
     if(packAndSound) {
       // get playlist
       let playlist = game.playlists.find( pl => pl.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
@@ -693,10 +716,11 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       let sound = playlist.sounds.find( s => s.path == soundData.path )
       if(!sound) {
         sound = soundData
-        sound.name = game.moulinette.applications.Moulinette.prettyText(packAndSound.sound.filename.replace("/"," | "))
+        console.log(soundData)
+        sound.name = game.moulinette.applications.Moulinette.prettyText(packAndSound.sound.filename.replace(/\//g, " | "))
         sound.name += packAndSound.pack.publisher ? ` (${packAndSound.pack.publisher})` : ""
-        //sound.volume = AudioHelper.inputToVolume($(source.closest(".sound")).find(".sound-volume input").val())
-        //sound.repeat = !$(source.closest(".sound")).find("a[data-action='sound-repeat']").hasClass('inactive')
+        sound.volume = packAndSound.volume
+        sound.repeat = packAndSound.repeat
       }
       // add sound to playlist before playing it (unless already exists)
       if(!sound.id) sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]

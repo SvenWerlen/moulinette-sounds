@@ -244,7 +244,7 @@ Hooks.on("renderPlaylistDirectory", (app, html) => {
           const sound = data.sound
           const creator = data.pack.publisher
           await MoulinetteSoundsUtil.downloadAsset(data)
-          sound.name = game.moulinette.applications.Moulinette.prettyText(sound.filename.replace("/"," | ").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
+          sound.name = game.moulinette.applications.Moulinette.prettyText(sound.filename.replace(/\//g, " | ").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
           sound.name += creator ? ` (${creator})` : ""
           sound.volume = AudioHelper.inputToVolume(data.volume)
           sound.repeat = data.repeat
