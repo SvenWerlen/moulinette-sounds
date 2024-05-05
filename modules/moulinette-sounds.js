@@ -413,13 +413,15 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       }
 
       // download sound
-      let soundData = { sound: result, pack:  this.assetsPacks[result.pack] }
+      const pack = this.assetsPacks[result.pack]
+      let soundData = { sound: result, pack: pack }
       await MoulinetteSoundsUtil.downloadAsset(soundData)
       // get sound
       let sound = playlist.sounds.find( s => s.path == soundData.path )
       if(!sound) {
         sound = soundData
         sound.name = game.moulinette.applications.Moulinette.prettyText(result.filename.replace("/"," | "))
+        sound.name += pack.publisher ? ` (${pack.publisher})` : ""
         sound.volume = AudioHelper.inputToVolume($(source.closest(".sound")).find(".sound-volume input").val())
         sound.repeat = !$(source.closest(".sound")).find("a[data-action='sound-repeat']").hasClass('inactive')
       }
@@ -599,5 +601,107 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [{name: name, path: path, volume: volume}], {}))[0]
     }
     playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: !sound.playing, volume: volume }]);
+  }
+
+  /**
+   * Support for board
+   */
+  getBoardDataShortcut(data) {
+    if(data.type == "Sound" && data.pack) {
+      return {
+        name: data.sound.filename.split("/").pop(),
+        type: "Sound",
+        icon: "fas fa-music",
+        faIcon: true
+      }
+    }
+  }
+
+  async getBoardDataAssets(data) {
+    if(data.type == "Sound" && data.pack) {
+      if(data.pack.isRemote) {
+        return [{
+          pack: data.pack.packId,
+          path: data.sound.filename,
+        }]
+      }
+    }
+    return null
+  }
+
+  async getSoundAsset(asset) {
+    if(asset.pack && asset.path) {
+      await this.getPackList() // force loading
+      const pack = this.assetsPacks.find(p => p.packId == asset.pack)
+      if(pack) {
+        const sound = this.assets.find(a => a.pack == pack.idx && a.filename == asset.path)
+        if(sound) {
+          sound.sas = pack.sas ? "?" + pack.sas : ""
+          return {
+            pack: pack,
+            sound: sound
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  async getBoardDataAssetName(asset) {
+    const packAndSound = await this.getSoundAsset(asset)
+    return packAndSound ? packAndSound.sound.filename.split("/").pop() : null
+  }
+
+  getBoardDataDataTransfer(asset) {
+    if(asset.pack && asset.path) {
+      if(!this.assetsPacks) {
+        ui.notifications.warn(game.i18n.localize("mtte.errorBoardCloudLoading"));
+        this.getPackList()
+        return {}
+      }
+      const pack = this.assetsPacks.find(p => p.packId == asset.pack)
+      if(pack) {
+        const sound = this.assets.find(a => a.pack == pack.idx && a.filename == asset.path)
+        if(sound) {
+          return {
+            source: "mtte",
+            type: "Sound",
+            sound: sound,
+            pack: pack,
+            volume: 1.0,
+            repeat: false
+          }
+        }
+      }
+    }
+  }
+
+  async executeBoardDataAsset(asset) {
+    const packAndSound = await this.getSoundAsset(asset)
+    console.log(packAndSound)
+    if(packAndSound) {
+      // get playlist
+      let playlist = game.playlists.find( pl => pl.name == MoulinetteSounds.MOULINETTE_SOUNDBOARD )
+      if(!playlist) {
+        playlist = await Playlist.create({name: MoulinetteSounds.MOULINETTE_SOUNDBOARD, mode: -1})
+      }
+
+      // download sound
+      let soundData = { sound: packAndSound.sound, pack: packAndSound.pack }
+      await MoulinetteSoundsUtil.downloadAsset(soundData)
+      // get sound
+      let sound = playlist.sounds.find( s => s.path == soundData.path )
+      if(!sound) {
+        sound = soundData
+        sound.name = game.moulinette.applications.Moulinette.prettyText(packAndSound.sound.filename.replace("/"," | "))
+        sound.name += packAndSound.pack.publisher ? ` (${packAndSound.pack.publisher})` : ""
+        //sound.volume = AudioHelper.inputToVolume($(source.closest(".sound")).find(".sound-volume input").val())
+        //sound.repeat = !$(source.closest(".sound")).find("a[data-action='sound-repeat']").hasClass('inactive')
+      }
+      // add sound to playlist before playing it (unless already exists)
+      if(!sound.id) sound = (await playlist.createEmbeddedDocuments("PlaylistSound", [sound], {}))[0]
+      playlist.updateEmbeddedDocuments("PlaylistSound", [{_id: sound.id, playing: !sound.playing}]);
+    }
+    return true
   }
 }

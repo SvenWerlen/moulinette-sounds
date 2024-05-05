@@ -242,9 +242,10 @@ Hooks.on("renderPlaylistDirectory", (app, html) => {
         const data = JSON.parse(event.dataTransfer.getData('text/plain'));
         if(data && data.source == "mtte" && data.sound && data.pack) {
           const sound = data.sound
-          const clSound = await import("./modules/moulinette-sounds.js")
+          const creator = data.pack.publisher
           await MoulinetteSoundsUtil.downloadAsset(data)
-          sound.name = game.moulinette.applications.Moulinette.prettyText(sound.filename.replace("/","").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
+          sound.name = game.moulinette.applications.Moulinette.prettyText(sound.filename.replace("/"," | ").replace(".ogg","").replace(".mp3","").replace(".wav","").replace(".webm","").replace(".m4a",""))
+          sound.name += creator ? ` (${creator})` : ""
           sound.volume = AudioHelper.inputToVolume(data.volume)
           sound.repeat = data.repeat
           sound.path = data.path
