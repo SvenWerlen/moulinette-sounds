@@ -521,47 +521,6 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         no: () => {}
       });
     }
-    // ACTION - ADD ALL CHECKED TO SOUND BOARD
-    else if (classList.contains("favoriteChecked")) {
-      // prepare selected sounds
-      let selected = []
-      let isFirst = true
-      const instance = this
-      this.html.find(".checked").each(function(index) {
-        const idx = this.closest(".sound").dataset.idx;
-        const name = $(this).closest(".sound").find('.audio').text()
-        const volume = $(this).closest(".sound").find('.sound-volume input').val()
-        
-        if(instance.searchResults && idx > 0 && idx <= instance.searchResults.length) {
-          const result = instance.searchResults[idx-1]
-          let soundData = { sound: result, pack: instance.assetsPacks[result.pack] }
-          selected.push({name: name, soundData: soundData, volume: volume, playing: isFirst})
-          isFirst = false
-        }
-      })
-
-      // download all sounds (if from cloud)
-      SceneNavigation._onLoadProgress(game.i18n.localize("mtte.downloadingSounds"),0);  
-      let idx = 0
-      for(const sel of selected) {
-        idx++;
-        await MoulinetteSoundsUtil.downloadAsset(sel.soundData)
-        sel.path = sel.soundData.path // retrieve new path
-        delete sel.soundData          // delete soundData that is not used by FVTT
-        SceneNavigation._onLoadProgress(game.i18n.localize("mtte.downloadingSounds"), Math.round((idx / selected.length)*100));
-      }
-      SceneNavigation._onLoadProgress(game.i18n.localize("mtte.downloadingSounds"),100);
-      
-      if(selected.length == 0) return;
-      
-      if (classList.contains("favoriteChecked")) {
-        const paths = selected.length == 1 ? selected[0].path : selected.map( (sound, idx) => sound.path )
-        const name = selected.length == 1 ? selected[0].name : game.i18n.localize("mtte.favoriteMultiple")
-        const volume = selected[0].volume
-        const label = selected[0].name
-        new MoulinetteFavorite({path: paths, name: name, label: label, volume: volume }).render(true)
-      }
-    }
   }
 
   async onShortcut(type) {
