@@ -17,6 +17,10 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
 
   constructor() {
     super()
+
+    // for board
+    this.previewTimeout = null
+    this.previewSound = new Audio()    
   }
 
   supportsWholeWordSearch() { return true }
@@ -564,14 +568,13 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
 
   /**
    * Support for board
+   * ============================================================================
    */
   getBoardDataShortcut(data) {
     if(data.type == "Sound" && data.pack) {
       return {
-        name: data.sound.filename.split("/").pop(),
-        type: "Sound",
-        icon: "fas fa-music",
-        faIcon: true
+        name: game.moulinette.applications.Moulinette.prettyText(data.sound.filename.split("/").pop()),
+        type: "Sound"
       }
     }
   }
@@ -604,7 +607,6 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
       const pack = this.assetsPacks.find(p => p.packId == asset.pack)
       if(pack) {
         const sound = this.assets.find(a => a.pack == pack.idx && a.filename == asset.path)
-        console.log(pack, sound)
         if(sound) {
           sound.sas = pack.sas ? "?" + pack.sas : ""
           return {
@@ -687,4 +689,38 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     }
     return true
   }
+
+  async getBoardDataPreview(boardItem) {
+    let html = `<h3><i class="fas fa-music fa-lg"></i> ${boardItem.name}</h3>`
+    let selIndex = 0
+    if(boardItem.assets.length > 1) {
+      html += game.i18n.format("mtte.boardAssetsCountAudio", { count: boardItem.assets.length})
+      selIndex = Math.floor((Math.random() * boardItem.assets.length));
+    }
+    // play sound
+    const parent = this
+    this.previewTimeout = setTimeout(function() {
+      parent.getSoundAsset(boardItem.assets[selIndex]).then(packAndSound => {
+        if(packAndSound) {
+          const soundURL = `${packAndSound.pack.path}/${packAndSound.sound.filename}?${packAndSound.sound.sas ? packAndSound.sound.sas : ""}`
+          const start = packAndSound.sound.duration && packAndSound.sound.duration > 20 ? packAndSound.sound.duration / 2 : 0
+          parent.previewSound.src = soundURL + (start > 0 ? `#t=${start}` : "")
+          parent.previewSound.play();
+        }
+      })
+    }, 1000);
+    html += '<hr>' + game.i18n.localize("mtte.boardInstructionsTile") + game.i18n.localize("mtte.boardInstructionsCommon")
+    
+    return html
+  }
+
+  stopBoardDataPreview(boardItem) {
+    clearTimeout(this.previewTimeout);
+    if(this.previewSound) {
+      this.previewSound.pause()
+      this.previewSound.src = ""
+    }
+  }
+
+  
 }
