@@ -709,7 +709,7 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
         }
       })
     }, 1000);
-    html += '<hr>' + game.i18n.localize("mtte.boardInstructionsTile") + game.i18n.localize("mtte.boardInstructionsCommon")
+    html += '<hr>' + game.i18n.localize("mtte.boardInstructionsPlaylistSound") + game.i18n.localize("mtte.boardInstructionsCommon")
     
     return html
   }
