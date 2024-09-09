@@ -166,13 +166,13 @@ Hooks.on("preUpdatePlaylist", (playlist, updateData) => {
       let soundIdx = -1
       // find matching sound
       const filename = decodeURIComponent(sound.path.split("/").pop())
-      $(`.list .sound`).each(function( idx, snd ) {
+      $(`#moulinette .list .sound`).each(function( idx, snd ) {
         const fn = $(snd).attr("data-filename")
         if(fn && fn.endsWith(filename)) {
           soundIdx = $(snd).attr("data-idx")
         }
       })
-      $(`.list .sound[data-idx='${soundIdx}'] a[data-action='sound-play'] i`).attr("class", s.playing ? "fas fa-square" : "fas fa-play")
+      $(`#moulinette  .list .sound[data-idx='${soundIdx}'] a[data-action='sound-play'] i`).attr("class", s.playing ? "fas fa-square" : "fas fa-play")
     }
   }
 });
@@ -186,18 +186,18 @@ Hooks.on("preUpdatePlaylistSound", (playlistSound, updateData) => {
     let sound = -1
     // find matching sound
     const filename = decodeURIComponent(playlistSound.path.split("/").pop())
-    $(`.list .sound`).each(function( idx, snd ) {
+    $(`#moulinette .list .sound`).each(function( idx, snd ) {
       const fn = $(snd).attr("data-filename")
       if(fn && fn.endsWith(filename)) {
         sound = $(snd).attr("data-idx")
       }
     })
     if(Object.keys(updateData).includes("volume")) {
-      $(`.list .sound[data-idx='${sound}'] .sound-volume input`).val(AudioHelper.volumeToInput(updateData.volume))
+      $(`#moulinette .list .sound[data-idx='${sound}'] .sound-volume input`).val(AudioHelper.volumeToInput(updateData.volume))
     } else if(Object.keys(updateData).includes("repeat")) {
-      $(`.list .sound[data-idx='${sound}'] a[data-action='sound-repeat']`).attr("class", updateData.repeat ? "sound-control" : "sound-control inactive")
+      $(`#moulinette .list .sound[data-idx='${sound}'] a[data-action='sound-repeat']`).attr("class", updateData.repeat ? "sound-control" : "sound-control inactive")
     } else if(Object.keys(updateData).includes("playing")) {
-      $(`.list .sound[data-idx='${sound}'] a[data-action='sound-play'] i`).attr("class", updateData.playing ? "fas fa-square" : "fas fa-play")
+      $(`#moulinette .list .sound[data-idx='${sound}'] a[data-action='sound-play'] i`).attr("class", updateData.playing ? "fas fa-square" : "fas fa-play")
     }
   }
 });
