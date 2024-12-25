@@ -124,10 +124,18 @@ export class MoulinetteSounds extends game.moulinette.applications.MoulinetteFor
     const volume = sound ? sound.volume : 0.5
     const selected = selSound && r.assetURL == selSound.sound.assetURL ? "selected" : ""
 
-    const durHr = Math.floor(r.duration / (3600))
-    const durMin = Math.floor((r.duration - 3600*durHr)/60)
-    const durSec = r.duration % 60
-    const duration = (durHr > 0 ? `${durHr}:${durMin.toString().padStart(2,'0')}` : durMin.toString()) + ":" + durSec.toString().padStart(2,'0')
+    let duration = ""
+    const seconds = Math.round(r.duration)
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+    
+    // Format MM:SS for duration less than 1 hour
+    if (hours === 0) {
+      duration = `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+    } else {
+      duration = `${hours}:${minutes < 10 ? '0' : ''}${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+    }
 
     const shortName = name.length <= 40 ? name : name.substring(0,40) + "..."
 

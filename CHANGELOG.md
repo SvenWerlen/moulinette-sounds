@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [13.0.0] - 2025-12-25
+### Changed
+- Necessary fixes and changes for new Moulinette Cloud servers
+
 ## [12.1.2] - 2024-05-19
 ### Fixed
 - 12.1.1 Fix wrong Board tooltip
