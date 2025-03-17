@@ -1,10 +1,16 @@
-# Moulinette Forge Sounds (Foundry VTT)
+# [LEGACY] Moulinette Sounds (Foundry VTT)
 
 [![GitHub tags (latest by date)](https://img.shields.io/github/v/tag/SvenWerlen/moulinette-sounds)](https://github.com/SvenWerlen/moulinette-sounds/releases)
 [![License](https://img.shields.io/github/license/SvenWerlen/moulinette-sounds)](https://github.com/SvenWerlen/moulinette-sounds/blob/main/LICENSE.txt)
 [![GitHub Download](https://img.shields.io/badge/foundryvtt-Download-important)](#install)
 ![Tested on forge-vtt.com](https://img.shields.io/badge/Forge-supported-success)
 [![Support me on Patreon](https://img.shields.io/badge/patreon-Support%20me-informational)](https://www.patreon.com/moulinette)
+
+**IMPORTANT** : This module has been reimplemented under [Soundboard & Soundpad](https://github.com/Moulinette-Craft/moulinette-audio-foundryvtt-module)
+with more features. Development (FoundryVTT v12+) will continue exclusively on the new module.
+
+
+---
 
 This is a submodule for [Moulinette Core](https://github.com/SvenWerlen/moulinette-core). See [Moulinette Core](https://github.com/SvenWerlen/moulinette-core) for an overview of all modules.
 
