@@ -6,9 +6,12 @@
 ![Tested on forge-vtt.com](https://img.shields.io/badge/Forge-supported-success)
 [![Support me on Patreon](https://img.shields.io/badge/patreon-Support%20me-informational)](https://www.patreon.com/moulinette)
 
-**IMPORTANT** : This module has been reimplemented under [Soundboard & Soundpad](https://github.com/Moulinette-Craft/moulinette-audio-foundryvtt-module)
-with more features. Development (FoundryVTT v12+) will continue exclusively on the new module.
+**IMPORTANT** : This module has been reimplemented under :
 
+* [Media Search](https://github.com/Moulinette-Craft/moulinette-foundryvtt-module) : searching for sounds & music, indexing your own files.
+* [Soundboard & Soundpad](https://github.com/Moulinette-Craft/moulinette-audio-foundryvtt-module) : soundboards & soundpads.
+
+Development (FoundryVTT v12+) will continue exclusively on the new modules.
 
 ---
 
